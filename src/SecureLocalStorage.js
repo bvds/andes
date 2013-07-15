@@ -58,8 +58,8 @@ Ext.define('Ext.space.SecureLocalStorage', {
     /**
     * Get a collection of name. Collections are automatically created if they do not exist.
     *
-    * @param {String}  The name of the collection to get.
-    * @return {Ext.localstorage.Collection} the secure collection.
+    * @param {String} collectionName The name of the collection to get.
+    * @return {Ext.space.localstorage.Collection} the secure collection.
     *
     */
     get: function(name){

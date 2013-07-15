@@ -21,7 +21,6 @@ Ext.define('Ext.space.localstorage.Collection', {
         var rs = new Ext.Promise();
     
         this.loaded.then(function(db){
-            console.log("I have a db!!", db);
             db.transaction({
                 callback: function(transaction) {
                         console.log("create table transaction begin");
@@ -65,7 +64,7 @@ Ext.define('Ext.space.localstorage.Collection', {
             var a = object.field;
         });
 
-    * @param {String}  The key to get a value for. 
+    * @param {String} key  The key to get a value for. 
     * @return {Ext.Promise} the promise that will resolve when the value is fetched.
     *
     */
@@ -95,8 +94,8 @@ Ext.define('Ext.space.localstorage.Collection', {
 
 
 
-    * @param {String}  The key to store the value at.
-    * @param {Object}  The JSON object to store. 
+    * @param {String} key  The key to store the value at.
+    * @param {Object} value The JSON object to store. 
     * @return {Ext.Promise} the promise that will resolve when the value is stored.
     *
     */
@@ -114,7 +113,17 @@ Ext.define('Ext.space.localstorage.Collection', {
     },
 
     /**
-    * Get the 
+    * Checks to see if key is present in collection without fetching and de-serializing the value.
+
+        var secrets = Ext.space.SecureLocalStore.get('secrets');
+
+        secrets.has('myKey').then(function(hasKey){
+           
+        });
+
+    * @param {String} key  The key to get a value for. 
+    * @return {Ext.Promise} the promise that will resolve when the value is checked.
+    *
     */
     has: function(key){
 
@@ -134,7 +143,17 @@ Ext.define('Ext.space.localstorage.Collection', {
     },
 
     /**
-    * Get the 
+    * Deletes the key if present in collection.
+
+        var secrets = Ext.space.SecureLocalStore.get('secrets');
+
+        secrets.delete('myKey').then(function(done){
+           
+        });
+
+    * @param {String} key The key to delete
+    * @return {Ext.Promise} the promise that will resolve when the value is checked.
+    *
     */
     delete: function(key){
         var result = new Ext.Promise();
@@ -151,6 +170,15 @@ Ext.define('Ext.space.localstorage.Collection', {
 
 
     /**
+    * Gets an array of all the keys in a collection
+
+        var secrets = Ext.space.SecureLocalStore.get('secrets');
+
+        secrets.keys().then(function(keys){
+           console.log(keys.length);
+        });
+
+    * @return {Ext.Promise} the promise that will resolve when all of the keys have been collected.
     *
     */
     keys: function() {
@@ -166,6 +194,17 @@ Ext.define('Ext.space.localstorage.Collection', {
     },
 
     /**
+    * Iterates over all the items in a collection
+
+        var secrets = Ext.space.SecureLocalStore.get('secrets');
+
+         secrets.forEach(function(key, value){}).then(function(){
+            // done.
+        });
+
+
+    * @param {function}  callback this function will be called once for each item in the collection. 
+    * @return {Ext.Promise} the promise that will resolve when all of the itmes have been iterated.
     *
     */
     forEach: function(callback) {
@@ -179,7 +218,16 @@ Ext.define('Ext.space.localstorage.Collection', {
         return result;
     },
 
-        /**
+    /**
+    * Returns a count of the total number of items in the collection
+
+        var secrets = Ext.space.SecureLocalStore.get('secrets');
+
+         secrets.count().then(function(count){
+            // done.
+        });
+
+    * @return {Ext.Promise} the promise that will resolve with a the number of items in the collection. 
     *
     */
     count: function() {
@@ -192,7 +240,18 @@ Ext.define('Ext.space.localstorage.Collection', {
     },
 
 
+    /**
+    * Deletes all of the items in a collection. 
 
+        var secrets = Ext.space.SecureLocalStore.get('secrets');
+
+         secrets.clear().then(function(){
+            // done.
+        });
+
+    * @return {Ext.Promise} the promise that will resolve with a the number of items in the collection. 
+    *
+    */
     clear: function(){
         return this.query("DELETE FROM item where collection = ?", [this.name]);
     }
