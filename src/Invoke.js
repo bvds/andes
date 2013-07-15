@@ -12,22 +12,22 @@
     know about photos. The photos app is loaded.  The user selects a photo. The photo application returns 
     data about the photo to the calling application.
 
-    var success = function(message) {
-        console.log('Received response: ', message.photo.url, message.photo.title);
-    };
+        var success = function(message) {
+            console.log('Received response: ', message.photo.url, message.photo.title);
+        };
 
-    var failure = function(error) {
-        console.('Received error:', error);
-    }
+        var failure = function(error) {
+            console.('Received error:', error);
+        }
 
-    var send = function(connection) {
-        connection.send(data, background).then(
-            success,
-            failure
-        );
-    };
+        var send = function(connection) {
+            connection.send(data, background).then(
+                success,
+                failure
+            );
+        };
 
-    Ext.space.Invoke.get('photos').then(send, failure);
+        Ext.space.Invoke.get('photos').then(send, failure);
 
  *
  * For aync message handling:

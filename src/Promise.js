@@ -1,3 +1,6 @@
+/**
+*  Ext.Promise an Asynchronous api based on the Promises A+ spec http://promisesaplus.com
+*/
 Ext.define('Ext.Promise', {
     statics: {
         when: function() {

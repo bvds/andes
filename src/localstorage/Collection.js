@@ -1,3 +1,8 @@
+/**
+*  A Key/Value store where the data is persisted to an encrypted store inside of Sencha Space instead of plain text.
+  This class should not be created directly but instead should be obtained via Ext.space.SecureLocalStorage
+*
+*/
 Ext.define('Ext.space.localstorage.Collection', {
     /*
     * @private
@@ -53,6 +58,16 @@ Ext.define('Ext.space.localstorage.Collection', {
 
     /**
     * Get the value for a key
+
+        var secrets = Ext.space.SecureLocalStore.get('secrets');
+
+        secrets.get('myKey').then(function(object){
+            var a = object.field;
+        });
+
+    * @param {String}  The key to get a value for. 
+    * @return {Ext.Promise} the promise that will resolve when the value is fetched.
+    *
     */
     get: function(key){
        var result = new Ext.Promise();
@@ -70,7 +85,20 @@ Ext.define('Ext.space.localstorage.Collection', {
 
 
     /**
-    * Get the 
+    * Get the value for a key
+
+        var secrets = Ext.space.SecureLocalStore.get('secrets');
+
+        secrets.set('myKey',object).then(function(){
+            //do something when done.
+        });
+
+
+
+    * @param {String}  The key to store the value at.
+    * @param {Object}  The JSON object to store. 
+    * @return {Ext.Promise} the promise that will resolve when the value is stored.
+    *
     */
     set: function(key, value){
         var result = new Ext.Promise();

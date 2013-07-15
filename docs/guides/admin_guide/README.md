@@ -10,37 +10,6 @@ authentication and authorization server.
 Users obtain their Sencha Space Client apps from the Apple App Store, 
 Google Play, or BlackBerry World Apps market.
 
-<a name="OverviewTab"></a>
-## Overview
-
-The Overview tab lets you monitor system usage. The chart shows user activity 
-for the current month:
-
-{@img Space_Ad_Overview.png}
-
-This tab lists:
-
- - Created users - Number of Space users who can participate
- - Active users - Number of Space users using Space-managed apps
- - Opens - When a user starts a Space-managed app
- - Apps - Number of web apps available for use on Sencha Space Clients
- - Users - Number of created users
- - Groups - Number of enterprise groups
- - Active Devices - Lists:
-   - Device. The device running Sencha Space Client and whether the device 
-     is simulated or actual.
-   - User. User's email address and the Sencha Space Client version.
-   - Last Access. When the user last accessed the Sencha Space Client and the user's location. 
-
-You can click the red X icon to block a user from Sencha Space Client access: 
-
-{@img Space_Ad_BlockUserButton.png}
-
-Blocking a user sends the 
-user a message and forces a log out from the Sencha Space Client. 
-To reactivate the user, click the 
-Users tab and add the user information again.
-
 ## Sencha Space Features
 
 The Administration Application contains these menus:
@@ -48,21 +17,23 @@ The Administration Application contains these menus:
 <table border="1" style="width: 600px">
 <tr><th>Menu</th><th>Description</th></tr>
 <tr><td>{@img Space_Ad_Overview_Icon.png}</td>
-	<td><a href="#OverviewTab">Overview</a> - Monitors system usage</td></tr>
+  <td><a href="#OverviewTab">Overview</a> - Monitors organization Space usage and user 
+  device and location</td></tr>
 <tr><td>{@img Space_Ad_Apps_Icon.png}</td>
-	<td><a href="#AppsTab">Applications</a> - Manages applications</td></tr>
+  <td><a href="#AppsTab">Applications</a> - Lists, adds, and
+removes applications</td></tr>
 <tr><td>{@img Space_Ad_Users_Icon.png}</td>
-	<td><a href="#UsersTab">Users</a> - Manages users</td></tr>
+  <td><a href="#UsersTab">Users</a> - Lists, adds, and removes user access to Space</td></tr>
 <tr><td>{@img Space_Ad_GroupsIcon.png}</td>
-	<td><a href="#GroupsTab">Groups</a> - Manages groups</td></tr>
+  <td><a href="#GroupsTab">Groups</a> - Lists, adds, and removes group access to Space</td></tr>
 <tr><td>{@img Space_Ad_VPNServices_Icon.png}</td>
-	<td><a href="#VPNServicesTab">VPN Services</a> - Manages VPN services</td></tr>
+  <td><a href="#VPNServicesTab">VPN Services</a> - Manages VPN services</td></tr>
 <tr><td>{@img Space_Ad_GearIcon.png}</td>
-	<td><a href="#GearTab">Organizations</a> - Manages organizations</td></tr>
+  <td><a href="#GearTab">Settings</a> - Changes organization, email, and billing settings</td></tr>
 <tr><td>{@img Space_Ad_AdminMenu.png}</td>
-	<td><a href="#AdminMenu">Admin Menu</a> - Edit the admin profile, manage organizations, or log out of Sencha Space</td></tr>
+  <td><a href="#AdminMenu">Admin Menu</a> - Edit the admin profile, switch organizations, or log out of Sencha Space</td></tr>
 <tr><td>{@img Space_Ad_SenchaIcon.png}</td>
-	<td><a href="#SenchaMenu">Sencha Menu</a> - View a log of all administrator activities</td></tr>
+  <td><a href="#SenchaMenu">Sencha Menu</a> - View a log of all administrator activities</td></tr>
 </table>
 
 **Icons**:
@@ -75,12 +46,46 @@ These icons provide additional controls on tabs:
    <td>Plus Icon - Add an entry</td></tr>
 <tr><td>{@img Space_Ad_CircleArrowIcon.png}</td>
    <td>Refresh - Refreshes the current list</td></tr>
-<tr><td>{@img Space_Ad_InformationIcon.png}</td>
-   <td>Magnify Icon - Get information about the entry</td></tr>
 <tr><td>{@img Space_Ad_TrashCanIcon.png}</td>
    <td>Trash Can - Remove the entry</td></tr>
 </table>
 
+
+<a name="OverviewTab"></a>
+## Overview
+
+The Overview tab lets you monitor system usage. The chart shows user activity 
+for the current month:
+
+{@img Space_Ad_Overview.png}
+
+This tab lists:
+
+ - Created users - Number of Space users who can participate
+ - Active users - Number of Space users currently viewing Sencha Space
+ - Opens - Indicates when a user starts a Space-managed app
+ - Apps - Number of web apps available for use on Sencha Space Clients
+ - Users - Number of created users
+ - Groups - Number of enterprise groups
+ - Active Devices - Lists:
+   - Device. The device running Sencha Space Client and whether the device 
+     is simulated or actual. 
+   - User. User's email address and the Sencha Space Client version.
+   - Last Access. When the user last accessed the Sencha Space Client and the user's location. 
+
+You can click the red X icon to block a user from Sencha Space Client access: 
+
+{@img Space_Ad_BlockUserButton.png}
+
+Blocking a user sends the user a message and forces a log out from the 
+Sencha Space Client. To reactivate the user, click the 
+Users tab and add the user information again.
+
+<b>Note</b> If no data appears in the Administration app at 
+[http://manage.space.sencha.com](http://manage.space.sencha.com), or you wish to log out, click 
+the administrator drop-down and click **Logout**:
+
+{@img Space_Ad_LogoutMenu.png}
 
 
 <a name="AppsTab"></a>
@@ -95,7 +100,7 @@ becomes the first screen they see when they log into the Space Client. As admini
 you can use a web page as the starting application, for example, as a welcome screen
 with ways for users to get help or learn how to use their client.
 
-The aApplications tab lists:
+The Applications tab lists:
 
  - Name - Application name
  - Members - Number of users who are permitted to use the application
@@ -131,7 +136,7 @@ so that the app can be accessed by Space Clients.
    Applications tab and on the Space Client.
  - App URL - The URL of the app. This can be an HTTP or HTTPS address.
  - Icon URL - The URL of the icon for the app. This can be an HTTP or HTTPS address.
- - Invokes - List the apps that this app can invoke. Separate app names with commas. 
+ - Intents - List the apps that this app can invoke. Separate app names with commas. 
  This field is case sensitive.
  - Description - Description of the app. This description appears on the Applications 
    tab and in the Space Client.
@@ -227,28 +232,20 @@ This tab lists:
 
 
 <a name="GearTab"></a>
-## Organizations Tab
+## Settings Tab
 
-Lists organizations and lets you add or delete organizations.
-The first organization in the list is the one you are currently administering. 
-When you switch organizations, all the settings from the former organization 
-store while you work with other organizations.
+Lists organizations and lets you add or delete organizations, set email, and 
+billing preferences. 
+
+{@img Space_Ad_SettingsMenu.png}
 
 This tab lists:
 
-- Name - Organization name 
-- Code - Organization code, which is assigned by Sencha
-- Users - Number of users in the organization 
-- Groups - Number of groups in the organization
-- Apps - Number of apps handled for this organization
-
-To add or change organization information:
-
- - Add an organization by clicking the Add button.
- - Change the information for an organization by clicking the Pencil button: 
-   {@img Space_Ad_OrgEditButton.png}
- - Change the current organization by clicking the Switching button:
-   {@img Space_Ad_OrgChangeButton.png}
+ - Organization Name 
+ - Organization Code 
+ - Email Method 
+ - Billing 
+ - Save button - click after changing information
 
 <a name="AdminMenu"></a>
 ## Admin Menu
@@ -256,7 +253,7 @@ To add or change organization information:
 Lets you:
 
  - Edit your administrator profile
- - Manage organizations
+ - Switch organizations
  - Log out of Sencha Space
 
 ### Edit Your Admin Profile
@@ -271,31 +268,38 @@ Add or change:
  - New Password
  - Confirm New Password
 
- You can also click Remove User to remove your access to Sencha Space.
+You can also click **Remove User** to remove your access to Sencha Space.
 
-### Manage Organizations
+### Switch Organizations
 
-Adds or changes information about the organizations that you manage with the
-Sencha Space Administration Application. 
- 
-The Organizations menu displays:
+Click the administrator menu drop-down and click **Switch organizations**:
 
- - Name - Organization name
- - Code - A keyword to describe the organization
- - Users - Number of users in the organization
- - Groups - Number of groups in the organization
- - Apps - Number of web apps that users can view from their Sencha Space Client
+{@img Space_Ad_SwitchOrgs.png}
 
-To use this menu:
+The first organization in the list is the one you are currently administering. 
 
- - Click Add to add a new organization to Sencha Space
- - Click the pencil icon to change information about an organization
- - Click the arrow icon to make the organization the current organization 
-   in the Sencha Space Administration console
+When you switch organizations, all the settings from the former organization 
+store while you work with other organizations.
+
+This tab lists:
+
+- Name - Organization name 
+- Code - Organization code
+- Users - Number of users in the organization 
+- Groups - Number of groups in the organization
+- Apps - Number of apps handled for this organization
+
+To add or change organization information:
+
+ - Add an organization by clicking the Add button.
+ - Change the information for an organization by clicking the Pencil button: 
+   {@img Space_Ad_OrgEditButton.png}
+ - Change the current organization by clicking the Switching button:
+   {@img Space_Ad_OrgChangeButton.png}
 
 #### Add or Change an Organization
 
-Add an organization by clicking Add in the Organizations menu. 
+Add an organization by clicking **Add** in the Organizations menu. 
 Change organization information by clicking the pencil icon in
 the Organizations menu.
 
@@ -305,8 +309,8 @@ Fields:
  - Organization Code - A keyword to describe the organization
  - Cache Max Age - The duration in minutes that you want information 
    about an organization to persist in the Client. Zero indicates
-   that the information persist indefinitely and only update when a
-   user clicks the Refresh button
+   that the information persists indefinitely and only updates when a
+   user clicks the Refresh button.
 
 <a name="SenchaMenu"></a>
 ## Sencha Menu

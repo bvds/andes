@@ -1,3 +1,47 @@
+
+/**
+
+Secure Local Storage is a key value store modeled around html5 localstoage. 
+
+The key differences from localstrorage are:
+
+ - Uses an Asynchronous api based on Ext.Promise
+ - Each application can more than one named collection of keys or easier data storage
+ - All data is encrypted before being persisted to disk
+ - The storage limits for SecureLocalStorage are much higher than the 2-3mb allocated for localstorage.
+
+
+        var secrets = Ext.space.SecureLocalStore.get('secrets');
+
+        secrets.set('myKey',object).then(function(){
+            //do something when done.
+        });
+
+        secrets.get('myKey').then(function(object){
+            var a = object.field;
+        });
+
+        secrets.delete().then(function(isDeleted){
+            // done.
+        });
+
+        secrets.has(key).then(function(hasKey){
+            
+        });
+
+        secrets.forEach(function(key, value){}).then(function(){
+            // done.
+        });
+
+        secrets.count().then(function(numberOfItems){
+            
+        });
+
+        secrets.clear().then(function(){
+            // done.
+        });
+    
+*/
 Ext.define('Ext.space.SecureLocalStorage', {
     singleton: true,
 
@@ -12,7 +56,11 @@ Ext.define('Ext.space.SecureLocalStorage', {
 
 
     /**
-    * Get the 
+    * Get a collection of name. Collections are automatically created if they do not exist.
+    *
+    * @param {String}  The name of the collection to get.
+    * @return {Ext.localstorage.Collection} the secure collection.
+    *
     */
     get: function(name){
 
