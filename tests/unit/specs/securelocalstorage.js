@@ -134,6 +134,17 @@ describe("Secure Local Storage", function() {
         });
 
 
+        it("Should be able to have array values", function(done) {
+            var check = function(){
+                testCollection.get('arrayTest').then(function(val){
+                    expect(val).to.eql(['a','b',{'c': 'd'}]);
+                    done();    
+                });
+            } 
+           testCollection.set('arrayTest', ['a','b',{'c': 'd'}]).then(check);
+        });
+
+
 
         it("Should be able to delete an item", function(done) {
             testCollection.delete('myKey').then(function(deleted){

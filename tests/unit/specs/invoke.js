@@ -13,7 +13,7 @@ describe("Invoke", function() {
               var success = function(message) {
                   console.log("message", arguments);
                   expect(message).to.exist;
-                  expect(message.data).to.equal("success");
+                  expect(message).to.eql({result: "success", data :{str:"b", num: 7, arry: ['a','b',1,{a:'b'}]}});
                   done();
               };
 
@@ -43,7 +43,7 @@ describe("Invoke", function() {
               var success = function(message) {
                   console.log("message", arguments);
                   expect(message).to.exist;
-                  expect(message.data).to.equal("success");
+                  expect(message).to.eql({result: "success", data :{str:"b", num: 7, arry: ['a','b',1,{a:'b'}]}});
                   done();
               };
 

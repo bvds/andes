@@ -42,7 +42,7 @@ Ext.onSpaceReady(function(){
     Ext.space.Invoke.onMessage(function(senderId, message) {
             var promise = new Ext.Promise;
             setTimeout(function(){
-                promise.fulfill({data: "success"});
+                promise.fulfill({result: "success", data :{str:"b", num: 7, arry: ['a','b',1,{a:'b'}]}});
             },1500);
         return promise;  
 
