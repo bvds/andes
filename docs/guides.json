@@ -26,6 +26,13 @@
                 "title": "Sencha Space Developer's Guide",
                 "description": "How to develop an app for Sencha Space"
             },
+
+            {
+                "name": "invoke",
+                "url": "guides/invoke",
+                "title": "Invoke",
+                "description": "Allow applications in space to communicate"
+            },
             {
                 "name": "examples",
                 "url": "guides/examples",
