@@ -1,124 +1,163 @@
-# Invoke
+# Invoke API
 
-Sencha Space is a new way to manage, deploy and secure HTML5 applications on mobile devices. We wanted a way for HTML5 applications running inside of Sencha Space to communicate with each other directly and securely. To do that, we developed a simple JavaScript API that developers can quickly add to any application they deploy in Sencha Space.
+Sencha Space is a new way to manage, deploy and secure HTML5 applications 
+on mobile devices. 
+Invoke is a JavaScript API that lets one app securely run and communicate 
+with another app. 
+You can add the Invoke API to apps that you deploy in Sencha Space.
+Invoke represents a new way of building HTML5 applications. 
+Your applications no longer have to be islands connected only 
+by a round trip to a server. Using Invoke, you can build simpler, 
+single purpose applications that expose a simple API.
 
-So see Invoke in action check out this video: http://vimeo.com/73736732
+You can see Invoke in action at: 
+<a href="http://vimeo.com/73736732">http://vimeo.com/73736732</a>
 
-The video shows: 1) an application that can invoke the photo app, 2) successful invocation of the photo application from the first app, 3) selection of photos using the externally invoked photo application, 4) returning the selected photos to the app that initiated the invoke call in the first place.
-
-
-Using Invoke in Foreground and Background
----
-
-There are two ways applications can communicate using Invoke: foreground or background.
-
-
-An Invoke call in the foreground will switch the user from one application to another. The user can then do some work in the second application and when done, Sencha Space will return the user to the application they started with. A simple example of this is photos. In Sencha Space, you can have an application that knows where all of your organization's photos are. When any other application needed a photo, it would be able to redirect the user to the Photos application. The user can select the photos they want, and then they are returned to the application they started with, and the application has the list of photos they selected.
+The video shows:
+<ol>
+<li>An application invoking the Photo app</li>
+<li>Successful invocation of the Photo app from the first app</li>
+<li>Selecting photos using the externally invoked Photo app</li>
+<li>Returning the selected photos to the app that first initiated the invoke call</li>
+</ol>
 
 
-Background Invoke calls open up the possibility of a new class of application communication. Two applications can exchange data in the background asynchronously without the user needing to leave the application they are currently in. In the example we presented at SenchaCon, our Contacts application communicated with the chat application to get the online/offline status of the current contact and update the contact record. The Contacts application did not need to integrate a chat library or maintain a connection with a chat/presence server. It only needed to make a simple API call to the chat application running in Sencha Space.
+## Using Invoke in the Foreground and Background
 
-Include the Sencha Space APIs
----
+Applications can communicate using Invoke:
+<ul>
+<li><b>Foreground</b> - Invoke calls enable a user to switch from one application 
+to another. The user can then do work in the second application and when done, 
+Sencha Space returns the user to the application they started from. A simple example 
+of this is photos. In Sencha Space, you can have an application that knows where 
+all of your organization's photos are. When another application needs a photo, 
+it redirects the user to the Photos application. The user can select the photos 
+they want, and then the user is returned to the application they started with,
+and the application has the list of photos the user selected.</li>
 
-We also wanted to make adding Sencha Space APIs to your application as easy as possible. There are zero downloads required to get started. Simply include the CDN hosted copy of space.js in your application (and it doesn't have to be a Sencha Touch app, it can be any HTML5 app or website):
+<li><b>Background</b> - Invoke calls open up the possibility of a new class 
+of application communication. Applications can exchange data in the background 
+asynchronously without the user needing to leave the application they are 
+currently in. For example, a Contacts application can communicate with a chat 
+application to get the online/offline status of the current contact and update 
+the contact record. The Contacts application need not integrate a chat library 
+or maintain a connection with a chat/presence server. It only needs to make 
+a simple API call to the chat application running in Sencha Space.</li>
+</ol>
 
+## Include the Sencha Space APIs
+
+You can add the Invoke API by including one statement in your HTML5 or web site
+application. The application need not have been created using a Sencha product.
+
+<pre>&lt;script src="http://space.sencha.io/space.js"&gt;&lt;/script&gt;</pre>
  
-    <script src="http://space.sencha.io/space.js"></script>
- 
-How to Use Invoke Application to Foreground
-To communicate with another application, you must first get a connection to it:
+## Invoke Applications in the Foreground
 
+To communicate with another application, get a connection to it:
  
     Ext.space.Invoke.get('photos').then(send, failure);
- 
-If there isn't a Photos application or your application doesn't have permission to call that application, the failure callback will be called:
 
+If the application doesn't exist or your application doesn't have 
+permission to call that application, Sencha Space calls your app's failure callback:
+<pre>  
+var failure = function(error) {
+    console.log('Could not find photos app', error);
+}
+</pre>
+
+When you have a connection, your application can start sending messages, in
+this case, requesting all the photos taken in the current day (<tt>time: 1d</tt>):
+
+<pre>    
+var send = function(connection) {
+    connection.send({tags: ['keynote', 'space'], 
+                     time: '1d'}, true).then(usePhoto, failure);
+};
+</pre>
+
+The first parameter of <tt>send</tt> is the JSON data you want to send to the application. 
+The second parameter is the foreground and background Boolean. 
+A value of <tt>true</tt> indicates foreground and <tt>false</tt> is background.
+
+The user is taken to the Photos application, allowed to select photos, 
+and then the Photos application returns the list of photos to your application using 
+a callback:
+
+<pre> 
+var usePhoto = function(photos) {
+    log('user selected photos', photos);
+}
+</pre>
+
+See the  
+<a href="https://github.com/sencha/SpaceExamples/tree/master/Photos">full source code for the Photos application</a>.
+
+## Invoke Application in the Background
+
+In the next example, an app calls the chat application in the background 
+to get the presence of a user. The API calls are nearly identical to the 
+previous example, except that second parameter of the <tt>send</tt> function
+is set to <tt>false</tt>.
+
+<pre>
+Ext.space.Invoke.get('chat').then(send, failure);
+ 
+var send = function(connection) {
+        connection.send(
+            {type: 'presence', 
+                 user: 'joe@example.com'}, false)
+            .then(
+        success,
+        failure
+    );
+};
+ 
+var success = function(message) {
+    console.log(message);
+};
+ 
+//output
+{user: "polly@example.com", connected: true, status: 'away' }
+</pre>
      
-    var failure = function(error) {
-        console.log('Could not find photos app', error);
+## Handling Incoming Messages From Another Application
+
+Handling messages from other applications is accomplished with the 
+<tt>onMessage</tt> API. The <tt>onMessage</tt> function receives the JSON message
+and creates and returns an <tt>Ext.Promise</tt>. The <tt>Promise<tt> must be 
+resolved to return data to the calling application.
+
+<pre> 
+Ext.space.Invoke.onMessage(function(senderId, message) {
+ 
+    var promise = new Ext.Promise(); 
+    handleMessage(message, promise); 
+    return promise; 
+});
+</pre>
+
+In <tt>handleMessage</tt>, the user info is fetched asynchronously and 
+the response returns to fulfill the promise, else a rejection message
+is sent back to the calling app indicating an error.
+
+<pre>     
+function handleMessage(message, promise) {
+ 
+    if(message.type == "presence") {
+ 
+        this.getUser(message.user, function(user){
+            var response = {user: user.email, 
+                            connected: user.isConnected, 
+                            status: user.status};
+ 
+            promise.fulfill(response);
+ 
+        })
+ 
+    } else {
+         promise.reject('Message is not understood');
     }
  
-Once you have a connection, your application can then start sending it messages:
-
-     
-    var send = function(connection) {
-        connection.send({tags: ['keynote', 'space'], 
-                         time: '1d'}, true).then(usePhoto, failure);
-    };
- 
-The first parameter of send is the JSON data you want to send to the application you are calling. The second parameter is the foreground/background boolean. A value of true is foreground and false is background.
-
-The user will then be taken to the Photos application, allowed to select photos, and then the application will return the list of photos to your application via a callback:
-
- 
-    var usePhoto = function(photos) {
-        log('user selected photos', photos);
-    }
-     
-We provide the full sourcecode for the Photos application. To see how that code is written, check out our example repository on github: https://github.com/sencha/SpaceExamples/tree/master/Photos.
-
-How to Use Invoke Application in the Background
----
-
-In the next example, we will call the chat application in the background to get the presence of a user. The API calls are nearly identical to the previous example, except that we are passing false as the second parameter to the Send function.
-
-     
-    Ext.space.Invoke.get('chat').then(send, failure);
-     
-    var send = function(connection) {
-            connection.send(
-                {type: 'presence', 
-                     user: 'joe@sencha.com'}, false)
-                .then(
-            success,
-            failure
-        );
-    };
-     
-    var success = function(message) {
-        console.log(message);
-    };
-     
-    //output
-    {user: "jason.cline@sencha.com", connected: true, status: 'away' }
-     
-Handling Incoming Messages From Another Application
----
-
-Handling messages from other applications is accomplished with the onMessage API. The onMessage function receives the JSON message. The onMessage function must create and return an Ext.Promise. That Promise must be resolved to return data back to the calling application.
-
- 
-    Ext.space.Invoke.onMessage(function(senderId, message) {
-     
-        var promise = new Ext.Promise();
-     
-        handleMessage(message, promise);
-     
-        return promise;
-     
-    });
- 
-In handleMessage, the user info is fetched asynchronously and the response is returned by fulfilling the promise:
-
-     
-    function handleMessage(message, promise) {
-     
-        if(message.type == "presence") {
-     
-            this.getUser(message.user, function(user){
-                var response = {user: user.email, 
-                                connected: user.isConnected, 
-                                status: user.status};
-     
-                promise.fulfill(response);
-     
-            })
-     
-        } else {
-             promise.reject('Message is not understood');
-        }
-     
-    }
-     
-Invoke represents a new way of building HTML5 applications. Your applications no longer have to be islands that are connected only via a round trip to a server. By using Invoke, you can build simpler single purpose applications that expose a simple API.
+}
+</pre>     
