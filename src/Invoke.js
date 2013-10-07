@@ -1,15 +1,15 @@
 /**
     
     The Invoke API allows Applications running inside a Sencha Space client to communicate.
-    Applications can exchange data with each other.  
+    Applications can securely exchange data with each other.  
 
-    When one application requests data from another, that application is loaded and the user 
-    is shown that application. Once that user is done interacting with the called application
-    the called application returns data back to the calling application. When that happen the user
-    is returned to the original application. 
+    When one application requests data from another, that application loads, and the user 
+    is shown the called app. Once the user is done interacting with the called app,
+    the called app returns data back to the calling application, and Sencha Space
+    returns the user to the original application. 
 
-    A simple interactive example would be for an application to request a photo from an application that 
-    know about photos. The photos app is loaded.  The user selects a photo. The photo application returns 
+    A simple interactive example is an application that requests a photo from an application that 
+    know about photos. The photos app is loads.  The user selects a photo. The photo app returns 
     data about the photo to the calling application.
 
         var success = function(message) {
@@ -30,16 +30,17 @@
         Ext.space.Invoke.get('photos').then(send, failure);
 
  *
- * For aync message handling:
+ * For async message handling:
  *
- *   The photos application in the example above needs to list for messages:
+ *   The photos application in the previous example lists messages:
  *
  *       Invoke.onMessage(function(appId, message) {
  *          var promise = new Ext.Promise();
  *
  *          console.log('Got message from ' + appId + ' ' + message);
  *
- *          // Do whatever needed asynchronously before return the result (fulfilling the promise)
+ *          // Do whatever is needed asynchronously before returning the result 
+ *          //  (fulfilling the promise)
  *          setTimeout(function(){
  *             promise.fulfill('Yeah I got it');
  *          }, 3000);
@@ -83,8 +84,8 @@ Ext.define('Ext.space.Invoke', {
     },
 
     /**
-     * Create a connection to another application with the given id
-     * @param {String} receiverId The id of the application to connect to. Get this id from #broadcast
+     * Create a connection to another application with the given ID
+     * @param {String} receiverId The ID of the application to connect to. Get this ID from #broadcast
      * @returns {Ext.Promise}
      */
     get: function(broadcastMessage) {
@@ -104,9 +105,9 @@ Ext.define('Ext.space.Invoke', {
 
     /**
      * Send a message
-     * @param {String} receiverId The id of the application to connect to. Get this id from #broadcast
+     * @param {String} receiverId The ID of the application to connect to. Get this ID from #broadcast
      * @param {*} message The message to send, can be an object, as long as it is JSON-able.
-     * @param {Boolean} [foreground] Whether or not to bring the receiver app to the foreground
+     * @param {Boolean} [foreground] Whether or not to bring the receiver app to the foreground.
      * @returns {Ext.Promise}
      */
     send: function(receiverId, message, foreground) {
@@ -127,8 +128,9 @@ Ext.define('Ext.space.Invoke', {
 
     /**
      * @private
-     * Assign the callback to handle new connection. The boolean returned value dertermine whether or not to accept
-     * the connection
+     * Assign the callback to handle a new connection.  
+     * The Boolean returned value determines whether or not 
+     * to accept the connection.
      * @param {Function} callback
      */
     onConnect: function(callback) {
@@ -148,8 +150,8 @@ Ext.define('Ext.space.Invoke', {
     },
 
     /**
-     * Assign the callback to handling incoming messages. The returned value will be passed back to the sender.
-     * If the operation needs to be async, simply return an instance of Ext.Promise
+     * Assign the callback to handle incoming messages. The returned value is passed back to the sender.
+     * If the operation needs to be async, simply return an instance of Ext.Promise.
      * @param callback
      */
     onMessage: function(callback) {
@@ -269,10 +271,10 @@ Ext.define('Ext.space.Invoke', {
 
     /**
      * @private
-     * Broadcast a message (intent) to look for receivers who can respond to it
+     * Broadcast a message (intent) to look for receivers who can respond to the message.
      * @param message
-     * @returns {Ext.Promise} A promise which provides an array of objects upon fulfilled. Each object contains information about
-     * a receiver, with 'id', 'name' and 'icon' keys.
+     * @returns {Ext.Promise} A promise that provides an array of objects to fulfill. 
+     * Each object contains information about a receiver, with 'id', 'name', and 'icon' keys.
      */
     broadcast: function(message) {
         var promise = new Ext.Promise;
