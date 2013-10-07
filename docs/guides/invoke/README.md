@@ -34,7 +34,6 @@ all of your organization's photos are. When another application needs a photo,
 it redirects the user to the Photos application. The user can select the photos 
 they want, and then the user is returned to the application they started with,
 and the application has the list of photos the user selected.</li>
-
 <li><b>Background</b> - Invoke calls open up the possibility of a new class 
 of application communication. Applications can exchange data in the background 
 asynchronously without the user needing to leave the application they are 
@@ -43,7 +42,7 @@ application to get the online/offline status of the current contact and update
 the contact record. The Contacts application need not integrate a chat library 
 or maintain a connection with a chat/presence server. It only needs to make 
 a simple API call to the chat application running in Sencha Space.</li>
-</ol>
+</ul>
 
 ## Include the Sencha Space APIs
 
@@ -60,8 +59,7 @@ To communicate with another application, get a connection to it:
 
 If the application doesn't exist or your application doesn't have 
 permission to call that application, Sencha Space calls your app's failure callback:
-<pre>  
-var failure = function(error) {
+<pre>var failure = function(error) {
     console.log('Could not find photos app', error);
 }
 </pre>
@@ -69,8 +67,7 @@ var failure = function(error) {
 When you have a connection, your application can start sending messages, in
 this case, requesting all the photos taken in the current day (<tt>time: 1d</tt>):
 
-<pre>    
-var send = function(connection) {
+<pre>var send = function(connection) {
     connection.send({tags: ['keynote', 'space'], 
                      time: '1d'}, true).then(usePhoto, failure);
 };
@@ -84,8 +81,7 @@ The user is taken to the Photos application, allowed to select photos,
 and then the Photos application returns the list of photos to your application using 
 a callback:
 
-<pre> 
-var usePhoto = function(photos) {
+<pre>var usePhoto = function(photos) {
     log('user selected photos', photos);
 }
 </pre>
@@ -100,9 +96,7 @@ to get the presence of a user. The API calls are nearly identical to the
 previous example, except that second parameter of the <tt>send</tt> function
 is set to <tt>false</tt>.
 
-<pre>
-Ext.space.Invoke.get('chat').then(send, failure);
- 
+<pre>Ext.space.Invoke.get('chat').then(send, failure);
 var send = function(connection) {
         connection.send(
             {type: 'presence', 
@@ -112,11 +106,9 @@ var send = function(connection) {
         failure
     );
 };
- 
 var success = function(message) {
     console.log(message);
 };
- 
 //output
 {user: "polly@example.com", connected: true, status: 'away' }
 </pre>
@@ -128,9 +120,7 @@ Handling messages from other applications is accomplished with the
 and creates and returns an <tt>Ext.Promise</tt>. The <tt>Promise<tt> must be 
 resolved to return data to the calling application.
 
-<pre> 
-Ext.space.Invoke.onMessage(function(senderId, message) {
- 
+<pre>Ext.space.Invoke.onMessage(function(senderId, message) {
     var promise = new Ext.Promise(); 
     handleMessage(message, promise); 
     return promise; 
@@ -141,23 +131,16 @@ In <tt>handleMessage</tt>, the user info is fetched asynchronously and
 the response returns to fulfill the promise, else a rejection message
 is sent back to the calling app indicating an error.
 
-<pre>     
-function handleMessage(message, promise) {
- 
+<pre>function handleMessage(message, promise) {
     if(message.type == "presence") {
- 
         this.getUser(message.user, function(user){
             var response = {user: user.email, 
                             connected: user.isConnected, 
                             status: user.status};
- 
             promise.fulfill(response);
- 
         })
- 
     } else {
          promise.reject('Message is not understood');
     }
- 
 }
 </pre>     
