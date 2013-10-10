@@ -214,8 +214,8 @@ Ext.define('Ext.space.Communicator', {
     send: function(args, synchronous) {
         if (!Ext.isSpaceReady) {
             if (synchronous) {
-                throw new Error('Making synchronous request while Space isn\'t yet ready. ' +
-                    'Please wrap the statement inside Ext.onSpaceReady(callback)');
+                throw new Error('A synchronous request was made before Space was ready. ' +
+                    'Wrap the statement inside Ext.isSpaceReady(callback)');
             }
 
             this.sendQueue.push(args);
