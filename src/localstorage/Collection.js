@@ -234,11 +234,10 @@ Ext.define('Ext.space.localstorage.Collection', {
         var result = new Ext.Promise();
         this.query("select count(*) from item where collection = ?", [this.name]).then(function(rs){
             console.log("value ", rs.rows.rows[0][0]);
-            result.fulfill(rs.rows.rows[0][0]);
+            result.fulfill(parseInt(rs.rows.rows[0][0]));
         });
         return result;
     },
-
 
     /**
     * Deletes all of the items in a collection. 
@@ -255,5 +254,4 @@ Ext.define('Ext.space.localstorage.Collection', {
     clear: function(){
         return this.query("DELETE FROM item where collection = ?", [this.name]);
     }
-
 });
