@@ -649,6 +649,9 @@ Ext.define('Ext.space.FileSystem', {
      * @param {Object} config
      * The object which contains the following config options:
      *
+     * @param {Function} config.type This is optional.
+     * The type of a file system to request. Specify "LOCKER" to request the File Locker.
+     *
      * @param {Function} config.success This is required.
      * The callback to be called when the file system has been successfully created.
      *
@@ -673,6 +676,7 @@ Ext.define('Ext.space.FileSystem', {
         Ext.space.Communicator.send({
             command: 'FileSystem#requestFileSystem',
             callbacks: {
+                type: config.type,
                 success: function(id) {
                     var fileSystem = new Ext.space.filesystem.FileSystem(id);
 
