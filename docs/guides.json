@@ -12,13 +12,13 @@
                 "name": "admin_guide",
                 "url": "guides/admin_guide",
                 "title": "Administration Application Guide",
-                "description": "How to use the Sencha Space Administration Application"
+                "description": "How to use the Sencha Space Administration application"
             },
             {
                 "name": "client_guide",
                 "url": "guides/client_guide",
                 "title": "Sencha Space Client Application Guide",
-                "description": "How to use the Sencha Space Client Application"
+                "description": "How to use the Sencha Space Client application"
             },
             {
                 "name": "dev_guide",
@@ -26,12 +26,17 @@
                 "title": "Sencha Space Developer's Guide",
                 "description": "How to develop an app for Sencha Space"
             },
-
             {
                 "name": "invoke",
                 "url": "guides/invoke",
                 "title": "Invoke",
-                "description": "Allow applications in space to communicate"
+                "description": "Allow applications in Sencha Space to communicate"
+            },
+            {
+                "name": "sec_lcl_strg",
+                "url": "guides/sec_lcl_strg",
+                "title": "Secure Local Storage",
+                "description": "Read, write, find, and delete key-value pairs from local memory"
             },
             {
                 "name": "examples",
