@@ -76,9 +76,11 @@ need them, based on business policy.</p></li>
 To interact with Sencha Space as a user, download and install the Sencha Space client 
 app from the mobile AppStore relevant to your target mobile device:
 
-<li>Open the app store on your iOS or Android mobile device
-<li>Search for Sencha Space
-<li>Download and install the free Sencha Space client app
+<ol>
+<li>Open the app store on your iOS or Android mobile device</li>
+<li>Search for Sencha Space</li>
+<li>Download and install the free Sencha Space client app</li>
+</ol>
 
 ## Downloading the Sencha Space Client
 For your convenience, you can use the following URLs or QR codes to quickly find 
@@ -88,7 +90,8 @@ and install the Sencha Space client for either iOS or Android mobile devices:
 <tr><th>iOS</th><th>Android</th></tr>
 <tr><td>{@img SpaceAdminIOSQrBarcode.png}</td>
     <td>{@img SpaceAdminAndroidQrBarcode.png}</td></tr>
-<tr><td>http://bit.ly/1bvUxot </td><td>http://bit.ly/1aBKsrI</td></tr>
+<tr><td><a href="http://bit.ly/1bvUxot">http://bit.ly/1bvUxot</a></td>
+    <td><a href="http://bit.ly/1aBKsrI">http://bit.ly/1aBKsrI</a></td></tr>
 </table>
  
 ## Benefits of Sencha Space
