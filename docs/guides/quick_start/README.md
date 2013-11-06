@@ -50,7 +50,7 @@ You can add and remove additional applications.
 an icon URL, invocation target, and description.</li>
 </ol>
 
-## Invite pilot users to join your Sencha Space Organization
+## Invite Users to Join Your Sencha Space Organization
 
 The users you invite become users of the applications 
 in your Sencha Space organization. 
@@ -83,10 +83,11 @@ app from the mobile AppStore relevant to your target mobile device:
 </ol>
 
 ## Downloading the Sencha Space Client
+
 For your convenience, you can use the following URLs or QR codes to quickly find 
 and install the Sencha Space client for either iOS or Android mobile devices:
 
-<table style="width: 80%" border="1">
+<table style="width: 60%" border="1">
 <tr><th>iOS</th><th>Android</th></tr>
 <tr><td>{@img SpaceAdminIOSQrBarcode.png}</td>
     <td>{@img SpaceAdminAndroidQrBarcode.png}</td></tr>
@@ -154,9 +155,3 @@ and install the Sencha Space client for either iOS or Android mobile devices:
 	access native OS and device capabilities</li>
 	</ul></li>
 </ul>
-
-## Reference: Sencha Space Documentation
-
-For additional information about Sencha Space, refer to the documentation at: 
-
-http://docs.sencha.com/space/1.0.0/
