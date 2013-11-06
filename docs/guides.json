@@ -9,6 +9,12 @@
                 "description": "Introduction to Sencha Space"
             },
             {
+                "name": "quick_start",
+                "url": "guides/quick_start",
+                "title": "Getting Started with Sencha Space",
+                "description": "Getting Started with Sencha Space"
+            },
+            {
                 "name": "admin_guide",
                 "url": "guides/admin_guide",
                 "title": "Administration Application Guide",
