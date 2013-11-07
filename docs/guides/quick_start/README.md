@@ -1,5 +1,8 @@
 # Quick Start Guide
 
+This guide helps you get started with the Sencha Space Admin tool.
+It also lists the benefits of Sencha Space.
+
 ## Create your Sencha Space Admin Account
 
 To manage users, groups, and applications in Sencha Space, 
@@ -63,7 +66,7 @@ relevant AppStore to access Space and your applications:
 {@img SpaceAdminUsersIcon.png}</li>
 <li>Click the Add icon:
 {@img SpaceAdminAddIcon.png}</li>  
-<li>Add pilot users by email address.
+<li>Add users by email address.
 <li>Optional: Create groups and add users to them by clicking the Groups icon:
 {@img SpaceAdminGroupsIcon.png}
 <p>Then, provision applications to the different groups to see how 
@@ -143,7 +146,7 @@ and install the Sencha Space client for either iOS or Android mobile devices:
 	</ul></li>
 </ul>
 
-## For Application Developers
+### For Application Developers
 
 <ul>
 <li>Reduce cost and improve efficiency of development teams:
