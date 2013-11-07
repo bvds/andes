@@ -12,10 +12,10 @@ Google Play, or BlackBerry World Apps market.
 
 ## Sencha Space Features
 
-The Administration Application contains these menus:
+The Administration Application side menu contains these buttons:
 
 <table border="1" style="width: 600px">
-<tr><th>Menu</th><th>Description</th></tr>
+<tr><th>Icon</th><th>Description</th></tr>
 <tr><td>{@img Space_Ad_Overview_Icon.png}</td>
   <td><a href="#OverviewTab">Overview</a> - Monitors organization Space usage and user 
   device and location</td></tr>
@@ -28,8 +28,37 @@ removes applications</td></tr>
   <td><a href="#GroupsTab">Groups</a> - Lists, adds, and removes group access to Space</td></tr>
 <tr><td>{@img Space_Ad_VPNServices_Icon.png}</td>
   <td><a href="#VPNServicesTab">VPN Services</a> - Manages VPN services</td></tr>
+<tr><td>{@img Space_Ad_ReportsIcon.png}</td>
+<td>Provides interactive reports for:
+<ul>
+<li>Last Seen - Number of users logging in. Lets you filter by duration, 
+date range, platform OS, platform version, and whether the device is 
+owned by the user or the organization. Also lists recent logins.</li>
+<li>Platform Distribution - Pie chart by device platform with filters for 
+date range, platform OS, platform version, and whether the device is owned 
+by the user or the organization. Also lists current devices.</li>
+<li>App Launches - Number of app launches with filters for 
+date range, platform OS, platform version, and whether the device is owned 
+by the user or the organization. Also lists the available apps by usage,
+with columns for when the app was created (made available to your organization).</li>
+</ul>
+</td></tr>
 <tr><td>{@img Space_Ad_GearIcon.png}</td>
-  <td><a href="#GearTab">Settings</a> - Changes organization, email, and billing settings</td></tr>
+  <td><a href="#GearTab">Settings</a> - Provides settings for:
+<ul>
+<li>General - Specify organization name, organization code, email method, and billing address.</li>
+<li>Security Policy - Specify user session duration, PIN length, 
+and maximum attempts before lock out.</li>
+<li>Authentication - Specify authentication method, Security Assertion Markup Language (SAML) 
+configuration, and Identity Provider (IDP) information.</li>
+</ul>
+</td></tr>
+</table>
+
+The top menu contains these buttons:
+
+<table border="1" style="width: 600px">
+<tr><th>Icon</th><th>Description</th></tr>
 <tr><td>{@img Space_Ad_AdminMenu.png}</td>
   <td><a href="#AdminMenu">Admin Menu</a> - Edit the admin profile, switch organizations, or log out of Sencha Space</td></tr>
 <tr><td>{@img Space_Ad_SenchaIcon.png}</td>
