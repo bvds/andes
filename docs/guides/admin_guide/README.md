@@ -285,17 +285,23 @@ your organization).<br><br>
 
 Provides settings for:
 <ul>
-<li>General - Specify organization name, organization code, email method, and billing address.</li>
+<li>General - Specify organization name, organization code, 
+email method, and billing address.<br><br>
+{@img Space_Ad_Settings_General.png}<br></li>
 <li>Security Policy - Specify user session duration, PIN length, 
-and maximum attempts before lock out.</li>
-<li>Authentication - Specify authentication method, Security Assertion Markup Language (SAML) 
-configuration, and Identity Provider (IDP) information.</li>
+and maximum attempts before lock out.<br><br>
+{@img Space_Ad_Settings_Security.png}<br></li>
+<li>Authentication - Specify authentication method, 
+Security Assertion Markup Language (SAML) 
+configuration, and Identity Provider (IDP) information.<br><br>
+{@img Space_Ad_Settings_AuthN.png}<br></li>
 </ul> 
 
-{@img Space_Ad_SettingsMenu.png}
 
 <a name="AdminMenu"></a>
 ## Admin Menu
+
+{@img Space_Ad_AdminMenuOptions.png}
 
 Lets you:
 
