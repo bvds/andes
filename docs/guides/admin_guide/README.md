@@ -28,8 +28,8 @@ removes applications</td></tr>
   <td><a href="#GroupsTab">Groups</a> - Lists, adds, and removes group access to Space</td></tr>
 <tr><td>{@img Space_Ad_VPNServices_Icon.png}</td>
   <td><a href="#VPNServicesTab">VPN Services</a> - Manages VPN services</td></tr>
-<tr><td>{@img Space_Ad_ReportsIcon.png}</td>
-<td>Provides interactive reports for:
+<tr><td style="vertical-align: top">{@img Space_Ad_ReportsIcon.png}</td>
+<td><a href="#ReportsTab">Reports</a> - Provides interactive reports for:
 <ul>
 <li>Last Seen - Number of users logging in. Lets you filter by duration, 
 date range, platform OS, platform version, and whether the device is 
@@ -43,7 +43,7 @@ by the user or the organization. Also lists the available apps by usage,
 with columns for when the app was created (made available to your organization).</li>
 </ul>
 </td></tr>
-<tr><td>{@img Space_Ad_GearIcon.png}</td>
+<tr><td style="vertical-align: top">{@img Space_Ad_GearIcon.png}</td>
   <td><a href="#GearTab">Settings</a> - Provides settings for:
 <ul>
 <li>General - Specify organization name, organization code, email method, and billing address.</li>
@@ -259,22 +259,39 @@ This tab lists:
  5. Click Yes or No for whether public-key cryptography is enforced on the VPN
     using the [RSA](http://en.wikipedia.org/wiki/RSA_\(algorithm)) algorithm
 
+<a name="ReportsTab"></a>
+## Reports Tab
+
+Provides interactive reports for:
+<ul>
+<li><b>Last Seen</b> - Number of users logging in. Lets you filter by duration, 
+date range, platform OS, platform version, and whether the device is 
+owned by the user or the organization. Also lists recent logins.<br>
+{@img Space_Ad_ReportLastSeen.png}<br><br></li>
+<li><b>Platform Distribution</b> - Pie chart by device platform with filters for 
+date range, platform OS, platform version, and whether the device is owned 
+by the user or the organization. Also lists current devices.<br>
+{@img Space_Ad_ReportPlatDist.png}<br><br><</li>
+<li><b>App Launches</b> - Number of app launches with filters for 
+date range, platform OS, platform version, and whether the device is owned 
+by the user or the organization. Also lists the available apps by usage,
+with columns for when the app was created (made available to your organization).<br>
+{@img Space_Ad_ReportAppLaunches.png}<br><br><</li>
+</ul>
 
 <a name="GearTab"></a>
 ## Settings Tab
 
-Lists organizations and lets you add or delete organizations, set email, and 
-billing preferences. 
+Provides settings for:
+<ul>
+<li>General - Specify organization name, organization code, email method, and billing address.</li>
+<li>Security Policy - Specify user session duration, PIN length, 
+and maximum attempts before lock out.</li>
+<li>Authentication - Specify authentication method, Security Assertion Markup Language (SAML) 
+configuration, and Identity Provider (IDP) information.</li>
+</ul> 
 
 {@img Space_Ad_SettingsMenu.png}
-
-This tab lists:
-
- - Organization Name 
- - Organization Code 
- - Email Method 
- - Billing 
- - Save button - click after changing information
 
 <a name="AdminMenu"></a>
 ## Admin Menu
