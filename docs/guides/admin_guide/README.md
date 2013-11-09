@@ -1,4 +1,4 @@
-# Administration Application Guide
+# Administration Application Guide 
 
 The Sencha Space Administration application lets you manage user and group
 access to web apps that run on a Sencha Space Client. Sencha hosts the Space
@@ -285,8 +285,15 @@ your organization).<br><br>
 
 Provides settings for:
 <ul>
-<li>General - Specify organization name, organization code, 
-email method, and billing address.<br><br>
+<li>General - Specify:
+<ul>
+<li>Organization Name - Any string.</li>
+<li>Organization Code - A string you receive from Sencha after you register 
+your organization with Sencha</li>
+<li>Email Method - Placeholder - Changing soon</li>
+<li>Billing - Placeholder - Changing soon</li>
+</ul>
+<br><br>
 {@img Space_Ad_Settings_General.png}<br></li>
 <li>Security Policy - Specify user session duration, PIN length, 
 and maximum attempts before lock out.<br><br>
