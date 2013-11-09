@@ -285,7 +285,7 @@ your organization).<br><br>
 
 Provides settings for:
 <ul>
-<li>General - Specify:
+<li>General - Lets you set:
 <ul>
 <li>Organization Name - Any string.</li>
 <li>Organization Code - A string you receive from Sencha after you register 
@@ -293,14 +293,39 @@ your organization with Sencha</li>
 <li>Email Method - Placeholder - Changing soon</li>
 <li>Billing - Placeholder - Changing soon</li>
 </ul>
-<br><br>
 {@img Space_Ad_Settings_General.png}<br></li>
-<li>Security Policy - Specify user session duration, PIN length, 
-and maximum attempts before lock out.<br><br>
+<li>Security Policy - Lets you set:
+<ul>
+<li>Session Duration</li>
+<li>Pin Type Slider - Slide to <b>None</b> to not require a PIN or password 
+when users access the Space client on their mobile device - only use this 
+setting during debugging, 
+slide to <b>Number</b> to require users to supply a PIN for authentication, 
+slide to <b>Secure</b> to require a secure password that has a combination
+of letters, numbers, and special characters. A password must consist of at
+least 4 characters and can be any length.</li>
+<li>Pin Minimum Length - The least number of numbers a user can enter
+to be authenticated in the Space client. The default is 6 digits.</li>
+<li>Pin Lock After Attempts - The number of tries a user gets to supply
+the correct PIN value before being locked out. The default is 10 attempts.
+If a user is locked out, the user must re-enter their username and password
+to gain access to the Space client.</li>
+</ul>
 {@img Space_Ad_Settings_Security.png}<br></li>
-<li>Authentication - Specify authentication method, 
-Security Assertion Markup Language (SAML) 
-configuration, and Identity Provider (IDP) information.<br><br>
+<li>Authentication - Lets you set:
+<ul>
+<li>Authentication Method - <b>Invite Only</b> - Indicates that 
+you can only add user access to the Space client by an email
+invitation. <b>SAML 2.0</b> - Indicates that users are given access
+to the Space client by virtue of access through SAML.</li>
+<li>User Provisioning - Auto add user to Space - </li>
+<li>Identity Provider (IDP) Endpoint URL - </li>
+<li>Certificate - </li>
+<li>Attribute Presets - </li>
+<li>Email Attribute - </li>
+<li>First Name Attribute - </li>
+<li>Last Name Attribute - </li>
+</ul>
 {@img Space_Ad_Settings_AuthN.png}<br></li>
 </ul> 
 
