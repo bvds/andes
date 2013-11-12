@@ -2,13 +2,24 @@
 
 The Sencha Space Administration application lets you manage user and group
 access to web apps that run on a Sencha Space Client. Sencha hosts the Space
-Administration app at [http://manage.space.sencha.com](http://manage.space.sencha.com).
+Administration app at
+[http://manage.space.sencha.com](http://manage.space.sencha.com).
 
 The Space Administration application enables secure access to an enterprise's
 authentication and authorization server. 
 
 Users obtain their Sencha Space Client apps from the Apple App Store, 
 Google Play, or BlackBerry World Apps market.
+
+<b>Browser Support</b>
+
+The Administration Application works on:
+
+<ul>
+<li>Chrome (any version)</li>
+<li>Safari (any version)</li>
+<li>Firefox version 22 and later</li>
+</ul>
 
 ## Sencha Space Features
 
