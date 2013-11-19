@@ -4,76 +4,65 @@
         "items": [
             {
                 "name": "intro",
-                "url": "guides/intro",
                 "title": "Introduction",
-                "description": "Introduction to Sencha Space"
+                "description": "Introduction to Sencha Space."
             },
             {
                 "name": "quick_start",
-                "url": "guides/quick_start",
                 "title": "Quick Start Guide",
-                "description": "Getting Started with Sencha Space"
+                "description": "Getting Started with Sencha Space."
             },
             {
                 "name": "manager_guide",
-                "url": "guides/manager_guide",
                 "title": "Space Manager Guide",
-                "description": "Sencha Space Manager Instructions"
+                "description": "Sencha Space Manager Instructions."
             },
             {
                 "name": "client_guide",
-                "url": "guides/client_guide",
                 "title": "Client Guide",
                 "description": "Use Sencha Space Client"
             },
             {
                 "name": "manager_reports",
-                "url": "guides/manager_reports",
                 "title": "Reports Guide",
-                "description": "Generate reports from Sencha Space Manager"
+                "description": "Generate reports from Sencha Space Manager."
             }
         ],
         "title": "Developer Guides",
         "items": [
             {
                 "name": "dev_guide",
-                "url": "guides/dev_guide",
                 "title": "Developer's Guide",
-                "description": "How to develop an app for Sencha Space"
+                "description": "How to develop an app for Sencha Space."
             },
             {
                 "name": "sec_lcl_strg",
-                "url": "guides/sec_lcl_strg",
                 "title": "Secure Local Storage",
-                "description": "Secure Local Storage of key and value pairs"
+                "description": "Secure Local Storage of key and value pairs."
             },
             {
                 "name": "examples",
-                "url": "guides/examples",
                 "title": "Examples",
-                "description": "Sencha Space Examples"
+                "description": "Sencha Space Examples."
             }
         ],
         "title": "Advanced Topics",
         "items": [
             {
                 "name": "invoke",
-                "url": "guides/invoke",
                 "title": "Invoke",
-                "description": "Communication between Sencha Space apps"
+                "description": "Communication between Sencha Space apps."
             },
             {
                 "name": "saml_integration",
-                "url": "guides/saml_integration",
                 "title": "SAML Integration",
-                "description": "Sencha Space SAML Integration"   
+                "description": "Sencha Space SAML Integration."   
             },
             {
                 "name": "sensor_apis",
-                "url": "guides/sensor_apis",
                 "title": "Sensor APIs Guide",
-                "description": "Sencha Space Sensor APIs"   
+                "description": "Sencha Space Sensor APIs."   
             }
-    ]
+        ]
     }
 ]
