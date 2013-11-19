@@ -1,6 +1,6 @@
 [
     {
-        "title": "Sencha Space 1.0",
+        "title": "Getting Started",
         "items": [
             {
                 "name": "intro",
@@ -15,41 +15,65 @@
                 "description": "Getting Started with Sencha Space"
             },
             {
-                "name": "admin_guide",
-                "url": "guides/admin_guide",
-                "title": "Administration Application Guide",
-                "description": "How to use the Sencha Space Administration application"
+                "name": "manager_guide",
+                "url": "guides/manager_guide",
+                "title": "Space Manager Guide",
+                "description": "Sencha Space Manager Instructions"
             },
             {
                 "name": "client_guide",
                 "url": "guides/client_guide",
-                "title": "Sencha Space Client Application Guide",
-                "description": "How to use the Sencha Space Client application"
+                "title": "Client Guide",
+                "description": "Use Sencha Space Client"
             },
+            {
+                "name": "manager_reports",
+                "url": "guides/manager_reports",
+                "title": "Reports Guide",
+                "description": "Generate reports from Sencha Space Manager"
+            }
+        ],
+        "title": "Developer Guides",
+        "items": [
             {
                 "name": "dev_guide",
                 "url": "guides/dev_guide",
-                "title": "Sencha Space Developer's Guide",
+                "title": "Developer's Guide",
                 "description": "How to develop an app for Sencha Space"
-            },
-            {
-                "name": "invoke",
-                "url": "guides/invoke",
-                "title": "Invoke",
-                "description": "Allow applications in Sencha Space to communicate"
             },
             {
                 "name": "sec_lcl_strg",
                 "url": "guides/sec_lcl_strg",
                 "title": "Secure Local Storage",
-                "description": "Read, write, find, and delete key-value pairs from local memory"
+                "description": "Secure Local Storage of key and value pairs"
             },
             {
                 "name": "examples",
                 "url": "guides/examples",
-                "title": "Sencha Space Examples",
+                "title": "Examples",
                 "description": "Sencha Space Examples"
             }
-        ]
+        ],
+        "title": "Advanced Topics",
+        "items": [
+            {
+                "name": "invoke",
+                "url": "guides/invoke",
+                "title": "Invoke",
+                "description": "Communication between Sencha Space apps"
+            },
+            {
+                "name": "saml_integration",
+                "url": "guides/saml_integration",
+                "title": "SAML Integration",
+                "description": "Sencha Space SAML Integration"   
+            },
+            {
+                "name": "sensor_apis",
+                "url": "guides/sensor_apis",
+                "title": "Sensor APIs Guide",
+                "description": "Sencha Space Sensor APIs"   
+            }
+    ]
     }
 ]

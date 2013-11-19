@@ -1,11 +1,11 @@
-# Administration Application Guide 
+# Sencha Space Manager Guide 
 
-The Sencha Space Administration application lets you manage user and group
+The Sencha Space Manager application lets you manage user and group
 access to web apps that run on a Sencha Space Client. Sencha hosts the Space
-Administration app at
+Manager app at
 [http://manage.space.sencha.com](http://manage.space.sencha.com).
 
-The Space Administration application enables secure access to an enterprise's
+The Space Manager application enables secure access to an enterprise's
 authentication and authorization server. 
 
 Users obtain their Sencha Space Client apps from the Apple App Store, 
@@ -13,7 +13,7 @@ Google Play, or BlackBerry World Apps market.
 
 <b>Browser Support</b>
 
-The Administration Application works on:
+The Manager application works on:
 
 <ul>
 <li>Chrome (any version)</li>
@@ -23,7 +23,7 @@ The Administration Application works on:
 
 ## Sencha Space Features
 
-The Administration Application side menu contains these buttons:
+The Manager Application side menu contains these buttons:
 
 <table border="1" style="width: 600px">
 <tr><th>Icon</th><th>Description</th></tr>
@@ -113,15 +113,16 @@ This tab lists:
    - User. User's email address and the Sencha Space Client version.
    - Last Access. When the user last accessed the Sencha Space Client and the user's location. 
 
-You can click the red X icon to block a user from Sencha Space Client access: 
+You can click the red X icon to block a user from Sencha Space Client access 
+on the current device: 
 
 {@img Space_Ad_BlockUserButton.png}
 
 Blocking a user sends the user a message and forces a log out from the 
 Sencha Space Client. To reactivate the user, click the 
-Users tab and add the user information again.
+Users tab and add the user back to the Space Manager.
 
-<b>Note</b> If no data appears in the Administration app at 
+<b>Note</b> If no data appears in the Manager app at 
 [http://manage.space.sencha.com](http://manage.space.sencha.com), or you wish to log out, click 
 the administrator drop-down and click **Logout**:
 
