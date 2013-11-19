@@ -28,6 +28,8 @@
                 "description": "Generate reports from Sencha Space Manager."
             }
         ],
+    },
+    {
         "title": "Developer Guides",
         "items": [
             {
@@ -46,6 +48,8 @@
                 "description": "Sencha Space Examples."
             }
         ],
+    },
+    {
         "title": "Advanced Topics",
         "items": [
             {
