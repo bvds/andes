@@ -65,7 +65,7 @@ permission to call that application, Sencha Space calls your app's failure callb
 </pre>
 
 When you have a connection, your application can start sending messages, in
-this case, requesting all the photos taken in the current day (<tt>time: 1d</tt>):
+this case, requesting all the photos taken in the current day (<code>time: 1d</code>):
 
 <pre>var send = function(connection) {
     connection.send({tags: ['keynote', 'space'], 
@@ -73,9 +73,9 @@ this case, requesting all the photos taken in the current day (<tt>time: 1d</tt>
 };
 </pre>
 
-The first parameter of <tt>send</tt> is the JSON data you want to send to the application. 
+The first parameter of <code>send</code> is the JSON data you want to send to the application. 
 The second parameter is the foreground and background Boolean. 
-A value of <tt>true</tt> indicates foreground and <tt>false</tt> is background.
+A value of <code>true</code> indicates foreground and <code>false</code> is background.
 
 The user is taken to the Photos application, allowed to select photos, 
 and then the Photos application returns the list of photos to your application using 
@@ -93,8 +93,8 @@ See the
 
 In the next example, an app calls the chat application in the background 
 to get the presence of a user. The API calls are nearly identical to the 
-previous example, except that second parameter of the <tt>send</tt> function
-is set to <tt>false</tt>.
+previous example, except that second parameter of the <code>send</code> function
+is set to <code>false</code>.
 
 <pre>Ext.space.Invoke.get('chat').then(send, failure);
 var send = function(connection) {
@@ -116,8 +116,8 @@ var success = function(message) {
 ## Handling Incoming Messages From Another Application
 
 Handling messages from other applications is accomplished with the 
-<tt>onMessage</tt> API. The <tt>onMessage</tt> function receives the JSON message
-and creates and returns an <tt>Ext.Promise</tt>. The <tt>Promise<tt> must be 
+<code>onMessage</code> API. The <code>onMessage</code> function receives the JSON message
+and creates and returns an <code>Ext.Promise</code>. The <code>Promise</code> must be 
 resolved to return data to the calling application.
 
 <pre>Ext.space.Invoke.onMessage(function(senderId, message) {
@@ -127,7 +127,7 @@ resolved to return data to the calling application.
 });
 </pre>
 
-In <tt>handleMessage</tt>, the user info is fetched asynchronously and 
+In <code>handleMessage</code>, the user info is fetched asynchronously and 
 the response returns to fulfill the promise, else a rejection message
 is sent back to the calling app indicating an error.
 
