@@ -53,13 +53,15 @@ The starting controls for the Sencha Space User Client application are:
 <li><b>Apps</b> - View available apps.</li>
 <li><b>Controls</b>:
 {@img Controls.png}
-	<ul>
-	<li>Star - Add app to Favorites</li>
-	<li>Left Arrow - Previous app view</li>
-	<li>Windows - Show reduced sub window view of app</li>
-	<li>Right Arrow - Next app view</li>
-	<li>Round Arrow - Refresh app view</li>
-	</ul>
+	<ul><ul>
+		<ul>
+		<li>Star - Add app to Favorites</li>
+		<li>Left Arrow - Previous app view</li>
+		<li>Windows - Show reduced sub window view of app</li>
+		<li>Right Arrow - Next app view</li>
+		<li>Round Arrow - Refresh app view</li>
+		</ul>
+	</ul></ul>
 </li>
 </ul>
 
