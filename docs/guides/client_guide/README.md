@@ -63,6 +63,10 @@ The starting controls for the Sencha Space User Client application are:
 </li>
 </ul>
 
+The reduced sub window view appears as:
+
+{@img SubWindow.png}
+
 
 ## Viewing Apps
 
@@ -71,11 +75,12 @@ The list of apps appears as follows (your list of apps may differ):
 {@img Space_Client_AppsList.png}
 
 <ol>
-<li>Click the app icon to view</li>
-<li>Click the Sencha icon to view Settings</li>
+<li>Click the app icon to view the app</li>
+<li>Click the Sencha icon to view <a href="#Settings">Settings</a></li>
 <li>Click <b>Switch Organizations</b> to log in with a new organization name</li>
 </ol>
 
+<a name="Settings"></a>
 ## Settings 
 
 Sencha Space provides the following settings:
@@ -84,34 +89,23 @@ Sencha Space provides the following settings:
 <li>Close - Return to previous screen</li>
 <li>Change PIN - Specify your current PIN, a new PIN, and confirm the new PIN</li>
 <li>Remove Organization - Deletes all data you may have stored while using the current 
-organization and prompts you to log in again with a new organization name</li>
+organization and prompts you to log in again with a new organization name. This
+prompt displays a confirmation prompt to be sure you want to delete all app
+data:
+{@img RemoveOrganizationAlert.png}
+</li>
 <li>Legal - View Space attribution copyright information and terms of service</li>
 </ol>
 
 {@img SpClientSettings.png}
 
+## Change PIN
 
-## Accessing an App
+Specify your PIN and new PIN, and click <b>Next</b>. 
+Confirm the new PIN and click <b>Done</b>.
 
-Click the name of an app to access it. Click the **Apps** icon to return to the list of apps. 
-Click the Apps icon again to return to the app.
+{@img ChangePINscreens.png}
 
-{@img Space_Client_ClickAppAction.png}
 
-## Changing User Accounts
 
-Click the arrow in the circle at the top of the apps list to switch to another account:
-
-{@img Space_Client_SwitchAccounts.png}
-
-Click Add New.
-
-Sencha Space prompts for the Organization name, email address, and password
-that you received from your system administrator:
-
-{@img Space_Client_NewAccount.png}
-
-Click the Apps icon to return to the first app in the list of apps.
-
-Click the arrow in the circle to return to the list of apps.
 
