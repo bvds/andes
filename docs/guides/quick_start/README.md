@@ -66,7 +66,7 @@ relevant AppStore to access Space and your applications:
 {@img SpaceAdminUsersIcon.png}</li>
 <li>Click the Add icon:
 {@img SpaceAdminAddIcon.png}</li>  
-<li>Add users by email address.
+<li>Add users by email address.</li>
 <li>Optional: Create groups and add users to them by clicking the Groups icon:
 {@img SpaceAdminGroupsIcon.png}
 <p>Then, provision applications to the different groups to see how 
