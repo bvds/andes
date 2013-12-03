@@ -29,5 +29,9 @@ Ext.define('Ext.space.Observable', {
         }
 
         this.listeners.push(arguments);
+    },
+
+    on: function() {
+        this.addListener.apply(this, arguments);
     }
 });
