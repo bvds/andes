@@ -1,4 +1,5 @@
 /**
+ * @private
  * The SqlResultSetRowList class which is used to represent rows returned by Sql statements.
  */
 Ext.define('Ext.space.sqlite.SqlResultSetRowList', {
@@ -46,6 +47,7 @@ Ext.define('Ext.space.sqlite.SqlResultSetRowList', {
 });
 
 /**
+ * @private
  * The SqlResultSet class which is used to represent Sql statements results.
  */
 Ext.define('Ext.space.sqlite.SqlResultSet', {
@@ -98,6 +100,8 @@ Ext.define('Ext.space.sqlite.SqlResultSet', {
 });
 
 /**
+ *
+ * @private
  * The SqlTransaction class which is used to execute Sql statements.
  */
 Ext.define('Ext.space.sqlite.SqlTransaction', {
@@ -166,6 +170,8 @@ Ext.define('Ext.space.sqlite.SqlTransaction', {
 });
 
 /**
+ * @private
+ *
  * The Database class which is used to perform transactions.
  */
 Ext.define('Ext.space.sqlite.Database', {
@@ -406,6 +412,11 @@ Ext.define('Ext.space.sqlite.Database', {
     }
 });
 
+
+/**
+* @private
+*
+*/
 Ext.define('Ext.space.Sqlite', {
     singleton: true,
 
