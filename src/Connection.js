@@ -3,13 +3,11 @@
  *
  * ## Examples
  *
- * Determining if the current device is online:
- *
- *     alert(Ext.space.Connection.isOnline());
- *
- * Checking the type of connection the device has:
- *
- *     alert('Your connection type is: ' + Ext.space.Connection.getType());
+
+    Ext.space.Connection.getStatus().then(function(status){
+        log("is online" + status.online + " " + status.type)
+    });
+    
  *
  * The available connection types are:
  *
@@ -46,31 +44,31 @@ Ext.define('Ext.space.Connection', {
      * @property {String} WIFI
      * Text label for a connection type.
      */
-    WIFI: 'WiFi connection',
+    WIFI: 'WIFI',
 
     /**
      * @property {String} CELL_2G
      * Text label for a connection type.
      */
-    CELL_2G: 'Cell 2G connection',
+    CELL_2G: 'Cell 2G',
 
     /**
      * @property {String} CELL_3G
      * Text label for a connection type.
      */
-    CELL_3G: 'Cell 3G connection',
+    CELL_3G: 'Cell 3G',
 
     /**
      * @property {String} CELL_4G
      * Text label for a connection type.
      */
-    CELL_4G: 'Cell 4G connection',
+    CELL_4G: 'Cell 4G',
 
     /**
      * @property {String} NONE
      * Text label for a connection type.
      */
-    NONE: 'No network connection',
+    NONE: 'No network',
 
     startWatching: function() {
         Ext.space.Communicator.send({
@@ -82,21 +80,34 @@ Ext.define('Ext.space.Connection', {
         });
     },
 
-    getStatus: function(config) {
+    getStatus: function() {
+        var result = new Ext.Promise();
+        var self = this;
         Ext.space.Communicator.send({
             command: 'Connection#getStatus',
             callbacks: {
-                callback: config.callback
-            },
-            scope: config.scope
+                callback: function(status){
+                    result.fulfill(self._convertStatus(status));
+                }
+            }
         });
+        return result;
     },
 
-    onConnectionChange: function() {
-        this.addListener.apply(this, arguments);
+    /**
+    *@private
+    * converts the raw status object from the bridge into a usable version
+    */
+    _convertStatus: function(status){
+        var isOnline = (status.online ? status.online === "1" : false);
+
+        console.log("status", status.online, isOnline);
+        var type = status.type;
+        var typeString = this[status.type]
+        return {online: isOnline, type: type, typeString: typeString };
     },
 
     doConnectionChange: function(e) {
-        this.invokeListeners(!!e.online, this[e.type]);
+        this.invokeListeners(this._convertStatus(e));
     }
 });
