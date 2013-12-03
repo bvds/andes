@@ -23,11 +23,6 @@
                 "description": "Using a Sencha Space Client."
             },
             {
-                "name": "manager_reports",
-                "title": "Reports Guide",
-                "description": "Generating reports from Sencha Space Manager."
-            },
-            {
                 "name": "security_architecture",
                 "title": "Security Architecture Guide",
                 "description": "Sencha Space Security."
