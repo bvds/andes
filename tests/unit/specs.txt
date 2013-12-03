@@ -1,3 +1,4 @@
+connection.js
 securelocalstorage.js
 sqlite.js
 invoke.js
