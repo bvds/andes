@@ -382,7 +382,7 @@ Space performs the following:
 <ol>
 <li>User authenticates with the system using their normal passphrase-based credentials</li>
 <li>User generates a token from their hardware device and submits that to Space</li>
-<li>Space submits the token to RSA SecurID and receives a yes/no response</li>
+<li>Space submits the token to RSA SecurID and receives a yes or no response</li>
 <li>If the token is valid, the user receives an authenticated session token</li>
 </ol>
 
@@ -509,7 +509,7 @@ password theft or session hijacking:
 		<li>Only initiating IP is authorized to use the session token</li>
 		<li>Optionally, revoke a session that moves from one network 
 		to another network</li>
-	</ol>
+	</ol></li>
 <li>Geofencing:
 	<ol>
 		<li>Pin a session within a specified radius of the initiating geographic location:
