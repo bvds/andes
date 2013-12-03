@@ -30,13 +30,17 @@ files.forEach(function(file) {
 !fs.existsSync('out') && fs.mkdirSync('out');
 fs.writeFileSync('out/space.js', content.join('\n'));
 
-result = UglifyJS.minify('out/space.js', {
+try {
+  result = UglifyJS.minify('out/space.js', {
     compress: {
         global_defs: {
             DEBUG: false
         }
     }
-});
-
+  });  
+  
 fs.writeFileSync('out/space.min.js', result.code);
+} catch (e){
 
+    console.log(e);
+}
