@@ -219,6 +219,7 @@ key_bundle = pair(encryption_key, hmac)
 
 <a name="CollectionKeys"></a>
 ### Collection Keys
+
 As noted in <a href="#KeyBundle">Key Bundles</a>, all pieces of data stored 
 on the system generate their own random Key Bundle that is used to encrypt 
 and sign the data. Space refers to these as random keys Collection Keys. 
@@ -269,94 +270,202 @@ As stated in <a href="#KeyManagement">Key Management</a>, each storage container
 generates its own set of <a href="#CollectionKeys">Collection Keys</a> 
 specifically for itself. 
 
-MITM Prevention
+The following topics provide additional Storage Container Encryption information:
 
-Space communicates with the Space server via HTTP over a secure SSL tunnel.  While it would be hard to orchestrate a MITM attack against a trusted legitimate user as a malicious attacker, a curious legitimate user could setup a proxy server with a self-signed certificate, modify DNS settings and install the certificate on their device, then proceed to capture decrypted Space traffic.
+<ul>
+<li><a href="#MITMPrevention<">MITM Prevention</a></li>
+<li><a href="#UCCE">User Credential and Certificate Encryption</a></li>
+<li><a href="#ScreenshotCache">Screenshot Cache</a></li>
+</ul>
 
-To prevent such attacks, the Space client will support certificate pinning, and ensure that the Space server certificate is a valid approved certificate before completing the SSL handshake.  Certificate pinning has its pitfalls however, such as forward compatibility of old Space clients when renewing an expired certificate.  Details on secure dynamic pinning coming soon...
+<a name="MITMPrevention"></a>
+### MITM Prevention
 
-User Credential / Certificate Encryption
+Space communicates with the Space server via HTTP over a secure SSL tunnel. 
+While it would be hard to orchestrate a MITM attack against a trusted legitimate 
+user as a malicious attacker, a curious legitimate user could setup a proxy server 
+with a self-signed certificate, modify DNS settings and install the certificate on 
+their device, then proceed to capture decrypted Space traffic.
 
-Space wants the experience for end users to be as friendly, seamless and non-invasive to the user’s workflow as possible while still maintaining a high level of security.  One such feature is seamless re-authentication when a user’s session has expired; another being offline authentication.  User credentials and/or client authentication certificates must be stored securely on the device using their own Collection Keys and following the formula described in the Collection Keys section under Key Management.
+To prevent such attacks, the Space client supports certificate pinning, and 
+ensure that the Space server certificate is a valid approved certificate before 
+completing the SSL handshake. Certificate pinning has its pitfalls however, 
+such as forward compatibility of old Space clients when renewing an expired 
+certificate.  
 
-Screenshot Cache
+<a name="UCCE"></a>
+### User Credential and Certificate Encryption
 
-On iOS specifically, the OS will take a screenshot of the application’s current view in order to perform the animation of the app going to or return from the background.  If an attacker jailbreaks the device, he/she can sift through the device cache and find screenshots containing potentially sensitive data.
+Space wants the experience for end users to be as friendly, seamless and non-invasive 
+to the user’s workflow as possible while still maintaining a high level of security. 
+One such feature is seamless re-authentication when a user’s session has expired; 
+another being offline authentication. User credentials and/or client authentication 
+certificates must be stored securely on the device using their own Collection Keys 
+and by following the formula described in <a href="#CollectionKeys">Collection Keys</a>.
 
-On iOS, Space will hide all application web views in the applicationDidEnterBackground: and applicationWillResignActive: AppDelegate methods so that sensitive information will not be on screen when the OS takes the screenshot of the application.
+<a name="ScreenshotCache"></a>
+### Screenshot Cache
+
+On iOS specifically, the OS takes a screenshot of the application’s current view 
+to perform the animation of the app entering into or returning from the background. 
+If an attacker jailbreaks the device, the attacker can sift through the device cache and 
+find screenshots containing potentially sensitive data.
+
+On iOS, Space hides all application web views in the 
+<code>applicationDidEnterBackground:</code> and 
+<code>applicationWillResignActive:</code> 
+<code>AppDelegate</code> 
+methods so that sensitive information is not visible on screen when the OS takes 
+the screenshot of the application.
 
 
-Device Intrusion Detection & Prevention
+## Device Intrusion Detection & Prevention
 
-Detecting and preventing a hacker in possession of a Space device from breaking our code and gaining access to private data is a very difficult problem to solve across all of our supported platforms.  While it is possible to make it very difficult to break the application’s code, a determined hacker with a lot of time will almost always be able to succeed in cracking any piece of software, Space aside.
+Detecting a hacker in possession of a Space device and preventing the hacker
+from breaking into the Space code to gain access to private data is a 
+very difficult problem to solve across all supported platforms.
+While it is possible to make it very difficult to 
+break an application’s code, a determined hacker with a lot of time can
+crack almost any other piece of software, but not Space.
 
-To help thwart attacks, Space will do its best to accomplish the following:
+To help thwart attacks, Space:
 
-Detect that the device has been jailbroken, rooted, or otherwise had its walled-garden environment of the OS compromised.
-Detect and/or disallow debuggers from attaching to the running process.
-Store master encryption keys securely in the binary and securely in-memory only for the duration of cryptographic operations, immediately being purged after.
-Limit class/header exposure for cryptographic operations so function prototypes and class definitions cannot be dumped.
-
-Details on accomplishing the above coming soon...
-
+<ul>
+<li>Detects that the device has been jailbroken, rooted, or otherwise had its 
+walled-garden environment of the OS compromised.</li>
+<li>Detects and/or disallows debuggers from attaching to the running process.</li>
+<li>Stores master encryption keys securely in the binary and securely in-memory 
+only for the duration of cryptographic operations, immediately being purged after.</li>
+<li>Limits class and header exposure for cryptographic operations so function 
+prototypes and class definitions cannot be dumped.</li>
+</ul>
 
 ## Authentication
 
-Space's goal is to interoperate with as many existing authentication & identity providers as possible and within reason, e.g. LDAP, Active Directory, RADIUS, Kerberos, OAuth2, SAML, etc.  But in addition to integration with existing authentication providers, Space aims to provide a layer of additional auth security, effectively a 2+ factor authentication.
+Space interoperates with many existing authentication and identity 
+providers, such as LDAP, Active Directory, RADIUS, 
+Kerberos, OAuth2, SAML, etc. In addition to integration with existing 
+authentication providers, Space provides a layer of additional authentication 
+security and effectively provides a 2+ factor authentication
+as described in the following sections:
 
-### 2-factor via SMS
-Organizations can opt-in to requiring users to perform a 2-factor authentication via SMS text messages.  If a user's mobile phone number is in the system, Space can perform the following:
+<ul>
+<li><a href="#TFUS">Two-Factor Using SMS</a></li>
+<li><a href="#TFURSID">Two-Factor Using RSA SecurID</a></li>
+<li><a href="#TWCC">Two-Way Client Certificates</a></li>
+</ul>
 
-User authenticates with the system using their normal passphrase-based credentials
-Space generates a short-TTL PIN code that is SMS messaged to the user
-User is prompted to enter in their PIN code, and must do it within the TTL (e.g. 60-90 seconds)
-If the PIN is correct, the user receives an authenticated session token
+<a name="TFUS"></a>
+### Two-Factor Using SMS
 
-### 2-factor via RSA SecurID
-EMC's RSA SecurID is a popular hardware-token authentication service for performing 2-factor authentication.  EMC issues a hardware token generator to a trusted user, and maintains an association in its database of the user and their key.  Space can perform the following:
+Organizations can opt-in to require users to perform a 2-factor 
+authentication using SMS text messages.  If a user's mobile phone number 
+is in the system, Space performs the following:
 
-User authenticates with the system using their normal passphrase-based credentials
-User generates a token from their hardware device and submits that to Space
-Space submits the token to RSA SecurID and receives a yes/no response
-If the token is valid, the user receives an authenticated session token
+<ol>
+<li>User authenticates with the system using their normal passphrase-based credentials</li>
+<li>Space generates a short-TTL PIN code that is SMS messaged to the user</li>
+<li>User is prompted to enter in their PIN code, and must do it within the TTL (e.g. 60-90 seconds)</li>
+<li>If the PIN is correct, the user receives an authenticated session token</li>
+</ol>
 
-### 2-way Client Certificates
-Client certificate authentication is one of the most common 2-factor authentication schemes deployed in enterprises.  Most if not all security devices (firewalls, SSL proxies, etc.) are able to perform client certificate authentication.  Like other 2-factor schemes, it is an additional layer of security to verify that the user "has" something (certificate) and that the user "knows" something (passphrase, etc.).
+<a name="TFURSID"></a>
+### Two-Factor Using RSA SecurID
 
-Space aims to provide organizations several options to effectively use client certificates for authentication:
+EMC's RSA SecurID is a popular hardware-token authentication service for 
+performing 2-factor authentication.  EMC issues a hardware token generator 
+to a trusted user, and maintains an association in its database of the user 
+and their key.  
 
-Turn on client certificate authentication in the Space management console
-Client devices will automatically be required to submit a CSR to the Space server, after validating their identity
-Space will issue a certificate for the client and store the certificate public key
-Admins can export user certificates + public key via the management console to install on external security devices
-Import existing client certs + public key via the Space management console
-Certs and private keys must be installed manually on each client device
-Integrates well with existing security devices
-Configure bookmark settings to specify that client certificate authentication is required in order to access the application
+Space performs the following:
 
-Subsequently, client certificates can be used in combination with a user PIN code or passphrase to do offline authentication.
+<ol>
+<li>User authenticates with the system using their normal passphrase-based credentials</li>
+<li>User generates a token from their hardware device and submits that to Space</li>
+<li>Space submits the token to RSA SecurID and receives a yes/no response</li>
+<li>If the token is valid, the user receives an authenticated session token</li>
+</ol>
+
+<a name="TWCC"></a>
+### Two-Way Client Certificates
+
+Client certificate authentication is one of the most common 2-factor authentication 
+schemes deployed in enterprises. Most if not all security devices 
+(firewalls, SSL proxies, etc.) are able to perform client certificate authentication. 
+Like other 2-factor schemes, it is an additional layer of security to verify that the 
+user "has" something (certificate) and that the user "knows" something (passphrase, etc.).
+
+Space provides organizations several options to effectively use 
+client certificates for authentication:
+
+<ol>
+<li>Turn on client certificate authentication in the Space management console:
+	<ol>
+		<li>Client devices automatically are required to submit a CSR to 
+		the Space server, after validating their identity</li>
+		<li>Space issues a certificate for the client and store the certificate public key</li>
+		<li>Admins can export user certificates + public key via the management 
+		console to install on external security devices</li>
+	</ol></li>
+<li>Import existing client certificates and a public key using the Space management console:
+	<ol>
+		<li>Install certificates and private keys manually on each client device</li>
+		<li>Importing integrates well with existing security devices</li>
+	</ol></li>
+<li>Configure bookmark settings to specify that client certificate authentication 
+is required in order to access the application</li>
+</ol>
+
+Subsequently, client certificates can be used in combination with a 
+user PIN code or passphrase to do offline authentication.
 
 
 ## Organization Security Policy Configurations
 
-In addition to information security through cryptographic algorithms, another major part of Space security is the ability to optionally set policies and rules around user authentication, behavior and locality, in addition to the standard application access control features of Space.
+In addition to information security through cryptographic algorithms, another 
+major part of Space security is the ability to optionally set policies and rules 
+around user authentication, behavior and locality, in addition to the standard 
+application access control features of Space.
 
+This section contains these topics:
+<ul>
+<li><a href="#PasswordPolicies">Password Policies</a></li>
+<li><a href="#ClientPINCodePolicies">Client PIN Code Policies</a></li>
+<li><a href="#FailedAuthenticationPolicies">Failed Authentication Policies</a></li>
+<li><a href="#SessionSecurityPolicies">Session Security Policies</a></li>
+<li><a href="#SecurityPolicyRuntime">Security Policy Runtime</a></li>
+<li><a href="#PolicyTamperingDetection">Policy Tampering Detection</a></li>
+<li><a href="#PolicyImplementation">Policy Implementation</a></li>
+</ul>
+
+<a name="PasswordPolicies"></a>
 ### Password Policies
 
-Character rules
-Minimum total characters
-Types of required characters (alpha, numeric, casing, special)
-Minimum number of each required character type
-e.g. Password must be at least 12 characters with at least 1 uppercase letter, 1 digit, and 1 special character
-Password TTL - force a password change on a specified interval
-Specify a length of time that a past password cannot be reused
-Stricter “forgot password” requirements in addition to access to the reset email or reset token
-Answer previously answered security questions
-Verify some other piece of information
+<ol>
+<li>Character rules:
+	<ol>
+		<li>Minimum total characters</li>
+		<li>Types of required characters (alpha, numeric, casing, special)</li>
+		<li>Minimum number of each required character type</li>
+		<li>Password must be at least 12 characters with at least 
+			1 uppercase letter, 1 digit, and 1 special character</li>
+	</ol></li>
+<li>Password TTL - force a password change on a specified interval:
+	<ol>
+		<li>Specify a length of time that a past password cannot be reused</li>
+	</ol></li>
+<li>Stricter “forgot password” requirements in addition to access to 
+	the reset email or reset token:
+	<ol>
+		<li>Answer previously answered security questions</li>
+		<li>Verify some other piece of information</li>
+	</ol></li>
+</ol>
 
-### Client Pin Code Policies
+<a name="ClientPINCodePolicies"></a>
+### Client PIN Code Policies
 
-<ul>
+<ol>
 <li>Require Passphrase (full keyboard) over PIN code (digits)</li>
 <li>Character rules:
 	<ol>
@@ -367,16 +476,20 @@ Verify some other piece of information
 		1 digit, and 1 special character</li>
 	</ol><li>
 <li>Minimum number of digits (PIN code only)</li>
-</ul>
+</ol>
 
+<a name="FailedAuthenticationPolicies"></a>
 ### Failed Authentication Policies
 
 After a defined set of authentication failures:
 
-Force a captcha (human element) to attempt another authentication request
-Temporarily lock out the user and/or device for a specified amount of time
-Permanently lock out the user and/or device, requiring admin intervention/unlock
+<ol>
+<li>Force a captcha (human element) to attempt another authentication request</li>
+<li>Temporarily lock out the user and/or device for a specified duration</li>
+<li>Permanently lock out the user and/or device, requiring admin intervention to unlock</li>
+</ol>
 
+<a name="SessionSecurityPolicies"></a>
 ### Session Security Policies
 
 Security policies prevent common attack scenarios such as 
@@ -438,7 +551,7 @@ password theft or session hijacking:
 
 These features differ by each organization's security policy.  
 
-
+<a name="SecurityPolicyRuntime"></a>
 ### Security Policy Runtime
 
 Part of the security policy executes on the Client. 
@@ -456,6 +569,7 @@ organization.
 Space ensures that each device checks for updated security policies 
 on an interval specified in the security policy file. 
 
+<a name="PolicyTamperingDetection"></a>
 ### Policy Tampering Detection
 
 The policy runtime verifies the authenticity of a security policy file 
@@ -463,16 +577,30 @@ each time the policy is read into memory. If the policy file is missing
 or invalid, the application presents an error message and does not allow 
 access to the organization. 
 
+<a name="PolicyImplementation"></a>
 ### Policy Implementation
 
-Storing security configurations assumes the use of a new table that associates to an organization, where all listed above policies will be presented as a columns(keys). 
+Storing security configurations assumes the use of a new table that 
+associates to an organization, where all previously listed policies 
+are presented as a columns (keys). 
 
-While subnet-masking settings would be stored as a serialized field in policies table, a list of allowed geolocations would be presented as a separate new table with following columns: continent, country, region, city, postal_code.
+While subnet-masking settings are stored as a serialized field 
+in policies table, a list of allowed geolocations are presented 
+as a separate new table with following columns: continent, country, 
+region, city, postal_code.
 
-For enforcing geolocation restriction it’s supposed to use third party database of geographical locations (i.e. http://www.geonames.org). User location would be verified by simple infliction.
+To enforce the geolocation restriction, use a third party 
+database of geographical locations such as 
+<a href="http://www.geonames.org">geonames.org</a>. 
+A user's location can be verified by a simple infliction.
 
-Setting/retrieving security configurations assumes creation of a new rpc service that will provide all necessary apis.
+Setting and retrieving security configurations assumes creation of a 
+new RPC service to provide all necessary APIs.
 
-Setting of the actual values of policies will be performed from the admin panel using server-side api from newly created service.
+Setting of the actual values of policies is performed from the 
+admin panel using the server-side API of a newly created service.
 
-Each client would be able to get a current copy of the security policy by calling server-side api from newly created service. For such a call server will generate a signed policy-file, which could be verificated on client side and then stored encrypted in a secure location.
+Each client can get a current copy of the security policy 
+by calling the server-side API from a newly created service. For such a call, 
+the server generates a signed policy-file, which can be verified 
+on the client side and stored encrypted in a secure location.
