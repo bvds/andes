@@ -15,17 +15,22 @@
             {
                 "name": "manager_guide",
                 "title": "Space Manager Guide",
-                "description": "Sencha Space Manager Instructions."
+                "description": "Using the Sencha Space Manager administrative tool."
             },
             {
                 "name": "client_guide",
                 "title": "Client Guide",
-                "description": "Use Sencha Space Client"
+                "description": "Using a Sencha Space Client."
             },
             {
                 "name": "manager_reports",
                 "title": "Reports Guide",
-                "description": "Generate reports from Sencha Space Manager."
+                "description": "Generating reports from Sencha Space Manager."
+            },
+            {
+                "name": "security_architecture",
+                "title": "Security Architecture Guide",
+                "description": "Sencha Space Security."
             }
         ]
     },
@@ -35,7 +40,7 @@
             {
                 "name": "dev_guide",
                 "title": "Developer's Guide",
-                "description": "How to develop an app for Sencha Space."
+                "description": "Developing an app for Sencha Space."
             },
             {
                 "name": "sec_lcl_strg",
