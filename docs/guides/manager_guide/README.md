@@ -71,9 +71,11 @@ The top menu contains these buttons:
 <table border="1" style="width: 600px">
 <tr><th>Icon</th><th>Description</th></tr>
 <tr><td>{@img Space_Ad_AdminMenu.png}</td>
-  <td><a href="#AdminMenu">Admin Menu</a> - Edit the admin profile, switch organizations, or log out of Sencha Space</td></tr>
+  <td><a href="#AdminMenu">Admin Menu</a> - Edit the admin profile, 
+  switch organizations, or log out of Sencha Space</td></tr>
 <tr><td>{@img Space_Ad_SenchaIcon.png}</td>
-  <td><a href="#SenchaMenu">Sencha Menu</a> - View a log of all administrator activities</td></tr>
+  <td><a href="#SenchaMenu">Sencha Menu</a> - View a log of all 
+  administrator activities</td></tr>
 </table>
 
 **Icons**:
@@ -94,8 +96,11 @@ These icons provide additional controls on tabs:
 <a name="OverviewTab"></a>
 ## Overview
 
-The Overview tab lets you monitor system usage. The chart shows user activity 
-for the current month:
+The Overview tab lets you monitor system usage. 
+To scroll the list of devices, click in the 
+list and drag your mouse up or down.
+
+The chart shows user activity for the current month:
 
 {@img Space_Ad_Overview.png}
 
@@ -141,6 +146,8 @@ becomes the first screen they see when they log into the Space Client. As admini
 you can use a web page as the starting application, for example, as a welcome screen
 with ways for users to get help or learn how to use their client.
 
+{@img SpaceMgrApplications.png}
+
 The Applications tab lists:
 
  - Name - Application name
@@ -152,6 +159,8 @@ The Applications tab lists:
 
 View the HTML web applications that can run on a Sencha Space Client app. 
 The web applications can be served using HTTP or HTTPS. 
+
+{@img SpaceMgrAppInfo.png}
 
 Info tab:
 
@@ -173,11 +182,13 @@ Lists group information about the application:
 The Add an App menu lets you bring a web app into the Space environment
 so that the app can be accessed by Space Clients. 
 
+{@img SpaceMgrAddApp.png}
+
  - App Name - Specify the name of the app as it will appear on the 
    Applications tab and on the Space Client.
  - App URL - The URL of the app. This can be an HTTP or HTTPS address.
  - Icon URL - The URL of the icon for the app. This can be an HTTP or HTTPS address.
- - Intents - List the apps that this app can invoke. Separate app names with commas. 
+ - Invokes - List the apps that this app can invoke. Separate app names with commas. 
  This field is case sensitive.
  - Description - Description of the app. This description appears on the Applications 
    tab and in the Space Client.
@@ -185,7 +196,10 @@ so that the app can be accessed by Space Clients.
 <a name="UsersTab"></a>
 ## Users Tab
 
-Lists which users can log into the Space Client and run applications. 
+Lists which users can log into the Space Client and run applications.
+
+{@img SpaceMgrUsers.png}
+ 
 Click a user name to view more information about the user. 
 Click the plus icon to invite a user. 
 Click a checkbox and the trash icon to delete a user.
@@ -195,7 +209,9 @@ Click a checkbox and the trash icon to delete a user.
 
 ### User Information Menu
 
-Click a user in the Users tab to view information:
+Click a user in the Users tab to view information.
+
+{@img SpaceMgrUserInfo.png}
 
 Info tab:
 
