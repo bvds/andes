@@ -269,6 +269,8 @@ The Groups tab displays:
 The VPN Services tab lets you add or change the VPN service provider.
 Click a checkbox and the trash icon to delete access to a service.
 
+{@img SpaceMgrVPNServices.png}
+
 This tab lists:
 
  - Name - VPN service name
@@ -278,7 +280,9 @@ This tab lists:
 
 ### Configure VPN Service
 
- To configure a VPN service:
+{@img SpaceMgrCfgVPN.png}
+
+To configure a VPN service:
 
  1. Click the Plus icon
  2. Specify a Service Name for the display on the VPN Services tab
