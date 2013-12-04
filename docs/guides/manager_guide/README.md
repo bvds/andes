@@ -118,20 +118,19 @@ This tab lists:
    - User. User's email address and the Sencha Space Client version.
    - Last Access. When the user last accessed the Sencha Space Client and the user's location. 
 
-You can click the red X icon to block a user from Sencha Space Client access 
-on the current device: 
+<b>Lost Device</b>
+
+If a user loses a mobile device, you can disable Space access to the device
+by clicking the red X icon: 
 
 {@img Space_Ad_BlockUserButton.png}
 
 Blocking a user sends the user a message and forces a log out from the 
-Sencha Space Client. To reactivate the user, click the 
-Users tab and add the user back to the Space Manager.
+Sencha Space Client. To reactivate the user for the device, click the 
+<a href="#UsersTab">Users tab</a> and add the user back to the Space Manager. 
 
-<b>Note</b> If no data appears in the Manager app at 
-[http://manage.space.sencha.com](http://manage.space.sencha.com), or you wish to log out, click 
-the administrator drop-down and click **Logout**:
-
-{@img Space_Ad_LogoutMenu.png}
+<b>Note</b> Blocking the device only affects the one device. The user
+can access the Space Client from another device.
 
 
 <a name="AppsTab"></a>
@@ -244,8 +243,14 @@ To invite a user:
 <a name="GroupsTab"></a>
 ## Groups Tab
 
-Creates or removes a group. Applications can be associated with a group
+Groups lets you organize users into organizational units, such as 
+support, accounting, management, development, and so on, and assign each 
+group specific apps for their exclusive use. 
+
+The Groups tab creates or removes a group. Applications can be associated with a group
 or a user. Click a checkbox and the trash icon to delete a group.
+
+{@img SpaceMgrGroupsTab.png}
 
 The Groups tab displays:
 
@@ -255,6 +260,8 @@ The Groups tab displays:
  - Plus icon - Add a new group
 
 ### Adding a New Group
+
+{@img SpaceMgrCreateGroup.png}
 
  To add a new group:
 
@@ -376,6 +383,9 @@ Lets you:
 ### Edit Your Admin Profile
 
 Edits your administrator's profile.
+
+{@img SpaceMgrEditAdminProfile.png}
+
 Add or change:
 
  - First Name
@@ -385,7 +395,8 @@ Add or change:
  - New Password
  - Confirm New Password
 
-You can also click **Remove User** to remove your access to Sencha Space.
+You can also click <b>X Block</b> to block the administrator, or click
+**Remove User** to remove your access to Sencha Space.
 
 ### Switch Organizations
 
