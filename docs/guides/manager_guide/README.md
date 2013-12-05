@@ -8,10 +8,7 @@ Manager app at
 The Space Manager application enables secure access to an enterprise's
 authentication and authorization server. 
 
-Users obtain their Sencha Space Client apps from the Apple App Store, 
-Google Play, or BlackBerry World Apps market.
-
-<b>Browser Support</b>
+<b>Space Manager Browser Support</b>
 
 The Manager application works on:
 
@@ -19,7 +16,14 @@ The Manager application works on:
 <li>Chrome (any version)</li>
 <li>Safari (any version)</li>
 <li>Firefox version 22 and later</li>
+<li>Internet Explorer version 10 and later</li>
 </ul>
+
+<b>Client Support</b>
+
+Users obtain their Sencha Space Client apps from the Apple App Store, 
+Google Play, or BlackBerry World Apps market.
+
 
 ## Sencha Space Features
 
@@ -338,10 +342,11 @@ Provides settings for:
 <li>Organization Name - Any string.</li>
 <li>Organization Code - A string you receive from Sencha after you register 
 your organization with Sencha</li>
-<li>Email Method - Placeholder - Changing soon</li>
-<li>Billing - Placeholder - Changing soon</li>
+<li>Email Method - Native (HTTP address) or Good Enterprise (HTTPS address)</li>
+<li>Billing - Where Sencha bills your organization</li>
+<li>Email Pattern - Indicates how to resolve <code>mailto</code> links</li>
 </ul>
-{@img Space_Ad_Settings_General.png}<br></li>
+{@img SpaceMgrGeneralSettings.png}<br></li>
 <li>Security Policy - Lets you set:
 <ul>
 <li>Session Duration</li>
@@ -358,6 +363,9 @@ to be authenticated in the Space client. The default is 6 digits.</li>
 the correct PIN value before being locked out. The default is 10 attempts.
 If a user is locked out, the user must re-enter their username and password
 to gain access to the Space client.</li>
+<li>Maximum time of offline work - Maximum duration that a device can use
+Sencha Space offline before being automatically logged off. The duration
+can be set to an amount of minutes, hours, days, weeks, or months.</li>
 </ul>
 {@img Space_Ad_Settings_Security.png}<br></li>
 <li>Authentication - Lets you set:
@@ -366,13 +374,21 @@ to gain access to the Space client.</li>
 you can only add user access to the Space client by an email
 invitation. <b>SAML 2.0</b> - Indicates that users are given access
 to the Space client by virtue of access through SAML.</li>
-<li>User Provisioning - Auto add user to Space - </li>
-<li>Identity Provider (IDP) Endpoint URL - </li>
-<li>Certificate - </li>
-<li>Attribute Presets - </li>
-<li>Email Attribute - </li>
-<li>First Name Attribute - </li>
-<li>Last Name Attribute - </li>
+<li>User Provisioning - Auto add user to Space - Add user automatically
+to Sencha Space.</li>
+<li>Identity Provider (IDP) Config:
+  <ul>
+  <li>Endpoint URL - Indicate the URL for how to access the IDP.</li>
+  <li>Certificate - List the IDP certificate. Use this syntax:
+<pre>
+-----BEGIN CERTIFICATE----- Insert your certificate here -----END CERTIFICATE----- 
+</pre>
+ </li>
+  <li>Attribute Presets - </li>
+  <li>Email Attribute - Specify the email address of your IDP</li>
+  <li>First Name Attribute - Specify the first name of the IDP</li>
+  <li>Last Name Attribute - Specify the last name of the IDP</li>
+  </ul></li>
 </ul>
 {@img Space_Ad_Settings_AuthN.png}<br></li>
 </ul> 

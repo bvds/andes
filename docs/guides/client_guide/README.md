@@ -6,6 +6,18 @@ and the BlackBerry World App Market.
 The Sencha Space User Client application enables you to view available apps 
 and quickly move between the apps in the User Client. 
 
+## Requirements
+
+The Sencha Space User Client supports:
+<ul>
+<li>iOS version 5.1 and later</li>
+<li>Android version 2.3.3 or later</li>
+<li>BlackBerry version 10 or later</li>
+</ul>
+
+Installing the user client requires 5 MB of free space on a device and access
+to the Internet.
+
 ## Log In to Sencha Space
 
 After installing the Sencha Space User Client, click the name of your 
