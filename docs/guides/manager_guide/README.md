@@ -125,9 +125,18 @@ by clicking the red X icon:
 
 {@img Space_Ad_BlockUserButton.png}
 
-Blocking a user sends the user a message and forces a log out from the 
-Sencha Space Client. To reactivate the user for the device, click the 
-<a href="#UsersTab">Users tab</a> and add the user back to the Space Manager. 
+You are prompted to be sure you want to immediately terminate the user's 
+session.
+
+Blocking a user's device sends this message to the Space Client:<br>
+<code><b>Error</b> This device has been blocked indefinitely by an administrator.</code>
+
+To reactivate the device, click the <a href="#UsersTab">Users tab</a> (1) and 
+click the <b>Devices</b> tab (2). Click the blue check icon (3):
+
+{@img SpaceMgrAddBackDevice.png}
+
+Space Manager prompts to be sure you want to unblock the device.
 
 <b>Note</b> Blocking the device only affects the one device. The user
 can access the Space Client from another device.
