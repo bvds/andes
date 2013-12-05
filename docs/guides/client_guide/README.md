@@ -18,7 +18,7 @@ The Sencha Space User Client supports:
 Installing the user client requires 5 MB of free space on a device and access
 to the Internet.
 
-## Log In to Sencha Space
+## Log Into Sencha Space
 
 After installing the Sencha Space User Client, click the name of your 
 organization or click <b>Add</b> to specify another organization. If you enter
@@ -38,15 +38,25 @@ of the password prompt:
 
 ### Reset a Password
 
-If you don't remember your password, enter your email address and click <b>Reset Password</b> 
-or click <b>return</b>. Information about how to reset your password is sent to the email
+If you don't remember your password, enter your email address 
+and click <b>Reset Password</b> or click <b>return</b>. 
+Information about how to reset your password is sent to the email
 address you provide. To return to the previous screen, click the left arrow. 
 
 {@img ResetPassword.png}
 
+## Existing Login PIN Prompt
+
+When a user has already started a Space session and exits the client, when
+they return, they are prompted for the organization and then for the PIN
+that was previously set:
+
+{@img SpaceClientPINprompt.png}
+
 ## Add an Organization
 
-The name of your organization, such as a project name, company name, institution name, etc. 
+The name of your organization, such as a project name, company name, 
+institution name, etc. 
 An organization name is provided to you when Sencha sends you mail confirming your 
 participation in Sencha Space. 
 
