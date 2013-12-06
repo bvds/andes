@@ -99,9 +99,7 @@ Ext.define('Ext.space.Connection', {
     * converts the raw status object from the bridge into a usable version
     */
     _convertStatus: function(status){
-        var isOnline = (status.online ? status.online === "1" : false);
-
-        console.log("status", status.online, isOnline);
+        var isOnline = status.online == "1";
         var type = status.type;
         var typeString = this[status.type]
         return {online: isOnline, type: type, typeString: typeString };
