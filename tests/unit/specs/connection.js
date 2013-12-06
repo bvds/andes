@@ -8,10 +8,30 @@ describe("Connection", function() {
         });
 
 
-        it("covert status should handle online", function(done) {
+        it("covert status should handle online (as string)", function(done) {
             var result = Ext.space.Connection._convertStatus({online: "1", type:"WIFI"});
             expect(result).to.exist;
             expect(result.online).to.exist;
+            expect(result.online).to.equal(true);
+
+            expect(result.type).to.exist;
+            expect(result.type).to.equal("WIFI");
+
+            expect(result.typeString).to.exist;
+            expect(result.typeString).to.equal(Ext.space.Connection.WIFI);
+
+            done();
+           
+        });
+
+         it("covert status should handle online (as number)", function(done) {
+            var result = Ext.space.Connection._convertStatus({online: 1, type:"WIFI"});
+            expect(result).to.exist;
+            expect(result.online).to.exist;
+
+
+            console.log("result.online", result.online);
+
             expect(result.online).to.equal(true);
 
             expect(result.type).to.exist;
@@ -62,6 +82,7 @@ describe("Connection", function() {
             expect(result.online).to.exist;
             expect(result.online).to.equal(true);
 
+
             expect(result.type).to.exist;
             expect(result.type).to.equal("CELL_3G");
 
@@ -97,7 +118,9 @@ describe("Connection", function() {
             
 
             result.then(function(status){
+
                   expect(status.online).to.exist;
+                  expect(status.online).to.equal(true);
                   expect(status.type).to.exist;
                   done();
             });
