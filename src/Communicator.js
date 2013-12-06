@@ -278,8 +278,16 @@ Ext.define('Ext.space.Communicator', {
                     sync: synchronous
                 };
 
-                var result = window.Sencha.action(JSON.stringify(data));
+                var result;
+                
+                if(window.Sencha) {
+                    result = window.Sencha.action(JSON.stringify(data));
+                } else {
+                    result = prompt("whatever", "sencha:"+JSON.stringify(data));
+                }
+                
 
+               
                 if (result) {
                     return JSON.parse(result);
                 }
