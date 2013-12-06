@@ -4,15 +4,16 @@
  *
  * You can use the {@link Ext.space.Camera#capture} function to take a photo:
  *
- *     Ext.space.Camera.capture({
- *         success: function(image) {
- *             imageView.setSrc(image);
- *         },
+ *     var promise = Ext.space.Camera.capture({
  *         quality: 75,
  *         width: 200,
  *         height: 200,
- *         destination: 'data'
+ *         destination: 'file'
  *     });
+ *
+ *     promise.then(function(image){ 
+            //either URI to the image or data URI of the selected image.
+       })
  *
  * See the documentation for {@link Ext.space.Camera#capture} all available configurations.
  */
@@ -62,19 +63,19 @@ Ext.define('Ext.space.Camera', {
      * The source of where the image should be taken. Available options are:
      *
      * - **album** - prompts the user to choose an image from an album
-     * - **camera** - prompts the user to take a new photo
+     * - **camera** - prompts the user to take a new photo (default)
      * - **library** - prompts the user to choose an image from the library
      *
      * @param {String} destination
      * The destination of the image which is returned. Available options are:
      *
      * - **data** - returns a base64 encoded string
-     * - **file** - returns the file's URI
+     * - **file** - returns the file's URI (default)
      *
      * @param {String} encoding
      * The encoding of the returned image. Available options are:
      *
-     * - **jpg**
+     * - **jpg** (default)
      * - **png**
      *
      * @param {Number} width
@@ -85,11 +86,15 @@ Ext.define('Ext.space.Camera', {
      */
     capture: function(options) {
         var sources = this.source,
+            
             destinations = this.destination,
             encodings = this.encoding,
-            source = options.source,
-            destination = options.destination,
-            encoding = options.encoding;
+
+            source = options.source || "camera",
+            destination = options.destination || "data",
+            encoding = options.encoding || "jpg";
+
+        var result = new Ext.Promise();
 
         if (sources.hasOwnProperty(source)) {
             source = sources[source];
@@ -106,8 +111,12 @@ Ext.define('Ext.space.Camera', {
         Ext.space.Communicator.send({
             command: 'Camera#capture',
             callbacks: {
-                success: options.success,
-                failure: options.failure
+                success: function(image){
+                    result.fulfill(image);
+                },
+                failure: function(error){
+                    result.reject(error);
+                },
             },
             scope: options.scope,
             quality: options.quality,
@@ -117,5 +126,6 @@ Ext.define('Ext.space.Camera', {
             destination: destination,
             encoding: encoding
         });
+        return result;
     }
 });
