@@ -18,9 +18,14 @@
                 "description": "Using the Sencha Space Manager administrative tool."
             },
             {
-                "name": "client_guide",
-                "title": "Client Guide",
-                "description": "Using a Sencha Space Client."
+                "name": "ios_client_guide",
+                "title": "iOS Sencha Space Client Guide",
+                "description": "Using the iOS Space Client."
+            },
+            {
+                "name": "android_client_guide",
+                "title": "Android Sencha Space Client Guide",
+                "description": "Using the Android Space Client."
             },
             {
                 "name": "security_architecture",
