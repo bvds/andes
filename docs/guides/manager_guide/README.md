@@ -81,8 +81,8 @@ The top menu contains these buttons:
   <td><a href="#AdminMenu">Admin Menu</a> - Edit the admin profile, 
   switch organizations, or log out of Sencha Space</td></tr>
 <tr><td>{@img Space_Ad_SenchaIcon.png}</td>
-  <td><a href="#SenchaMenu">Sencha Menu</a> - View a log of all 
-  administrator activities</td></tr>
+  <td><a href="#SenchaMenu">Sencha Menu</a> - View a log of your recent
+actions.</td></tr>
 </table>
 
 **Icons**:
@@ -558,13 +558,14 @@ Fields:
 <a name="SenchaMenu"></a>
 ## Sencha Menu
 
-Logs all administration activities.
+Lists your recent activities. This information does not persist between 
+Space Manager sessions.
 
 {@img Space_Ad_SenchaLogMenu.png}
 
 Icons from left to right: 
 
- - Infinity - Lists all log entries
+ - Infinity - Lists recent log entries
  - Success - Lists successful actions, such as inviting a user or creating a group
  - Failure - Lists actions that failed
  - Information - Lists entries for review or that are informative
