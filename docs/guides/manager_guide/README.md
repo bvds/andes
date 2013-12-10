@@ -342,21 +342,32 @@ Provides settings for:
 <li>Organization Name - Any string.</li>
 <li>Organization Code - A string you receive from Sencha after you register 
 your organization with Sencha</li>
-<li>Email Method - Native (HTTP address) or Good Enterprise (HTTPS address)</li>
-<li>Billing - Where Sencha bills your organization</li>
-<li>Email Pattern - Indicates how to resolve <code>mailto</code> links</li>
+<li>Email Method - Native email pattern or Good Enterprise email pattern</li>
+<li>Email Pattern - Indicates how to resolve <code>mailto</code> links per the
+email method you select.</li>
+<li>Billing - Address where Sencha bills your organization</li>
 </ul>
 {@img SpaceMgrGeneralSettings.png}<br></li>
 <li>Security Policy - Lets you set:
 <ul>
-<li>Session Duration</li>
+<li>Session Duration - The duration for how long a user can perform other
+activities outside the Client app before being reprompted for a PIN. For 
+example, a presses the Home button on their mobile device to exit the 
+Space client. If the Session Duration is set to 5 minutes, the user has up
+to 5 minutes before the Space Client reprompts for a PIN upon returning
+to the Space Client. The tradeoff is that the Space Client data is more
+vulnerable during the Session Duration interval should the device
+be lost or stolen, but the duration gives users more time 
+to perform other activities before being reprompted 
+when returning to the Space Client.</li>
 <li>Pin Type Slider - Slide to <b>None</b> to not require a PIN or password 
 when users access the Space client on their mobile device - only use this 
 setting during debugging, 
 slide to <b>Number</b> to require users to supply a PIN for authentication, 
 slide to <b>Secure</b> to require a secure password that has a combination
 of letters, numbers, and special characters. A password must consist of at
-least 4 characters and can be any length.</li>
+least 4 characters, have at least one number, letter, and special character, 
+and can be any length.</li>
 <li>Pin Minimum Length - The least number of numbers a user can enter
 to be authenticated in the Space client. The default is 6 digits.</li>
 <li>Pin Lock After Attempts - The number of tries a user gets to supply
