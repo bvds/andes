@@ -211,6 +211,8 @@ so that the app can be accessed by Space Clients.
 ## Users Tab
 
 Lists which users can log into the Space Client and run applications.
+You can also use this tab to add users, block users, change a login password, 
+and remove a user. 
 
 {@img SpaceMgrUsers.png}
  
@@ -241,19 +243,40 @@ Groups tab:
 
 ### Invite Users
 
-Click the plus icon on the Users tab to invite one or more users to participate
-in Sencha Space. The users you invite receive an email with information about 
-how to log into the Sencha Space Client.
+Click the plus icon on the Users tab to invite a user to participate
+in Sencha Space. You can add additional users from the Invite Users
+menu, specifying each address separately.
+
+The users you invite receive an email with information about 
+how to obtain the Client app and how to log into the Sencha Space Client.
 
 {@img Space_Ad_Users_PlusIcon.png}
 
 To invite a user:
 
-1. Type the user's email address and click the plus symbol. You can enter
-   multiple addresses separated by commas.
+1. Type the user's email address and click the plus symbol. 
    {@img Space_Ad_Invite_Users.png}
 2. If needed, delete an address and re-type.
-3. Click Invite.
+3. Add each address you want to invite and click the plus symbol.
+3. Click **Invite**.
+
+You can invite a user more than once if needed. 
+
+### Remove a User
+
+To remove a user:
+
+1. Click the Users tab in Space Manager.
+2. Click the checkbox next to the user's name in the Users tab list.
+3. Click the trash can icon at the top of the screen.
+
+Or:
+
+1. Click the Users tab in Space Manager.
+2. Click the user in the list.
+3. Click **Edit**
+4. Click **Remove User** at the bottom of the page.
+
 
 <a name="GroupsTab"></a>
 ## Groups Tab
