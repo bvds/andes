@@ -102,7 +102,9 @@ These icons provide additional controls on tabs:
 
 The Overview tab lets you monitor system usage. 
 To scroll the list of devices, click in the 
-list and drag your mouse up or down.
+list and drag your mouse up or down. You can refresh 
+your view of the screen by clicking the list and dragging
+the list downward.
 
 The chart shows user activity for the current month:
 
