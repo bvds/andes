@@ -31,19 +31,22 @@ The Manager Application side menu contains these buttons:
 
 <table border="1" style="width: 600px">
 <tr><th>Icon</th><th>Description</th></tr>
-<tr><td>{@img Space_Ad_Overview_Icon.png}</td>
+<tr><td>{@img IconHome.png}</td>
   <td><a href="#OverviewTab">Overview</a> - Monitors organization Space usage and user 
   device and location</td></tr>
-<tr><td>{@img Space_Ad_Apps_Icon.png}</td>
+<tr><td>{@img IconApplications.png}</td>
   <td><a href="#AppsTab">Applications</a> - Lists, adds, and
 removes applications</td></tr>
-<tr><td>{@img Space_Ad_Users_Icon.png}</td>
+<tr><td>{@img IconDevices.png}</td><td><a href="#DevicesTab">Devices</a> - Lists,
+assigns device ownership, blocks a device, and wipes Space Client info 
+from a device</td></tr>
+<tr><td>{@img IconUsers.png}</td>
   <td><a href="#UsersTab">Users</a> - Lists, adds, and removes user access to Space</td></tr>
-<tr><td>{@img Space_Ad_GroupsIcon.png}</td>
+<tr><td>{@img IconGroups.png}</td>
   <td><a href="#GroupsTab">Groups</a> - Lists, adds, and removes group access to Space</td></tr>
-<tr><td>{@img Space_Ad_VPNServices_Icon.png}</td>
+<tr><td>{@img IconVPN.png}</td>
   <td><a href="#VPNServicesTab">VPN Services</a> - Manages VPN services</td></tr>
-<tr><td style="vertical-align: top">{@img Space_Ad_ReportsIcon.png}</td>
+<tr><td style="vertical-align: top">{@img IconReports.png}</td>
 <td><a href="#ReportsTab">Reports</a> - Provides interactive reports for:
 <ul>
 <li>Last Seen - Number of users logging in. Lets you filter by duration, 
@@ -58,7 +61,7 @@ by the user or the organization. Also lists the available apps by usage,
 with columns for when the app was created (made available to your organization).</li>
 </ul>
 </td></tr>
-<tr><td style="vertical-align: top">{@img Space_Ad_GearIcon.png}</td>
+<tr><td style="vertical-align: top">{@img IconSettings.png}</td>
   <td><a href="#GearTab">Settings</a> - Provides settings for:
 <ul>
 <li>General - Specify organization name, organization code, email method, and billing address.</li>
@@ -207,6 +210,45 @@ so that the app can be accessed by Space Clients.
  - Description - Description of the app. This description appears on the Applications 
    tab and in the Space Client.
 
+<a name="DevicesTab"></a>
+## Devices Tab
+
+Lists, assigns device ownership, blocks a device, and wipes Space Client info 
+from a device.
+
+{@img DevicesTab.png}
+
+ - Device - Device name
+ - User - Device's owner - This name is set on the <a href="#UsersTab">Users tab</a>
+ - Last Access - Last use of Space Client by the device
+ - Ownership - How you designate the device - can by Unknown, Employee, or Corporate
+
+### Device Info
+
+Click a device to view and edit device information. This menu also lets you
+wipe the Space Client organization data from a device.
+
+{@img DeviceInfo.png}
+
+ - Device - Device type taken from the device's data provided in the connection
+ - Client - Space Client version number
+ - Ownership - How you classify the device - set this value by clicking **Edit**
+ - Blocked - Whether or not this device is currently blocked
+
+### Edit Device Info
+
+Edit device information to change the ownership, block a device, or wipe the device 
+by removing the organizational data from the Space Client on the device.
+
+{@img DeviceInfoEdit.png}
+
+ - Device - Device type taken from the device's data provided in the connection
+ - Client - Space Client version number
+ - Ownership - Set as needed to Employee or Corporate
+ - Block - Removes the ability of the device to access the Space Client - the user is sent a message stating that the device is blocked by an administrator
+ - Wipe Device - Removes all Sencha Client organizational data from the device - the user is logged out of the Space Client
+ - Done - If you make a change, click **Done** to complete the change
+
 <a name="UsersTab"></a>
 ## Users Tab
 
@@ -240,6 +282,12 @@ Groups tab:
  - Name - Groups to which the user belongs
  - Members - Users in the group
  - Modified - When the group was last modified
+
+Devices tab:
+
+- Info - Device name and Space Client version
+- Type - Device type and device's operating system version
+- Last Access - When user last used Space Client on their device, and the user's location
 
 ### Invite Users
 
