@@ -319,17 +319,17 @@ Provides interactive reports for:
 <li><b>Last Seen</b> - Number of users logging in. Lets you filter by duration, 
 date range, platform OS, platform version, and whether the device is 
 owned by the user or the organization. Also lists recent logins.<br><br>
-{@img Space_Ad_ReportLastSeen.png}<br></li>
+{@img ManagerReportsLastSeen.png}<br></li>
 <li><b>Platform Distribution</b> - Pie chart by device platform with filters for 
 date range, platform OS, platform version, and whether the device is owned 
 by the user or the organization. Also lists current devices.<br><br>
-{@img Space_Ad_ReportPlatDist.png}<br></li>
+{@img ManagerReportsPlatDist.png}<br></li>
 <li><b>App Launches</b> - Number of app launches with filters for 
 date range, platform OS, platform version, and whether the device is owned 
 by the user or the organization. Also lists the available apps by usage,
 with columns for when the app was created (made available to 
 your organization).<br><br>
-{@img Space_Ad_ReportAppLaunches.png}</li>
+{@img ManagerReportsAppLaunches.png}</li>
 </ul>
 
 <a name="GearTab"></a>
