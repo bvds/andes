@@ -474,7 +474,7 @@ This section contains these topics:
 		<li>Minimum number of each required character type</li>
 		<li>Password must be at least 12 characters with at least 1 uppercase letter, 
 		1 digit, and 1 special character</li>
-	</ol><li>
+	</ol></li>
 <li>Minimum number of digits (PIN code only)</li>
 </ol>
 
