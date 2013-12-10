@@ -335,6 +335,13 @@ your organization).<br><br>
 <a name="GearTab"></a>
 ## Settings Tab
 
+Enables you to set general information, manage your security policy, and
+set authentication requirements. 
+
+<b>Important</b>: When you change any of the 
+options in the Security Policy, all users are sent a notice when they log in that 
+they need to change their PIN. 
+
 Provides settings for:
 <ul>
 <li>General - Lets you set:
@@ -345,7 +352,6 @@ your organization with Sencha</li>
 <li>Email Method - Native email pattern or Good Enterprise email pattern</li>
 <li>Email Pattern - Indicates how to resolve <code>mailto</code> links per the
 email method you select.</li>
-<li>Billing - Address where Sencha bills your organization</li>
 </ul>
 {@img SpaceMgrGeneralSettings.png}<br></li>
 <li>Security Policy - Lets you set:
