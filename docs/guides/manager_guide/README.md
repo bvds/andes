@@ -428,7 +428,7 @@ email method you select. A Native pattern starts with <code>mailto</code>,
 whereas a Good Enterprise pattern starts with the <code>gdmailto</code>
 or <code>ggmailto</code> value.</li>
 </ol>
-{@img SpaceMgrGeneralSettings.png}<br></li>
+{@img ManagerSettingsGeneral.png}<br></li>
 <li>Security Policy - Lets you set:
 <ol>
 <li>Session Duration - The duration for how long a user can perform other
@@ -459,7 +459,7 @@ to gain access to the Space client.</li>
 Sencha Space offline before being automatically logged off. The duration
 can be set to an amount of minutes, hours, days, weeks, or months.</li>
 </ol>
-{@img Space_Ad_Settings_Security.png}<br></li>
+{@img ManagerSettingsSecPolicy.png}<br></li>
 <li>Authentication - Lets you set:
 <ol>
 <li>Authentication Method - <b>Invite Only</b> - Indicates that 
@@ -483,7 +483,7 @@ to Sencha Space.</li>
   <li>Last Name Attribute - Specify the last name of the IDP</li>
   </ol></li>
 </ol>
-{@img Space_Ad_Settings_AuthN.png}<br></li>
+{@img ManagerSettingsAuthentication.png}<br></li>
 <li>Billing - Information about your Space Manager subscription:
 <ol>
 <li>Status of Your Current Subscription - Whether you are using Space
@@ -546,8 +546,8 @@ Fields:
 <a name="SenchaMenu"></a>
 ## Sencha Menu
 
-Lists your recent activities. This information does not persist between 
-Space Manager sessions.
+Lists your recent activities. Each time the browser refreshes, 
+the previous entries no longer display.
 
 {@img Space_Ad_SenchaLogMenu.png}
 
