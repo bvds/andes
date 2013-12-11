@@ -62,7 +62,7 @@ with columns for when the app was created (made available to your organization).
 </ul>
 </td></tr>
 <tr><td style="vertical-align: top">{@img IconSettings.png}</td>
-  <td><a href="#GearTab">Settings</a> - Provides settings for:
+  <td><a href="#SettingsTab">Settings</a> - Provides settings for:
 <ul>
 <li>General - Specify organization name, organization code, email method, and billing address.</li>
 <li>Security Policy - Specify user session duration, PIN length, 
@@ -405,7 +405,7 @@ your organization).<br><br>
 {@img ManagerReportsAppLaunches.png}</li>
 </ul>
 
-<a name="GearTab"></a>
+<a name="SettingsTab"></a>
 ## Settings Tab
 
 Enables you to set general information, manage your security policy, and
@@ -416,19 +416,21 @@ options in the Security Policy, all users are sent a notice when they log in tha
 they need to change their PIN. 
 
 Provides settings for:
-<ul>
+<ol>
 <li>General - Lets you set:
-<ul>
+<ol>
 <li>Organization Name - Any string.</li>
 <li>Organization Code - A string you receive from Sencha after you register 
 your organization with Sencha</li>
-<li>Email Method - Native email pattern or Good Enterprise email pattern</li>
+<li>Email Method - Native email pattern or Good Enterprise email pattern.</li>
 <li>Email Pattern - Indicates how to resolve <code>mailto</code> links per the
-email method you select.</li>
-</ul>
+email method you select. A Native pattern starts with <code>mailto</code>, 
+whereas a Good Enterprise pattern starts with the <code>gdmailto</code>
+or <code>ggmailto</code> value.</li>
+</ol>
 {@img SpaceMgrGeneralSettings.png}<br></li>
 <li>Security Policy - Lets you set:
-<ul>
+<ol>
 <li>Session Duration - The duration for how long a user can perform other
 activities outside the Client app before being reprompted for a PIN. For 
 example, a presses the Home button on their mobile device to exit the 
@@ -456,10 +458,10 @@ to gain access to the Space client.</li>
 <li>Maximum time of offline work - Maximum duration that a device can use
 Sencha Space offline before being automatically logged off. The duration
 can be set to an amount of minutes, hours, days, weeks, or months.</li>
-</ul>
+</ol>
 {@img Space_Ad_Settings_Security.png}<br></li>
 <li>Authentication - Lets you set:
-<ul>
+<ol>
 <li>Authentication Method - <b>Invite Only</b> - Indicates that 
 you can only add user access to the Space client by an email
 invitation. <b>SAML 2.0</b> - Indicates that users are given access
@@ -467,32 +469,47 @@ to the Space client by virtue of access through SAML.</li>
 <li>User Provisioning - Auto add user to Space - Add user automatically
 to Sencha Space.</li>
 <li>Identity Provider (IDP) Config:
-  <ul>
+  <ol>
   <li>Endpoint URL - Indicate the URL for how to access the IDP.</li>
   <li>Certificate - List the IDP certificate. Use this syntax:
 <pre>
 -----BEGIN CERTIFICATE----- Insert your certificate here -----END CERTIFICATE----- 
 </pre>
  </li>
-  <li>Attribute Presets - </li>
+  <li>Attribute Presets - Custom, OneLogin (single sign-on), 
+  or <a href="http://en.wikipedia.org/wiki/Active_Directory_Federation_Services">Active Directory Federation Services 2.0</a></li>
   <li>Email Attribute - Specify the email address of your IDP</li>
   <li>First Name Attribute - Specify the first name of the IDP</li>
   <li>Last Name Attribute - Specify the last name of the IDP</li>
-  </ul></li>
-</ul>
+  </ol></li>
+</ol>
 {@img Space_Ad_Settings_AuthN.png}<br></li>
-</ul> 
+<li>Billing - Information about your Space Manager subscription:
+<ol>
+<li>Status of Your Current Subscription - Whether you are using Space
+on a trial or are active.</li>
+<li>Subscription Period End - The date your Space subscriptiption ends.</li>
+<li>Billing Tier - Indicates whether your subscription applies to your
+team, workforce, or enterprise.</li>
+<li>Contact Information - Who to contact who is responsible for maintaining
+the Sencha Space subscription.</li>
+<li>Credit Card - Which credit card to use to bill for your Sencha
+Space subscription.</li>
+<li>Update - Click to save changed information in this form.</li>
+</ol>
+{@img ManagerSettingsBilling.png}
+</li>
+</ol> 
 
 
 <a name="AdminMenu"></a>
 ## Admin Menu
 
-{@img Space_Ad_AdminMenuOptions.png}
+{@img ManagerAdminMenu.png}
 
 Lets you:
 
  - Edit your administrator profile
- - Switch organizations
  - Log out of Sencha Space
 
 ### Edit Your Admin Profile
@@ -513,47 +530,18 @@ Add or change:
 You can also click <b>X Block</b> to block the administrator, or click
 **Remove User** to remove your access to Sencha Space.
 
-### Switch Organizations
-
-Click the administrator menu drop-down and click **Switch organizations**:
-
-{@img Space_Ad_SwitchOrgs.png}
-
-The first organization in the list is the one you are currently administering. 
-
-When you switch organizations, all the settings from the former organization 
-store while you work with other organizations.
-
-This tab lists:
-
-- Name - Organization name 
-- Code - Organization code
-- Users - Number of users in the organization 
-- Groups - Number of groups in the organization
-- Apps - Number of apps handled for this organization
-
-To add or change organization information:
-
- - Add an organization by clicking the Add button.
- - Change the information for an organization by clicking the Pencil button: 
-   {@img Space_Ad_OrgEditButton.png}
- - Change the current organization by clicking the Switching button:
-   {@img Space_Ad_OrgChangeButton.png}
 
 #### Add or Change an Organization
 
 Add an organization by clicking **Add** in the Organizations menu. 
-Change organization information by clicking the pencil icon in
-the Organizations menu.
 
 Fields:
 
- - Organization Name 
- - Organization Code - A keyword to describe the organization
- - Cache Max Age - The duration in minutes that you want information 
-   about an organization to persist in the Client. Zero indicates
-   that the information persists indefinitely and only updates when a
-   user clicks the Refresh button.
+ - Name - Organization name
+ - Code - A keyword to describe the organization
+ - Users - Total number of users in the organization
+ - Groups - Total number of groups in the organization
+ - Apps - Total number of apps available to Space Client users
 
 <a name="SenchaMenu"></a>
 ## Sencha Menu
