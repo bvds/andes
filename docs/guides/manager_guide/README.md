@@ -417,7 +417,7 @@ they need to change their PIN.
 
 Provides settings for:
 <ol>
-<li>General - Lets you set:
+<li><b>General</b> - Lets you set:
 <ol>
 <li>Organization Name - Any string.</li>
 <li>Organization Code - A string you receive from Sencha after you register 
@@ -429,9 +429,9 @@ whereas a Good Enterprise pattern starts with the <code>gdmailto</code>
 or <code>ggmailto</code> value.</li>
 </ol>
 {@img ManagerSettingsGeneral.png}<br></li>
-<li>Security Policy - Lets you set:
+<li><b>Security Policy</b> - Lets you set:
 <ol>
-<li>Session Duration - The duration for how long a user can perform other
+<li>PIN Required After Minutes - The duration for how long a user can perform other
 activities outside the Client app before being reprompted for a PIN. For 
 example, a presses the Home button on their mobile device to exit the 
 Space client. If the Session Duration is set to 5 minutes, the user has up
@@ -441,7 +441,7 @@ vulnerable during the Session Duration interval should the device
 be lost or stolen, but the duration gives users more time 
 to perform other activities before being reprompted 
 when returning to the Space Client.</li>
-<li>Pin Type Slider - Slide to <b>None</b> to not require a PIN or password 
+<li>PIN Type Slider - Slide to <b>None</b> to not require a PIN or password 
 when users access the Space client on their mobile device - only use this 
 setting during debugging, 
 slide to <b>Number</b> to require users to supply a PIN for authentication, 
@@ -449,18 +449,19 @@ slide to <b>Secure</b> to require a secure password that has a combination
 of letters, numbers, and special characters. A password must consist of at
 least 4 characters, have at least one number, letter, and special character, 
 and can be any length.</li>
-<li>Pin Minimum Length - The least number of numbers a user can enter
+<li>PIN Minimum Length - The least number of numbers a user can enter
 to be authenticated in the Space client. The default is 6 digits.</li>
-<li>Pin Lock After Attempts - The number of tries a user gets to supply
+<li>PIN Lock After Attempts - The number of tries a user gets to supply
 the correct PIN value before being locked out. The default is 10 attempts.
 If a user is locked out, the user must re-enter their username and password
 to gain access to the Space client.</li>
-<li>Maximum time of offline work - Maximum duration that a device can use
+<li>Maximum Idle Time for PIN Challenge - Maximum duration that a device can use
 Sencha Space offline before being automatically logged off. The duration
-can be set to an amount of minutes, hours, days, weeks, or months.</li>
+can be set to an amount of minutes.</li>
+<li>Save - Save settings.</li>
 </ol>
 {@img ManagerSettingsSecPolicy.png}<br></li>
-<li>Authentication - Lets you set:
+<li><b>Authentication</b> - Lets you set:
 <ol>
 <li>Authentication Method - <b>Invite Only</b> - Indicates that 
 you can only add user access to the Space client by an email
@@ -484,7 +485,7 @@ to Sencha Space.</li>
   </ol></li>
 </ol>
 {@img ManagerSettingsAuthentication.png}<br></li>
-<li>Billing - Information about your Space Manager subscription:
+<li><b>Billing</b> - Information about your Space Manager subscription:
 <ol>
 <li>Status of Your Current Subscription - Whether you are using Space
 on a trial or are active.</li>
