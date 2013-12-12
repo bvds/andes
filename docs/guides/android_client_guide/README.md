@@ -29,7 +29,7 @@ To install Sencha Space Client for Android:
 the <a href="http://play.google.com">Google Play Store</a>:
 {@img AndroidPlayStoreIcon.png}
 </li>
-<li>Search for "sencha space" - the app appears in search as:
+<li>Search for <code>sencha space</code> - the app appears in search as:
 {@img SenchaSpaceInPSsearch.png}
 </li>
 <li>Tap the icon to open. Click <b>Install</b>:
@@ -39,6 +39,9 @@ the <a href="http://play.google.com">Google Play Store</a>:
 
 ## Logging Into the Space Client
 
+The prompts you see to log in depend on whether this is your first log in
+or if you are returning after exiting the app.
+
 ### First Log In
 
 <ol>
@@ -47,50 +50,46 @@ the <a href="http://play.google.com">Google Play Store</a>:
 <li>Type your organization name and click <b>Next</b>:
 {@img Android1.png}
 </li>
-<li>Type your email address and password, and click <b>Log In</b>. 
+<li>Type your email address and password, and click <b>Log In</b>.<br> 
 If you don't know your password, click <b>Forgot password?</b>:
 {@img Android2.png}
 </li>
 <li>If a PIN prompt displays, type your PIN, confirm it, 
 and click <b>Continue</b>. The PIN type
-is set by the Space Manager Administrator, and can be not required,
-all numbers and at least 4 digits in length. Alternatively the PIN can be
-a text string at least 4 characters in length and must contain at least
-one number, a letter, and a special character.
+is set by the Space Manager Administrator:
+<ul>
+<li>If you see a number keypad, your PIN must 
+be at least 4 digits in length.</li>
+<li>If you're prompted with a full QWERTY keyboard, the PIN is
+set so that you enter a text string at least 4 characters in length 
+and must contain at least
+one number, a letter, and a special character.</li>
 {@img Android3.png}
 </li>
 </ol>
 
 ### Returning Log In
 
+If you exit and return in less than 5 minutes, there's no prompt. (The
+length of time is set by your Space Manager administrator.)
+
 If you were asked to create a PIN when you first logged in, when you return,
 the Space Client prompts you to enter your PIN:
 
 {@img AndroidReturn1.png}
 
-<ol>
-<li>text</li>
-<li>text</li>
-<li>text</li>
-</ol>
 
+### Reset Your Password
 
-### Reset a Password
+If you don't remember your password, click <b>Forgot password?</b>.
 
-If you don't remember your password, enter your email address 
+Enter your email address 
 and click <b>Reset Password</b> or click <b>return</b>. 
 Information about how to reset your password is sent to the email
 address you provide. To return to the previous screen, click the left arrow. 
 
-{@img ResetPassword.png}
+{@img AndroidResetPassword.png}
 
-## Existing Login PIN Prompt
-
-When a user has already started a Space session and exits the client, when
-they return, they are prompted for the organization and then for the PIN
-that was previously set:
-
-{@img SpaceClientPINprompt.png}
 
 ## Add an Organization
 
@@ -162,10 +161,7 @@ data:
 information and terms of service</li>
 </ol>
 
-
-
 {@img SpClientSettings.png}
-
 
 
 ## Change PIN
