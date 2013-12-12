@@ -107,25 +107,16 @@ To return to the previous screen, click the left arrow.
 
 The starting controls for the Sencha Space User Client application are:
 
-{@img Space_Client_TopBar.png}
+{@img AndroidIntroToSpace.png}
 
 <ul>
 <li><b>Apps</b> - View available apps.</li>
 <li><b>Controls</b>:
-{@img Controls.png}
-	<ul><ul>
-		<ul>
-		<li>Star - Add app to Favorites</li>
-		<li>Left Arrow - Previous app view</li>
-		<li>Windows - Show reduced sub window view of app</li>
-		<li>Right Arrow - Next app view</li>
-		<li>Round Arrow - Refresh app view</li>
-		</ul>
-	</ul></ul>
+{@img AndroidTopControls.png}
 </li>
 </ul>
 
-The reduced sub window view appears as:
+Tab View appears as:
 
 {@img SubWindow.png}
 
