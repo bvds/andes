@@ -1,46 +1,79 @@
 # Android Sencha Space Client Guide
 
 The Sencha Space Client application is available from 
-the Apple App Store, Google Play,
-and the BlackBerry World App Market. 
+the <a href="http://play.google.com">Google Play Store</a>. 
 
 The Space Client application enables you to view available apps 
 and quickly move between the apps in the Space Client. 
 
-This guide describes how to use the Space Client with Android devices. For 
-use with iOS devices, see the
+This guide describes how to use the Space Client with Android devices. 
+For use with iOS devices, see the
 <a href="#!/ios_client_guide">iOS Sencha Space Client</a> guide.
+
+This guide assumes you have received an organization name and
+password from your Space Manager administrator.
 
 ## Requirements
 
-The Sencha Space Client supports:
-<ul>
-<li>iOS version 5.1 and later</li>
-<li>Android version 2.3.3 or later</li>
-<li>BlackBerry version 10 or later</li>
-</ul>
+The Sencha Space Client supports Android version 2.3.3 or later.
 
 Installing the user client requires 5 MB to download to the device,
 with the installed size requiring approximately 35 MB on the device. 
 Use of Space Client requires access to the Internet.
 
-## Log Into Sencha Space
+## Installing Sencha Space Client for Android
 
-After installing the Sencha Space User Client, click the name of your 
-organization or click <b>Add</b> to specify another organization. If you enter
-incorrect information, click the Back arrow in the upper left.
+To install Sencha Space Client for Android:
+<ol>
+<li>Click the <b>Play Store</b> app on your Android device or browse to
+the <a href="http://play.google.com">Google Play Store</a>:
+{@img AndroidPlayStoreIcon.png}
+</li>
+<li>Search for "sencha space" - the app appears in search as:
+{@img SenchaSpaceInPSsearch.png}
+</li>
+<li>Tap the icon to open. Click <b>Install</b>:
+{@img PlayStoreListing.png}
+</li>
+</ol>
 
-{@img Client1stScreen.png}
+## Logging Into the Space Client
 
-If prompted, supply your username and password provided by your 
-Space Manager administrator, and click <b>Next</b> or click <b>return</b>.
+### First Log In
 
-{@img EmailPassword.png}
+<ol>
+<li>Click the Android <b>Apps</b> button and click <b>Space</b>:
+{@img AppsToSpace.png}</li>
+<li>Type your organization name and click <b>Next</b>:
+{@img Android1.png}
+</li>
+<li>Type your email address and password, and click <b>Log In</b>. 
+If you don't know your password, click <b>Forgot password?</b>:
+{@img Android2.png}
+</li>
+<li>If a PIN prompt displays, type your PIN, confirm it, 
+and click <b>Continue</b>. The PIN type
+is set by the Space Manager Administrator, and can be not required,
+all numbers and at least 4 digits in length. Alternatively the PIN can be
+a text string at least 4 characters in length and must contain at least
+one number, a letter, and a special character.
+{@img Android3.png}
+</li>
+</ol>
 
-If you don't remember your password, click the question mark icon to the right
-of the password prompt:
+### Returning Log In
 
-{@img QuestionMark.png}
+If you were asked to create a PIN when you first logged in, when you return,
+the Space Client prompts you to enter your PIN:
+
+{@img AndroidReturn1.png}
+
+<ol>
+<li>text</li>
+<li>text</li>
+<li>text</li>
+</ol>
+
 
 ### Reset a Password
 
