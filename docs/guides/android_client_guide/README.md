@@ -29,7 +29,7 @@ To install Sencha Space Client for Android:
 the <a href="http://play.google.com">Google Play Store</a>:
 {@img AndroidPlayStoreIcon.png}
 </li>
-<li>Search for <code>sencha space</code> - the app appears in search as:
+<li>Search for <b>sencha space</b> - the app appears in search as:
 {@img SenchaSpaceInPSsearch.png}
 </li>
 <li>Tap the icon to open. Click <b>Install</b>:
@@ -39,9 +39,11 @@ the <a href="http://play.google.com">Google Play Store</a>:
 
 ## Logging Into the Space Client
 
-The prompts you see to log in depend on whether this is your first log in
-or if you are returning after exiting the app.
+The prompts you see to log in depend on whether this is your 
+<a href="#firstlogin">first log in</a> or you are 
+<a href="#returnlogin">returning after exiting the app</a>.
 
+<a name="firstlogin"></a>
 ### First Log In
 
 <ol>
@@ -54,7 +56,7 @@ or if you are returning after exiting the app.
 If you don't know your password, click <b>Forgot password?</b>:
 {@img Android2.png}
 </li>
-<li>If a PIN prompt displays, type your PIN, confirm it, 
+<li>If a personal identification number (PIN) prompt displays, type your PIN, confirm it, 
 and click <b>Continue</b>. The PIN type
 is set by the Space Manager Administrator:
 	<ol>
@@ -67,6 +69,7 @@ is set by the Space Manager Administrator:
 	</ol></li>
 </ol>
 
+<a name="returnlogin"></a>
 ### Returning Log In
 
 If you exit and return in less than 5 minutes, there's no prompt. (The
@@ -95,30 +98,22 @@ address you provide. To return to the previous screen, click the left arrow.
 {@img AndroidResetPassword.png}
 
 
-## Add an Organization
-
-The name of your organization, such as a project name, company name, 
-institution name, etc. 
-An organization name is provided to you when Sencha sends you mail confirming your 
-participation in Sencha Space. 
-
-Click the <b>Organization</b>, type the name, and click <b>Next</b> or <b>return</b>.
-To return to the previous screen, click the left arrow.
-
-{@img OrganizationPrompt.png}
-
 ## Using Sencha Space
 
 Each app in Space Client app provides these top-level controls:
 
 {@img AndroidTopControls.png}
 
+<div style="padding-left: 200px;">
+
 Tab View appears as:
 
 {@img AndroidTabViewWindow.png}
 
+</div>
 
-## Viewing Apps
+
+## Apps List
 
 The list of apps appears as follows (your list of apps may differ):
 
@@ -129,9 +124,9 @@ The list of apps appears as follows (your list of apps may differ):
 ## Settings 
 
 Sencha Space provides the following settings:
-
+{@img AndroidSettingsScreen.png}
 <ol>
-<li><b>Close</b> - Return to previous screen</li>
+<li><b>Sencha Logo</b> - Return to previous screen</li>
 <li><b>Reset PIN</b> - Specify your current PIN, a new PIN, and confirm the new PIN</li>
 <li><b>Delete Organization</b> - Deletes all data you may have 
 stored while using the current 
@@ -140,8 +135,6 @@ option if you've borrowed a device and want to return it, or when you're changin
 organizations.
 </li>
 </ol>
-
-{@img AndroidSettingsScreen.png}
 
 
 ## Change PIN
