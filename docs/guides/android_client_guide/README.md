@@ -21,9 +21,9 @@ Installing the user client requires 5 MB to download to the device,
 with the installed size requiring approximately 35 MB on the device. 
 Use of Space Client requires access to the Internet.
 
-## Installing Sencha Space Client for Android
+## Installing the Android Space Client
 
-To install Sencha Space Client for Android:
+To install:
 <ol>
 <li>Click the <b>Play Store</b> app on your Android device or browse to
 the <a href="http://play.google.com">Google Play Store</a>:
@@ -80,7 +80,7 @@ the Space Client prompts you to enter your PIN:
 
 {@img AndroidReturn1.png}
 
-Alternatively, you can click the left arror at the top to choose an 
+Alternatively, you can click the left arrow at the top to choose an 
 organization:
 
 {@img AndroidChooseOrg.png} 
@@ -109,7 +109,7 @@ Each app in Space Client provides these top-level controls:
 
 {@img AndroidTopControls.png}
 
-<div style="padding-left: 150px;">
+<div style="padding-left: 100px;">
 
 Tab View appears as:
 
@@ -126,7 +126,11 @@ The list of apps appears as follows (your list of apps may differ):
 
 
 <a name="Settings"></a>
-## Settings 
+## Settings Menu
+
+Access the Settings menu by clicking the Sencha logo in the Apps list, for example:
+
+{@img SettingsMenuButton.png}
 
 Sencha Space provides the following settings:
 {@img AndroidSettingsScreen.png}
@@ -144,7 +148,7 @@ organizations.
 
 ## Change PIN
 
-Specify your PIN and new PIN, and click <b>Next</b>. 
+Specify your personal identification number (PIN) and new PIN, and click <b>Next</b>. 
 Confirm the new PIN and click <b>Continue</b>.
 
 {@img AndroidResetPIN.png}
