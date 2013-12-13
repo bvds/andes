@@ -60,10 +60,8 @@ is set by the Space Manager Administrator:
 	<ol>
 	<li>If you see a number keypad, your PIN must 
 	be at least 4 digits in length.</li>
-	<li>If you're prompted with a full QWERTY keyboard, the PIN is
-	set so that you enter a text string at least 4 characters in length 
-	and must contain at least
-	one number, a letter, and a special character.
+	<li>If you see a full QWERTY keyboard, your PIN must be at least 4 characters in length 
+	and must contain at least one number, a letter, and a special character.
 	{@img Android3.png}
 	</li>
 	</ol></li>
@@ -78,6 +76,11 @@ If you were asked to create a PIN when you first logged in, when you return,
 the Space Client prompts you to enter your PIN:
 
 {@img AndroidReturn1.png}
+
+Alternatively, you can click the left arror at the top to choose an 
+organization:
+
+{@img AndroidChooseOrg.png} 
 
 
 ### Reset Your Password
@@ -106,16 +109,9 @@ To return to the previous screen, click the left arrow.
 
 ## Using Sencha Space
 
-The starting controls for the Sencha Space User Client application are:
+Each app in Space Client app provides these top-level controls:
 
-{@img AndroidIntroToSpace.png}
-
-<ul>
-<li><b>Apps</b> - View available apps.</li>
-<li><b>Controls</b>:
 {@img AndroidTopControls.png}
-</li>
-</ul>
 
 Tab View appears as:
 
