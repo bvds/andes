@@ -88,23 +88,28 @@ organization:
 
 ### Reset Your Password
 
-If you don't remember your password, click <b>Forgot password?</b>.
+If you don't remember your password, click <b>Forgot password?</b>:
 
-Enter your email address 
-and click <b>Reset Password</b> or click <b>return</b>. 
-Information about how to reset your password is sent to the email
-address you provide. To return to the previous screen, click the left arrow. 
+{@img ForgotPassword.png}
+
+The Reset Password screen appears:
 
 {@img AndroidResetPassword.png}
+
+Enter your email address 
+and click <b>Reset Password</b>. 
+
+Information about how to reset your password is sent to the email
+address you provide. To return, click your Android device's Back key.
 
 
 ## Using Sencha Space
 
-Each app in Space Client app provides these top-level controls:
+Each app in Space Client provides these top-level controls:
 
 {@img AndroidTopControls.png}
 
-<div style="padding-left: 200px;">
+<div style="padding-left: 150px;">
 
 Tab View appears as:
 
