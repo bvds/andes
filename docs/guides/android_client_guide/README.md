@@ -57,15 +57,16 @@ If you don't know your password, click <b>Forgot password?</b>:
 <li>If a PIN prompt displays, type your PIN, confirm it, 
 and click <b>Continue</b>. The PIN type
 is set by the Space Manager Administrator:
-<ul>
-<li>If you see a number keypad, your PIN must 
-be at least 4 digits in length.</li>
-<li>If you're prompted with a full QWERTY keyboard, the PIN is
-set so that you enter a text string at least 4 characters in length 
-and must contain at least
-one number, a letter, and a special character.</li>
-{@img Android3.png}
-</li>
+	<ol>
+	<li>If you see a number keypad, your PIN must 
+	be at least 4 digits in length.</li>
+	<li>If you're prompted with a full QWERTY keyboard, the PIN is
+	set so that you enter a text string at least 4 characters in length 
+	and must contain at least
+	one number, a letter, and a special character.
+	{@img Android3.png}
+	</li>
+	</ol></li>
 </ol>
 
 ### Returning Log In
@@ -118,20 +119,15 @@ The starting controls for the Sencha Space User Client application are:
 
 Tab View appears as:
 
-{@img SubWindow.png}
+{@img AndroidTabViewWindow.png}
 
 
 ## Viewing Apps
 
 The list of apps appears as follows (your list of apps may differ):
 
-{@img Space_Client_AppsList.png}
+{@img AndroidAppList.png}
 
-<ol>
-<li>Click the app icon to view the app</li>
-<li>Click the Sencha icon to view <a href="#Settings">Settings</a></li>
-<li>Click <b>Switch Organizations</b> to log in with a new organization name</li>
-</ol>
 
 <a name="Settings"></a>
 ## Settings 
@@ -140,19 +136,16 @@ Sencha Space provides the following settings:
 
 <ol>
 <li><b>Close</b> - Return to previous screen</li>
-<li><b>Change PIN</b> - Specify your current PIN, a new PIN, and confirm the new PIN</li>
-<li><b>Remove Organization</b> - Deletes all data you may have 
+<li><b>Reset PIN</b> - Specify your current PIN, a new PIN, and confirm the new PIN</li>
+<li><b>Delete Organization</b> - Deletes all data you may have 
 stored while using the current 
-organization and prompts you to log in again with a new organization name. This
-prompt displays a confirmation prompt to be sure you want to delete all app
-data:
-{@img RemoveOrganizationAlert.png}
+organization and prompts you to log in again with a new organization name. Use this
+option if you've borrowed a device and want to return it, or when you're changing
+organizations.
 </li>
-<li><b>Legal</b> - View Space attribution copyright 
-information and terms of service</li>
 </ol>
 
-{@img SpClientSettings.png}
+{@img AndroidSettingsScreen.png}
 
 
 ## Change PIN
@@ -160,7 +153,7 @@ information and terms of service</li>
 Specify your PIN and new PIN, and click <b>Next</b>. 
 Confirm the new PIN and click <b>Continue</b>.
 
-{@img ChangePINscreens.png}
+{@img AndroidResetPIN.png}
 
 
 
