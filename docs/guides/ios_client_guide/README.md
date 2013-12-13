@@ -1,10 +1,9 @@
 # iOS Sencha Space Client Guide
 
 The Sencha Space Client application is available from 
-the Apple App Store, Google Play,
-and the BlackBerry World App Market. 
+the Apple iTunes App Store. 
 
-The Space Client application enables you to view available apps 
+The Space Client application presents  
 and quickly move between the apps in the Space Client. 
 
 This guide describes how to use the Space Client with iOS devices. For 
@@ -15,20 +14,40 @@ This guide is written for users and can be distributed to users.
 
 ## Requirements
 
-The Sencha Space Client supports:
-<ul>
-<li>iOS version 5.1 and later</li>
-<li>Android version 2.3.3 or later</li>
-<li>BlackBerry version 10 or later</li>
-</ul>
+Sencha Space Client supports iOS version 6.1 and later.
 
 Installing the user client requires 5 MB to download to the device,
 with the installed size requiring approximately 35 MB on the device. 
 Use of Space Client requires access to the Internet.
 
-## Log Into Sencha Space
+## Installing the iOS Space Client
 
-After installing the Sencha Space User Client, click the name of your 
+<b>Note</b>: Even though the Space Client app is free, iTunes requires
+that you have an Apple ID. 
+
+To install:
+<ol>
+<li>Click the App Store icon on your device:
+{@img iOSAppStoreIcon.png}
+</li>
+<li>Search for <b>sencha space</b> - the app appears in search as:
+{@img iOSsearch.png}
+</li>
+<li>Click the cloud icon to install.</li>
+<li>Enter your AppleID password:
+{@img iOSAppIDPrompt.png}
+</li>
+<li>Click OK to ensure that you are 17 years old or older:
+{@img iOSAgeRelatedMaterial.png}
+</li>
+<li>Click <b>Open</b> to launch Space Client:
+{@img iOSOpenSpace.png}
+</li>
+</ol>
+
+## Logging Into the Space Client
+
+Click the name of your 
 organization or click <b>Add</b> to specify another organization. If you enter
 incorrect information, click the Back arrow in the upper left.
 
