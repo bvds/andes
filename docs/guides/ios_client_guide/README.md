@@ -10,11 +10,12 @@ This guide describes how to use the Space Client with iOS devices. For
 use with Android devices, see the
 <a href="#!/android_client_guide">Android Sencha Space Client</a> guide.
 
-This guide is written for users and can be distributed to users.
+This guide assumes you have received an organization name and
+password from your Space Manager administrator.
 
 ## Requirements
 
-Sencha Space Client supports iOS version 6.1 and later.
+Sencha Space Client supports iOS version 6.0 and later.
 
 Installing the user client requires 5 MB to download to the device,
 with the installed size requiring approximately 35 MB on the device. 
@@ -23,17 +24,18 @@ Use of Space Client requires access to the Internet.
 ## Installing the iOS Space Client
 
 <b>Note</b>: Even though the Space Client app is free, iTunes requires
-that you have an Apple ID. 
+that you have an Apple ID, which requires that you supply a credit 
+card or PayPal information.
 
 To install:
 <ol>
 <li>Click the App Store icon on your device:
 {@img iOSAppStoreIcon.png}
 </li>
-<li>Search for <b>sencha space</b> - the app appears in search as:
+<li>Search for <b>sencha space</b> - the app appears in search as follows. 
+Click the cloud icon to install Space Client:
 {@img iOSsearch.png}
 </li>
-<li>Click the cloud icon to install.</li>
 <li>Enter your AppleID password:
 {@img iOSAppIDPrompt.png}
 </li>
@@ -47,16 +49,23 @@ To install:
 
 ## Logging Into the Space Client
 
-Click the name of your 
-organization or click <b>Add</b> to specify another organization. If you enter
-incorrect information, click the Back arrow in the upper left.
+Type the name of your organization:
 
-{@img Client1stScreen.png}
+{@img iOS_1.png}
 
-If prompted, supply your username and password provided by your 
+Supply your username and password provided by your 
 Space Manager administrator, and click <b>Next</b> or click <b>return</b>.
 
-{@img EmailPassword.png}
+{@img iOS_2.png}
+
+If prompted, specify a personal identification number (PIN), which you will enter
+when you return to the Space Client after exiting to use other device functions.
+If a QWERTY keyboard displays, enter text consisting of at least 4 characters,
+one of which must be a number, a letter, and a special character.
+
+The minimum length of the PIN is set by your Space Manager administrator:
+
+{@img iOS_3.png}
 
 ### Reset Your Password
 
