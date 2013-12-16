@@ -29,20 +29,20 @@ card or PayPal information.
 
 To install:
 <ol>
-<li>Click the App Store icon on your device:
+<li><p>Click the App Store icon on your device:</p>
 {@img iOSAppStoreIcon.png}
 </li>
-<li>Search for <b>sencha space</b> - the app appears in search as follows. 
-Click the cloud icon to install Space Client:
+<li><p>Search for <b>sencha space</b> - the app appears in search as follows. 
+Click the cloud icon to install Space Client:</p>
 {@img iOSsearch.png}
 </li>
-<li>Enter your AppleID password:
+<li><p>Enter your AppleID password:
 {@img iOSAppIDPrompt.png}
 </li>
-<li>Click OK to indicate that you are 17 years old or older:
+<li><p>Click OK to indicate that you are 17 years old or older:</p>
 {@img iOSAgeRelatedMaterial.png}
 </li>
-<li>Click <b>Open</b> to launch Space Client:
+<li><p>Click <b>Open</b> to launch Space Client:</p>
 {@img iOSOpenSpace.png}
 </li>
 </ol>
@@ -79,7 +79,7 @@ one of which must be a number, a letter, and a special character.</p>
 To reset your password:
 
 <ol>
-<li>Click the question mark icon:
+<li><p>Click the question mark icon:</p>
 
 {@img iOSResetPasswordButton.png}</li>
 <li><p>Enter your email address 
@@ -167,17 +167,18 @@ Sencha Space provides the following settings:
 {@img SpClientSettings.png}
 
 <ol>
-<li><b>Close</b> - Return to previous screen</li>
-<li><b>Change PIN</b> - Specify your current PIN, a new PIN, and confirm the new PIN</li>
-<li><b>Remove Organization</b> - Deletes all data you may have stored while 
+<li><p><b>Close</b> - Return to previous screen</p></li>
+<li><p><b>Change PIN</b> - Specify your current PIN, a new PIN, 
+and confirm the new PIN</p></li>
+<li><p><b>Remove Organization</b> - Deletes all data you may have stored while 
 using the current organization and prompts you to log in again with a new 
 organization name. Use this option if you've borrowed a device and want 
 to return it, or when you're changing organizations. A confirmation prompt 
-displays to be sure you want to delete all your app data:
+displays to be sure you want to delete all your app data:</p>
 {@img RemoveOrganizationAlert.png}
 </li>
-<li><b>Legal</b> - View Space attribution copyright 
-information and terms of service</li>
+<li><p><b>Legal</b> - View Space attribution copyright 
+information and terms of service</p></li>
 </ol>
 
 ## Change PIN
