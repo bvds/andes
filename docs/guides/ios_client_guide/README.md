@@ -131,11 +131,12 @@ The reduced sub window view appears as:
 
 The list of apps appears as follows (your list of apps may differ):
 
-{@img Space_Client_AppsList.png}
+{@img IOSAppsList.png}
 
 <ol>
-<li>Click the app icon to view the app</li>
+<li>Choose another app</li>
 <li>Click the Sencha icon to view <a href="#Settings">Settings</a></li>
+<li>Return to the last viewed app</li>
 <li>Click <b>Switch Organizations</b> to log in with a new organization name</li>
 </ol>
 
@@ -151,21 +152,21 @@ app list and swipe down to refresh the apps.
 
 Sencha Space provides the following settings:
 
+{@img SpClientSettings.png}
+
 <ol>
 <li><b>Close</b> - Return to previous screen</li>
 <li><b>Change PIN</b> - Specify your current PIN, a new PIN, and confirm the new PIN</li>
-<li><b>Remove Organization</b> - Deletes all data you may have 
-stored while using the current 
-organization and prompts you to log in again with a new organization name. This
-prompt displays a confirmation prompt to be sure you want to delete all app
-data:
+<li><b>Remove Organization</b> - Deletes all data you may have stored while 
+using the current organization and prompts you to log in again with a new 
+organization name. Use this option if you've borrowed a device and want 
+to return it, or when you're changing organizations. A confirmation prompt 
+displays to be sure you want to delete all your app data:
 {@img RemoveOrganizationAlert.png}
 </li>
 <li><b>Legal</b> - View Space attribution copyright 
 information and terms of service</li>
 </ol>
-
-{@img SpClientSettings.png}
 
 ## Change PIN
 
