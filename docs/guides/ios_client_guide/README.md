@@ -39,7 +39,7 @@ Click the cloud icon to install Space Client:
 <li>Enter your AppleID password:
 {@img iOSAppIDPrompt.png}
 </li>
-<li>Click OK to ensure that you are 17 years old or older:
+<li>Click OK to indicate that you are 17 years old or older:
 {@img iOSAgeRelatedMaterial.png}
 </li>
 <li>Click <b>Open</b> to launch Space Client:
@@ -71,12 +71,12 @@ The minimum length of the PIN is set by your Space Manager administrator:
 
 To reset your password, click the question mark icon:
 
-{@img QuestionMark.png}
+{@img iOSResetPasswordButton.png}
 
 Enter your email address 
 and click <b>Reset Password</b> or click <b>return</b>. 
 
-{@img ResetPassword.png}
+{@img iOSResetPW.png}
 
 Information about how to reset your password is sent to the email
 address you provide. To return to the previous screen, click the left arrow. 
