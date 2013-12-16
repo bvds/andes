@@ -49,37 +49,49 @@ Click the cloud icon to install Space Client:
 
 ## Logging Into the Space Client
 
-Type the name of your organization:
+To log in:
+<ol>
+<li><p>Type the name of your organization and click <b>Next</b>:</p>
 
 {@img iOS_1.png}
-
-Supply your username and password provided by your 
-Space Manager administrator, and click <b>Next</b> or click <b>return</b>.
+</li>
+<li><p>Supply your username and password provided by your 
+Space Manager administrator, and click <b>Next</b>. If needed, click the Back arrow 
+to return to the previous screen. If you can't remember your password, 
+click the question mark. Resetting your password requires access to a mail program to 
+receive instructions.</p>
 
 {@img iOS_2.png}
-
-If prompted, specify a personal identification number (PIN), which you will enter
+</li>
+<li><p>If prompted, specify a personal identification number (PIN), which you will enter
 when you return to the Space Client after exiting to use other device functions.
 If a QWERTY keyboard displays, enter text consisting of at least 4 characters,
-one of which must be a number, a letter, and a special character.
+one of which must be a number, a letter, and a special character.</p>
 
-The minimum length of the PIN is set by your Space Manager administrator:
+<p>The minimum length of the PIN is set by your Space Manager administrator:</p>
 
-{@img iOS_3.png}
+{@img iOS_3.png}</li>
+</ol>
+
 
 ### Reset Your Password
 
-To reset your password, click the question mark icon:
+To reset your password:
 
-{@img iOSResetPasswordButton.png}
+<ol>
+<li>Click the question mark icon:
 
-Enter your email address 
-and click <b>Reset Password</b> or click <b>return</b>. 
+{@img iOSResetPasswordButton.png}</li>
+<li><p>Enter your email address 
+and click <b>Reset Password</b>. Resetting your password 
+requires access to a mail program to 
+receive instructions.</p>
 
 {@img iOSResetPW.png}
 
-Information about how to reset your password is sent to the email
-address you provide. To return to the previous screen, click the left arrow. 
+<p>Information about how to reset your password is sent to the email
+address you provide. To return to the previous screen, click the left arrow.</p;></li>
+</ol>
 
 ## Existing Login PIN Prompt
 
@@ -98,7 +110,7 @@ Your Space administrator provices you with the organization name.
 Click <b>Organization</b>, type the name, and click <b>Next</b> or <b>return</b>.
 To return to the previous screen, click the left arrow.
 
-{@img OrganizationPrompt.png}
+{@img iOSOrg.png}
 
 ## Space Client Controls
 
@@ -174,7 +186,3 @@ Specify your PIN and new PIN, and click <b>Next</b>.
 Confirm the new PIN and click <b>Done</b>.
 
 {@img ChangePINscreens.png}
-
-
-
-
