@@ -36,7 +36,7 @@ To install:
 Click the cloud icon to install Space Client:</p>
 {@img iOSsearch.png}
 </li>
-<li><p>Enter your AppleID password:
+<li><p>Enter your AppleID password:</p>
 {@img iOSAppIDPrompt.png}
 </li>
 <li><p>Click OK to indicate that you are 17 years old or older:</p>
@@ -90,7 +90,7 @@ receive instructions.</p>
 {@img iOSResetPW.png}
 
 <p>Information about how to reset your password is sent to the email
-address you provide. To return to the previous screen, click the left arrow.</p;></li>
+address you provide. To return to the previous screen, click the left arrow.</p></li>
 </ol>
 
 ## Existing Login PIN Prompt
@@ -105,7 +105,7 @@ that was previously set:
 
 You can specify the name of another organization. An organization name 
 can be a project name, company name, institution name, etc. 
-Your Space administrator provices you with the organization name.
+Your Space administrator provides you with the organization name.
 
 Click <b>Organization</b>, type the name, and click <b>Next</b> or <b>return</b>.
 To return to the previous screen, click the left arrow.
@@ -121,20 +121,20 @@ The starting controls for the Space Client are:
 <ul>
 <li><b>Apps</b> - View available apps.</li>
 <li><b>Controls</b>:
-{@img Controls.png}
+{@img iOSControls.png}
 	<ul><ul>
 		<ul>
 		<li>Star - Add app to Favorites</li>
-		<li>Left Arrow - Previous app view</li>
-		<li>Windows - Show reduced sub window view of app</li>
-		<li>Right Arrow - Next app view</li>
+		<li>Left Arrow - Previous history view</li>
+		<li>Windows - Show tab view</li>
+		<li>Right Arrow - Next history view</li>
 		<li>Round Arrow - Refresh app view</li>
 		</ul>
 	</ul></ul>
 </li>
 </ul>
 
-The reduced sub window view appears as:
+The tab view appears as:
 
 {@img SubWindow.png}
 
