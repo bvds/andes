@@ -21,7 +21,7 @@ Installing the user client requires 5 MB to download to the device,
 with the installed size requiring approximately 35 MB on the device. 
 Use of Space Client requires access to the Internet.
 
-## Installing the iOS Space Client
+## Install iOS Space Client
 
 <b>Note</b>: Even though the Space Client app is free, iTunes requires
 that you have an Apple ID, which requires that you supply a credit 
@@ -39,7 +39,8 @@ Click the cloud icon to install Space Client:</p>
 <li><p>Enter your AppleID password:</p>
 {@img iOSAppIDPrompt.png}
 </li>
-<li><p>Click OK to indicate that you are 17 years old or older:</p>
+<li><p>Click <b>OK</b> to indicate that you are 17 years old or older - this
+prompt is required by Apple for apps that provide web view access:</p>
 {@img iOSAgeRelatedMaterial.png}
 </li>
 <li><p>Click <b>Open</b> to launch Space Client:</p>
@@ -47,7 +48,7 @@ Click the cloud icon to install Space Client:</p>
 </li>
 </ol>
 
-## Logging Into the Space Client
+## Log Into Space
 
 To log in:
 <ol>
@@ -63,8 +64,8 @@ receive instructions.</p>
 
 {@img iOS_2.png}
 </li>
-<li><p>If prompted, specify a personal identification number (PIN), which you will enter
-when you return to the Space Client after exiting to use other device functions.
+<li><p>If prompted, specify a personal identification number (PIN), which you enter
+when you return to the Space Client after exiting.
 If a QWERTY keyboard displays, enter text consisting of at least 4 characters,
 one of which must be a number, a letter, and a special character.</p>
 
@@ -74,7 +75,7 @@ one of which must be a number, a letter, and a special character.</p>
 </ol>
 
 
-### Reset Your Password
+## Reset Your Password
 
 To reset your password:
 
@@ -93,11 +94,11 @@ receive instructions.</p>
 address you provide. To return to the previous screen, click the left arrow.</p></li>
 </ol>
 
-## Existing Login PIN Prompt
+## Return PIN Prompt
 
-When you have already started a Space session and exit the client, when
-you return, you may be prompted for the organization and/or for the PIN
-that was previously set:
+After you start a Space session, you can exit by pressing the Home key on your 
+device. When you return to Space, you may be prompted for the organization 
+and/or for the PIN that was previously set:
 
 {@img SpaceClientPINprompt.png}
 
@@ -107,30 +108,27 @@ You can specify the name of another organization. An organization name
 can be a project name, company name, institution name, etc. 
 Your Space administrator provides you with the organization name.
 
-Click <b>Organization</b>, type the name, and click <b>Next</b> or <b>return</b>.
+Click <b>Organization</b>, type the name, and click <b>Next</b>.
 To return to the previous screen, click the left arrow.
 
 {@img iOSOrg.png}
 
 ## Space Client Controls
 
-The starting controls for the Space Client are:
+The controls for the Space Client are at the top of each app window as in this example:
 
-{@img Space_Client_TopBar.png}
+{@img iOSControls.png}
 
 <ul>
 <li><b>Apps</b> - View available apps.</li>
 <li><b>Controls</b>:
-{@img iOSControls.png}
-	<ul><ul>
-		<ul>
-		<li>Star - Add app to Favorites</li>
-		<li>Left Arrow - Previous history view</li>
-		<li>Windows - Show tab view</li>
-		<li>Right Arrow - Next history view</li>
-		<li>Round Arrow - Refresh app view</li>
-		</ul>
-	</ul></ul>
+	<ul>
+	<li>Star - Add app to Favorites</li>
+	<li>Left Arrow - Previous history item</li>
+	<li>Windows - Show tab view</li>
+	<li>Right Arrow - Next history item</li>
+	<li>Round Arrow - Refresh view of app</li>
+	</ul>
 </li>
 </ul>
 
@@ -139,17 +137,22 @@ The tab view appears as:
 {@img SubWindow.png}
 
 
-## Viewing Apps
+## Access Another App
 
-The list of apps appears as follows (your list of apps may differ):
+You can access another app by clicking the circle icon at the left 
+of an app's top bar:
+
+{@img AppAccessButton.png}
+
+To access apps (your list of apps may differ) or options:
 
 {@img IOSAppsList.png}
 
 <ol>
-<li>Choose another app</li>
-<li>Click the Sencha icon to view <a href="#Settings">Settings</a></li>
-<li>Return to the last viewed app</li>
-<li>Click <b>Switch Organizations</b> to log in with a new organization name</li>
+<li>Choose an app.</li>
+<li>Click the Sencha icon to view <a href="#Settings">Settings</a>.</li>
+<li>Click the previous app's window to return to that app.</li>
+<li>Click <b>Switch Organizations</b> to log in with a new organization name.</li>
 </ol>
 
 ## Refreshing Apps
