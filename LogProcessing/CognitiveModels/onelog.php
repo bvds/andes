@@ -670,8 +670,8 @@ if(true){
       foreach($st as $thisName => $opps){
 	$maxv=$model[$kc][$thisSection][$thisName];
 	foreach($conditions as $condition){
-	  $prob=0; $gain=0; $L=0;
-	  $gain2=0; $L2=0;
+	  $prob=0; $gain=0; $gain2=0;
+	  $L=0; $L2=0;
 	  for($k=1; $k<count($opps); $k++){
 	    // All transactions in an
 	    // opportunity must occur in the same problem.

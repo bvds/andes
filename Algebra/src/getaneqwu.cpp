@@ -292,7 +292,7 @@ binopexp* getAnEqn(const string bufst, bool tight) {
   delete toklist;
   if (exprstack.size() != 1) {
     char buf[6];
-    sprintf(buf,"%5d",exprstack.size());
+    sprintf(buf,"%5ld",exprstack.size());
     
     string message(string("getAnEqn had ") + buf 
                    + string(" rather than 1 item at end\n"));

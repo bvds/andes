@@ -66,20 +66,23 @@ int numfactorsof(const expr * factor,const expr * expression)
     case numval:
       exprval = ((numvalexp *)expression)->value;
       if (exprval == 0.) return(1000000);
-      if (factval <= 1.)	
+      if (factval <= 1.) {	
   	if (lookslikeint( exprval/(factval*factval),q))
 	  {
 	    DBG( cout << "NUMFACT " << thisdbg 
 		 << " returns 2 (max) on factors <= 1" << endl;);
 	    return (2);
 	  }
-	else if (lookslikeint( exprval/(factval),q)) return (1);
+	else if (lookslikeint( exprval/(factval),q)) {
+	  return (1);
+	}
   	else 
 	  {
-	  DBG( cout << "NUMFACT " << thisdbg 
-	       << " returning 0 on number factor on number" << endl;);
-	  return(0);
+	    DBG( cout << "NUMFACT " << thisdbg 
+		 << " returning 0 on number factor on number" << endl;);
+	    return(0);
 	  }
+      }
       for (k=0;;k++){
   	exprval = exprval / factval;
   	if (!lookslikeint(exprval,q)) return(k);
@@ -365,7 +368,7 @@ int numfactorsof(const expr * factor,const expr * expression)
       if (nopexpr->op->opty != multe) return(0);
       q = 0;
       for (k=0; k < nopexpr->args->size(); k++)
-	q =+ numfactorsof(factor,(*nopexpr->args)[k]);
+	q += numfactorsof(factor,(*nopexpr->args)[k]);
       return(q);
     case unknown:
     case fake:

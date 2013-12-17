@@ -11,12 +11,12 @@ dojo-svn=http://svn.dojotoolkit.org/src
 
 install:
 	-rm -r -f dojo dijit dojox util
-	svn co $(dojo-svn)/dojo/trunk dojo
-	svn co $(dojo-svn)/dijit/trunk dijit
-	svn co $(dojo-svn)/dojox/trunk dojox
-	svn co $(dojo-svn)/util/trunk util
+	git clone https://github.com/dojo/dojo.git dojo
+	git clone https://github.com/dojo/dijit.git dijit
+	git clone https://github.com/dojo/dojox.git dojox
+	git clone https://github.com/dojo/util.git util
 	# Development branch can over-write dojo libraries.
-	-git checkout dojo 
+	-git checkout
 	-git checkout dojox 
 	-git checkout dijit 
 	-git checkout util
@@ -27,12 +27,10 @@ install:
 
 update:
 ifeq ($(shell test -f dojo-install-version && cat dojo-install-version),${dojo-version})
-	# Work-around build failing, Bug #1886
-	#   svn update -r 24082 *
-	# Work-around for load failing on trunk, Bug #1957
-	   svn update -r 27116 *
-	# But try the latest version:
-	# svn update *
+	cd dojo; git pull
+	cd dijit; git pull
+	cd dojox; git pull
+	cd util; git pull
 	./andes.build.sh
 	@echo "Updated Dojo $(dojo-version)."
 else

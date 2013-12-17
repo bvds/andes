@@ -54,7 +54,6 @@ numvalexp * parseunit(stack<string> *toklist)
   DBG(cout << "entering parseunit with " << toklist->size() 
       << " tokens" << endl );
   int k;
-  bool expectu = true;
   enum states { A, B, B1, C, D, E };
   string statestring[6]={"A","B","B1","C","D","E"}; // for DBG(...)
   states state = A;

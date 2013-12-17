@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
   while (getline(std::cin,buf)) {
     int space;
     string command, action;
-    char* result;
+    char* result=NULL;
     space=buf.find_first_of(" ");
     if(space != string::npos){  
       command=buf.substr(0,space);

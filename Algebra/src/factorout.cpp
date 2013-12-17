@@ -78,15 +78,20 @@ bool factorout(const expr * factor,int n, expr * & expression)
 	goto abort;
       }
     case function:
-      if (((functexp *)exprcopy)->f->opty == sqrte)
-	if (factorout(factor,2*n,((functexp *)exprcopy)->arg))
+      if (((functexp *)exprcopy)->f->opty == sqrte) {
+	if (factorout(factor,2*n,((functexp *)exprcopy)->arg)) {
 	  goto fixup;
-	else goto abort;
+	} else { 
+	  goto abort;
+	}
+      }
       if (((functexp *)exprcopy)->f->opty == abse) 
 	{
-	  if (factorout(factor,n,((functexp *)exprcopy)->arg))
+	  if (factorout(factor,n,((functexp *)exprcopy)->arg)) {
 	    goto fixup;
-	  else goto abort;
+	  } else {
+	    goto abort;
+	  }
 	}
       else
 	{
@@ -99,10 +104,13 @@ bool factorout(const expr * factor,int n, expr * & expression)
       binexpr = (binopexp *)exprcopy;
       DBG(cout << "FACTOUT " << thisdbg 
 	       << ": working on physvar factor of binop" << endl;);
-      if (binexpr->op->opty == divbye)
-	if (factorout(factor, n, ((binopexp *)exprcopy)->lhs))
+      if (binexpr->op->opty == divbye) {
+	if (factorout(factor, n, ((binopexp *)exprcopy)->lhs)){
 	  goto fixup;
-	else goto abort;
+	} else { 
+	  goto abort;
+	}
+      }
       if (binexpr->op->opty == topowe)
   	{
   	  if (binexpr->rhs->etype != numval ||

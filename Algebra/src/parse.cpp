@@ -21,7 +21,6 @@
 //    isanum
 //    getclipsvar
 
-#pragma warning (disable: 4786)
 #include <string>
 using namespace std;
 // no diagnostics
