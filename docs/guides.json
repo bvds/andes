@@ -1,12 +1,22 @@
 [
     {
-        "title": "Getting Started",
+        "title": "Understanding Sencha Space",
         "items": [
             {
                 "name": "intro",
                 "title": "Introduction",
                 "description": "Introduction to Sencha Space."
             },
+            {
+                "name": "security_architecture",
+                "title": "Security Architecture Guide",
+                "description": "Sencha Space Security."
+            }
+        ]
+    },
+    {
+        "title": "Administrator Guides",
+        "items": [
             {
                 "name": "quick_start",
                 "title": "Quick Start Guide",
@@ -16,7 +26,12 @@
                 "name": "manager_guide",
                 "title": "Space Manager Guide",
                 "description": "Using the Sencha Space Manager administrative tool."
-            },
+            }
+        ]
+    },
+    {
+        "title": "User Guides",
+        "items": [
             {
                 "name": "ios_client_guide",
                 "title": "iOS Sencha Space Client Guide",
@@ -26,12 +41,7 @@
                 "name": "android_client_guide",
                 "title": "Android Sencha Space Client Guide",
                 "description": "Using the Android Space Client."
-            },
-            {
-                "name": "security_architecture",
-                "title": "Security Architecture Guide",
-                "description": "Sencha Space Security."
-            }
+            }            
         ]
     },
     {
@@ -46,6 +56,11 @@
                 "name": "sec_lcl_strg",
                 "title": "Secure Local Storage",
                 "description": "Secure Local Storage of key and value pairs."
+            },
+            {
+                "name": "secure_file_api",
+                "title": "Secure File API",
+                "description": "Secure File API."
             },
             {
                 "name": "examples",
