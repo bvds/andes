@@ -101,6 +101,7 @@ cd ../                # return to Andes root directory
 # Then set the root password (choose your own) and restart:
   /usr/bin/mysqladmin -u root password 'mysql-password'
   /sbin/service mysqld restart
+# Currently, the root password cannot be empty; see bug #2277.
 # (In OS X, go to http://dev.mysql.com, install mysql and MySQLStartupItem,
 # add /usr/local/mysql/bin to PATH in ~/.profile,
 # execute "(cd /usr/local/lib;sudo ln -s ../mysql/lib/lib*.{a,dylib} .)"

@@ -1,8 +1,8 @@
 CREATE TABLE `PROBLEM_ATTEMPT` (
-  `userName` varchar(50) NOT NULL COMMENT 'Needs to hold encrypted names',
-  `startTime` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
-  `clientID` varchar(50) NOT NULL default 'fill in clientID' COMMENT 'Size should match +client-id-width+ in Help/database.cl',
-  `userProblem` varchar(50) default NULL COMMENT 'The problem the user asks for when communicating with server. May or may not exist. If it exists, it should match up with a given problem name in STUDENT_DATASET',
+  `userName` varchar(50) NOT NULL DEFAULT 'defaultName' COMMENT 'Needs to hold encrypted names',
+  `startTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+  `clientID` varchar(50) NOT NULL DEFAULT 'fill in clientID' COMMENT 'Size should match +client-id-width+ in Help/database.cl',
+  `userProblem` varchar(50) DEFAULT NULL COMMENT 'The problem the user asks for when communicating with server. May or may not exist. If it exists, it should match up with a given problem name in STUDENT_DATASET',
   `userSection` varchar(50) NOT NULL DEFAULT 'defaultSection' COMMENT 'The section the user is enrolled in. Must match up with a section in CLASS_INFORMATION.',
   `extra` varchar(50) DEFAULT NULL COMMENT 'Identifiers for multi-user sessions or copied sessions or other such stuff.',
   PRIMARY KEY  (`clientID`),
