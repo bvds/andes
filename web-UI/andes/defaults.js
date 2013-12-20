@@ -1,7 +1,7 @@
 // Pre-AMD version had a function wrapper.
 define([],function(){
 
-	andes.defaults = {
+	return {
 		// summary:
 		//	The style used for Andes3.
 		// description:

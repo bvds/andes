@@ -1,7 +1,7 @@
 // Pre-AMD version had a function wrapper.
-define([],function(){
+define(["dojo/cookie"],function(cookie){
 	
-	dojo.cookie("mikeDev", null, { expires: -1 });
+	cookie("mikeDev", null, { expires: -1 });
 	
 	// the html ID in index for the drawing app
 	var drawingId = "drawing";
@@ -96,7 +96,7 @@ define([],function(){
 	});
 
 	
-	andes.drawing = {
+	return {
 		// summary:
 		//	The master object that controls behavior of Drawing items
 		//	and handles transfer of data between server and client

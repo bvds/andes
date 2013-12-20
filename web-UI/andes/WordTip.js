@@ -1,6 +1,6 @@
-define([], function(){
+define(['dojo/_base/declare'], function(declare){
+	return declare(null, {
 
-dojo.declare("andes.WordTip", null, {
     // Summary:
     //      Singleton whose job is to watch the textbox
     //      and connect to the server when there are changes

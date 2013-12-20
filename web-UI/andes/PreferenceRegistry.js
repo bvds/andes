@@ -10,7 +10,7 @@ define([],function(){
     //          andes.api.recordAction({type:"set-preference", name: "display-timer", value: true});
     _prefs = {};
 
-    andes.preferenceRegistry = {
+    return {
         // Prefs are name value pairs with scope so that the server
         // can update them.
         registerPref: function(/*String*/pref, /*function*/setter, scope){

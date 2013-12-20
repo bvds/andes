@@ -1,7 +1,7 @@
 // Pre-AMD version had a function wrapper.
 define([],function(){ 
 
-	andes.convert = {
+	return {
 		// summary:
 		//	The conversion object used to transform objects
 		//	from and ande object to a drawing object and

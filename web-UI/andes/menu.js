@@ -1,17 +1,18 @@
 define([
+	"dijit/registry",
 	"andes/options",
 	"dijit/Menu",
 	"dijit/MenuSeparator"
-],function(){  
+],function(registry){  
 	// In the pre-AMD version, the body was wrapped
         // in "dojo.addOnLoad(function(){ ... })
 	
         // Add problem name to menu
-	dojo.byId("problemName").innerHTML = andes.projectId;
+	registry.byId("problemName").innerHTML = andes.projectId;
 	
 	// shortcut for adding an onClick handler to a dijit
 	function wireItem(item, fn){
-		var o = dijit.byId(item);
+		var o = registry.byId(item);
 		if(o){
 			// Wrapper function which adds logging to server
 			// when menu item is selected.
