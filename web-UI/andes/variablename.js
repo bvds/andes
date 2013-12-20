@@ -1,4 +1,5 @@
-dojo.provide("andes.variablename");
+define([], function(){
+
 // pick out variable name from definition string
 // The forms that are matched:
 //    ?var is ...
@@ -50,3 +51,4 @@ andes.variablename.parse = function(intext){
 	}
 	return "";
 }
+});

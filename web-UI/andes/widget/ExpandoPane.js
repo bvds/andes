@@ -1,8 +1,11 @@
-dojo.provide("andes.widget.ExpandoPane");
+// AMD conversion follows example in
+// https://dojotoolkit.org/reference-guide/1.9/releasenotes/migration-17.html#dojo-provide
+define([
+	"dojo/_base/declare",
+	"dojox/layout/ExpandoPane"
+],function(declare,expandoPane){
+	return declare(expandoPane, {
 
-dojo.require("dojox.layout.ExpandoPane");
-
-dojo.declare("andes.widget.ExpandoPane", dojox.layout.ExpandoPane, {
 	// summary:
 	//	Allows the expandable Tutor pane.
 	// 	extends dojox.layout.ExpandoPane
@@ -105,4 +108,6 @@ dojo.declare("andes.widget.ExpandoPane", dojox.layout.ExpandoPane, {
 		}
 		this.toggle();
 	}
+});
+
 });

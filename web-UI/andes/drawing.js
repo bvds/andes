@@ -1,7 +1,5 @@
-dojo.provide("andes.drawing");
-
-
-(function(){
+// Pre-AMD version had a function wrapper.
+define([],function(){
 	
 	dojo.cookie("mikeDev", null, { expires: -1 });
 	
@@ -579,4 +577,4 @@ dojo.provide("andes.drawing");
 		}
 	};
 
-})();
+});

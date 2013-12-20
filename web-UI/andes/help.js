@@ -1,7 +1,6 @@
-dojo.provide("andes.help");
-dojo.require("andes.api");
-
-(function(){
+define([
+	"andes/api"
+],function(){ // Pre-AMD version had a function wrapper.
 	
 	function handleHelp(result){
 		// summary:
@@ -137,5 +136,4 @@ dojo.require("andes.api");
 		andes.api.recordAction(s);
 	};
 		
-})();
-
+});

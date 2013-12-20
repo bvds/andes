@@ -1,10 +1,12 @@
-dojo.provide("andes.rpc");
-dojo.require("dojox.rpc.Service");
-dojo.require("dojox.rpc.JsonRPC");
-dojo.require("dojox.json.schema");
+define([
+	"dojox/rpc/Service",
+	"dojox/rpc/JsonRPC",
+	"dojox/json/schema"
+],function(){
 
 	// summary:
 	//	This stub is in place to make andes.rpc a swappable oject
 	//	for other potential server connections, such as CometD.
 	
-	andes.rpc = new dojox.rpc.Service(dojo.moduleUrl("andes", "andes3.smd"));
+	andes.rpc = new dojox.rpc.Service(require.toUrl("andes", "andes3.smd"));
+});

@@ -1,6 +1,6 @@
-dojo.provide("andes.PreferenceRegistry");
+// Pre-AMD version had a function wrapper.
+define([],function(){
 
-(function(){
     // Summary:
     //      User preferences that can be saved are registered here.
     //      When preferences are updated this saves them to the server
@@ -52,4 +52,4 @@ dojo.provide("andes.PreferenceRegistry");
             }
         }
     }
-})();
+});

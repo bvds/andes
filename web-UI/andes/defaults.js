@@ -1,6 +1,6 @@
-dojo.provide("andes.defaults");
+// Pre-AMD version had a function wrapper.
+define([],function(){
 
-(function(){
 	andes.defaults = {
 		// summary:
 		//	The style used for Andes3.
@@ -300,4 +300,4 @@ dojo.provide("andes.defaults");
 	a.disabled.fill = a.locked.fill;
 	a.textDisabled.color = a.locked.fill;
 
-})();
+});

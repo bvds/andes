@@ -1,4 +1,4 @@
-dojo.provide("andes.Combo");
+define([],function(){
 
 andes.Combo = dojox.drawing.util.oo.declare(
 	// summary:
@@ -238,3 +238,4 @@ andes.buttonCombo = dojox.drawing.util.oo.declare(
 
 	}
 )
+});

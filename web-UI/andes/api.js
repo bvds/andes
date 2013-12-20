@@ -1,10 +1,10 @@
-dojo.provide("andes.api");
-dojo.require("andes.rpc");
-dojo.require("andes.error");
-dojo.require("andes.messages");
-dojo.require("andes.timer");
-
-(function(){
+define([
+	"andes/api",
+	"andes/rpc",
+	"andes/error",
+	"andes/messages",
+        "andes/timer"
+],function(){  // Pre-AMD version had a function wrapper.
 	
 	var startTime = null,
 	    requestInFlight = false,
@@ -171,5 +171,5 @@ dojo.require("andes.timer");
 		}
 	};
 
-})();
+});
 

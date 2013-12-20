@@ -1,7 +1,19 @@
-dojo.provide("andes.main");
-dojo.require("andes.WordTip");
+// Pre-AMD version had "andes.drawing.load();" at very end of the file.
+define([
+	"andes/WordTip",
+	// In the pre-AMD version, these were all at the end of the file:
+	"andes/defaults",
+	"andes/PreferenceRegistry",
+	"andes/convert",
+	"andes/drawing",
+	"andes/menu",
+	"andes/help",
+	"andes/api",
+	"andes/error",
+	"andes/variablename"
+],function(){ // Pre-AMD version had a function wrapper.
 
-(function(){
+
 	// summary:
 	//	Handles loading of app and the timing of how items load.
 	
@@ -121,16 +133,4 @@ dojo.require("andes.WordTip");
 		anim.play();
 	});
 	
-})();
-
-dojo.require("andes.defaults");
-dojo.require("andes.PreferenceRegistry");
-dojo.require("andes.convert");
-dojo.require("andes.drawing");
-dojo.require("andes.menu");
-dojo.require("andes.help");
-dojo.require("andes.api");
-dojo.require("andes.error");
-dojo.require("andes.variablename");
-
-andes.drawing.load();
+});

@@ -1,6 +1,5 @@
-dojo.provide("andes.positioning");	
-
-(function(){
+// Pre-AMD version had a function wrapper.
+define([],function(){
 	
 	// summary:
 	//	Overwrites the default methods in Drawing used for
@@ -67,4 +66,4 @@ dojo.provide("andes.positioning");
 		return { x:x, y:y, align:align};
 	}
 	
-})();
+});

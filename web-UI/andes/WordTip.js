@@ -1,4 +1,4 @@
-dojo.provide("andes.WordTip");
+define([], function(){
 
 dojo.declare("andes.WordTip", null, {
     // Summary:
@@ -105,4 +105,5 @@ dojo.declare("andes.WordTip", null, {
             };
         },this);
     }
+});
 });

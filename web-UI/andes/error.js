@@ -1,9 +1,9 @@
-dojo.provide("andes.error");
-dojo.provide("andes.error._Error");
-dojo.require("dijit.Dialog");
-dojo.require("dijit.form.Button");
-
-(function(){
+// Pre-AMD version had provides for "andes.error" and "andes.error._Error"
+// Pre-AMD version had a function wrapper.
+define([
+	"dijit/Dialog",
+	"dijit/form/Button"
+],function(){
 
 	var dialog = null;
 
@@ -109,4 +109,4 @@ dojo.require("dijit.form.Button");
 		}
 	});
 
-})();
+});

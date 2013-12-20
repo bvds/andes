@@ -1,4 +1,4 @@
-dojo.provide("andes.timer");
+define([], function(){
 
 dojo.declare("andes.timer", null, {
     // summary:
@@ -37,4 +37,5 @@ dojo.declare("andes.timer", null, {
             this.node.innerHTML = Math.floor(elapsed/1000);
         }
     }
+});
 });

@@ -1,9 +1,10 @@
-dojo.provide("andes.menu");
-dojo.require("andes.options");
-dojo.require("dijit.Menu");
-dojo.require("dijit.MenuSeparator");
-
-dojo.addOnLoad(function(){
+define([
+	"andes/options",
+	"dijit/Menu",
+	"dijit/MenuSeparator"
+],function(){  
+	// In the pre-AMD version, the body was wrapped
+        // in "dojo.addOnLoad(function(){ ... })
 	
         // Add problem name to menu
 	dojo.byId("problemName").innerHTML = andes.projectId;

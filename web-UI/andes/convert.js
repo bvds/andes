@@ -1,7 +1,5 @@
-
-dojo.provide("andes.convert");
-
-(function(){
+// Pre-AMD version had a function wrapper.
+define([],function(){ 
 
 	andes.convert = {
 		// summary:
@@ -296,4 +294,4 @@ dojo.provide("andes.convert");
 		}
 	}
 	
-})();
+});

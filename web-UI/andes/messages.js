@@ -1,4 +1,4 @@
-dojo.provide("andes.messages");
+define([], function(){
 
 	//		This files contains general message strings
 	//		used for error handling (and could be used
@@ -32,3 +32,4 @@ dojo.provide("andes.messages");
 			};
 		}
 	}
+});

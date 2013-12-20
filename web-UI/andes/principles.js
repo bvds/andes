@@ -1,6 +1,7 @@
-dojo.provide("andes.principles");
-dojo.require("dijit.Tree");
-dojo.require("dojo.data.ItemFileReadStore");
+define([
+	"dijit/Tree",
+	"dojo/data/ItemFileReadStore"
+],function(){
 
 // See review/principles-tree.html
 dojo.ready(function(){  // wait until dom is loaded
@@ -130,4 +131,5 @@ dojo.addOnLoad(function() {
 		}
 	},"allModalTree");
 	
+});
 });

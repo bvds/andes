@@ -1,5 +1,6 @@
-dojo.provide("andes.options");
-dojo.require("dijit.ColorPalette");
+define([
+	"dijit/ColorPalette"
+],function(){
 
 dojo.declare("andes.options",null,{
     // Summary:
@@ -176,4 +177,5 @@ dojo.declare("andes.options",null,{
         andes.preferenceRegistry.savePref(name, value);
     }
     //This should be instantiated in menu
+});
 });
