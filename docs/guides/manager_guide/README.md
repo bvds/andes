@@ -408,17 +408,27 @@ your organization).<br><br>
 <a name="SettingsTab"></a>
 ## Settings Tab
 
-Enables you to set general information, manage your security policy, and
-set authentication requirements. 
+Enables you to set general information, manage your security policy, 
+set authentication requirements, change your subscription, and change
+contact and billing information. 
 
-<b>Important</b>: When you change any of the 
-options in the Security Policy, all users are sent a notice when they log in that 
-they need to change their PIN. 
+{@img ManagerSettings.png}
 
-Provides settings for:
-<ol>
-<li><b>General</b> - Lets you set:
-<ol>
+Settings sections:
+<ul>
+<li><a href="#GeneralSettings">General Settings</a></li>
+<li><a href="#SecuritySettings">Security Settings</a></li>
+<li><a href="#AuthenticationSettings">Authentication Settings</a></li>
+<li><a href="#SubscriptionSettings">Subscription Settings</a></li>
+<li><a href="#BillingSettings">Billing Settings</a></li>
+</ul>
+
+<a name="GeneralSettings"></a>
+### General Settings
+
+Lets you set:
+
+<ul>
 <li>Organization Name - Any string.</li>
 <li>Organization Code - A string you receive from Sencha after you register 
 your organization with Sencha</li>
@@ -427,10 +437,20 @@ your organization with Sencha</li>
 email method you select. A Native pattern starts with <code>mailto</code>, 
 whereas a Good Enterprise pattern starts with the <code>gdmailto</code>
 or <code>ggmailto</code> value.</li>
-</ol>
-{@img ManagerSettingsGeneral.png}<br></li>
-<li><b>Security Policy</b> - Lets you set:
-<ol>
+</ul>
+
+{@img GeneralSettings.png}
+
+<a name="SecuritySettings"></a>
+### Security Settings
+
+<b>Important</b>: When you change any of the 
+options in the Security Policy, all users are sent 
+a notice when they log in that 
+they need to change their PIN.
+
+Lets you set:
+<ul>
 <li>Max Idle Time Before PIN Challenge - How long a user can perform other
 activities outside the Client app before being reprompted for a PIN. For 
 example, a presses the Home button on their mobile device to exit the 
@@ -456,15 +476,21 @@ to be authenticated in the Space client. The default is 6 digits.</li>
 the correct PIN value before being locked out. The default is 10 attempts.
 If a user is locked out, the user must re-enter their username and password
 to gain access to the Space client.</li>
-<li>Max Time Working Offline Before Automatic Log Out - Maximum duration that a user can 
+<li>Max Time Working Offline Before Automatic Log Out - Maximum 
+duration that a user can 
 perform other activities outside the Space Client before being 
 automatically logged off. The duration
 can be set to an amount of minutes, hours, days, weeks, or months.</li>
 <li>Save - Save settings.</li>
-</ol>
-{@img ManagerSettingsSecPolicy.png}<br></li>
-<li><b>Authentication</b> - Lets you set:
-<ol>
+</ul>
+
+{@img SecurityPolicySettings.png}
+
+<a name="AuthenticationSettings"></a>
+### Authentication Settings
+
+Lets you set:
+<ul>
 <li>Authentication Method - <b>Invite Only</b> - Indicates that 
 you can only add user access to the Space client by an email
 invitation. <b>SAML 2.0</b> - Indicates that users are given access
@@ -472,7 +498,7 @@ to the Space client by virtue of access through SAML.</li>
 <li>User Provisioning - Auto add user to Space - Add user automatically
 to Sencha Space.</li>
 <li>Identity Provider (IDP) Config:
-  <ol>
+  <ul>
   <li>Endpoint URL - Indicate the URL for how to access the IDP.</li>
   <li>Certificate - List the IDP certificate. Use this syntax:
 <pre>
@@ -484,11 +510,27 @@ to Sencha Space.</li>
   <li>Email Attribute - Specify the email address of your IDP</li>
   <li>First Name Attribute - Specify the first name of the IDP</li>
   <li>Last Name Attribute - Specify the last name of the IDP</li>
-  </ol></li>
-</ol>
-{@img ManagerSettingsAuthentication.png}<br></li>
-<li><b>Billing</b> - Information about your Space Manager subscription:
-<ol>
+  </ul></li>
+</ul>
+
+{@img AuthenticationSettings.png}
+
+<a name="SubscriptionSettings"></a>
+### Subscription Settings
+
+Lets you change your Space subscription, which depends on how many users,
+users per device, and apps your organization requires.
+
+{@img SubscriptionSettings.png}
+
+To upgrade or downgrade, click <b>Change</b> for the subscription option
+you require.
+
+<a name="BillingSettings"></a>
+### Billing Settings
+
+Information about your Space Manager subscription:
+<ul>
 <li>Status of Your Current Subscription - Whether you are using Space
 on a trial or are active.</li>
 <li>Subscription Period End - The date your Space subscriptiption ends.</li>
@@ -499,11 +541,9 @@ the Sencha Space subscription.</li>
 <li>Credit Card - Which credit card to use to bill for your Sencha
 Space subscription.</li>
 <li>Update - Click to save changed information in this form.</li>
-</ol>
-{@img ManagerSettingsBilling.png}
-</li>
-</ol> 
+</ul>
 
+{@img BillingSettings.png}
 
 <a name="AdminMenu"></a>
 ## Admin Menu
