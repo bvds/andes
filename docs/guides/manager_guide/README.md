@@ -69,6 +69,9 @@ with columns for when the app was created (made available to your organization).
 and maximum attempts before lock out.</li>
 <li>Authentication - Specify authentication method, Security Assertion Markup Language (SAML) 
 configuration, and Identity Provider (IDP) information.</li>
+<li>Subscription - Change your Space subscription when your organization 
+adds more users, devices per user, or apps.</li>
+<li>Billing - Specify your organization's contact and billing address.</li>
 </ul>
 </td></tr>
 </table>
