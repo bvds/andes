@@ -431,7 +431,7 @@ or <code>ggmailto</code> value.</li>
 {@img ManagerSettingsGeneral.png}<br></li>
 <li><b>Security Policy</b> - Lets you set:
 <ol>
-<li>PIN Required After Minutes - The duration for how long a user can perform other
+<li>Max Idle Time Before PIN Challenge - How long a user can perform other
 activities outside the Client app before being reprompted for a PIN. For 
 example, a presses the Home button on their mobile device to exit the 
 Space client. If the Session Duration is set to 5 minutes, the user has up
@@ -440,8 +440,9 @@ to the Space Client. The tradeoff is that the Space Client data is more
 vulnerable during the Session Duration interval should the device
 be lost or stolen, but the duration gives users more time 
 to perform other activities before being reprompted 
-when returning to the Space Client.</li>
-<li>PIN Type Slider - Slide to <b>None</b> to not require a PIN or password 
+when returning to the Space Client. The duration can be set to minutes,
+hours, days, weeks, or months.</li>
+<li>PIN Type (slider) - Slide to <b>None</b> to not require a PIN or password 
 when users access the Space client on their mobile device - only use this 
 setting during debugging, 
 slide to <b>Number</b> to require users to supply a PIN for authentication, 
@@ -451,13 +452,14 @@ least 4 characters, have at least one number, letter, and special character,
 and can be any length.</li>
 <li>PIN Minimum Length - The least number of numbers a user can enter
 to be authenticated in the Space client. The default is 6 digits.</li>
-<li>PIN Lock After Attempts - The number of tries a user gets to supply
+<li>Lock Out After Failed PIN Attempts - The number of tries a user gets to supply
 the correct PIN value before being locked out. The default is 10 attempts.
 If a user is locked out, the user must re-enter their username and password
 to gain access to the Space client.</li>
-<li>Maximum Idle Time for PIN Challenge - Maximum duration that a device can use
-Sencha Space offline before being automatically logged off. The duration
-can be set to an amount of minutes.</li>
+<li>Max Time Working Offline Before Automatic Log Out - Maximum duration that a user can 
+perform other activities outside the Space Client before being 
+automatically logged off. The duration
+can be set to an amount of minutes, hours, days, weeks, or months.</li>
 <li>Save - Save settings.</li>
 </ol>
 {@img ManagerSettingsSecPolicy.png}<br></li>
