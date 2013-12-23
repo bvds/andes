@@ -1,18 +1,21 @@
 define([
-	"dijit/registry",
+	"dojo/dom",
+    "dijit/registry",
+        "andes/startup",
 	"andes/options",
 	"dijit/Menu",
-	"dijit/MenuSeparator"
-],function(registry){  
+    "dijit/MenuSeparator",
+    "dojo/domReady!"
+],function(dom,registry,andes){  
 	// In the pre-AMD version, the body was wrapped
         // in "dojo.addOnLoad(function(){ ... })
-	
+
         // Add problem name to menu
-	registry.byId("problemName").innerHTML = andes.projectId;
+	dom.byId("problemName").innerHTML = andes.projectId;
 	
 	// shortcut for adding an onClick handler to a dijit
 	function wireItem(item, fn){
-		var o = registry.byId(item);
+		var o = dom.byId(item);
 		if(o){
 			// Wrapper function which adds logging to server
 			// when menu item is selected.
@@ -80,14 +83,20 @@ define([
 	
 	// Setup contextMenu and children
 	andes.contextMenu = new dijit.Menu();
+    require(["dojo/ready","dijit/registry","andes/startup"],
+		    function(ready,registry,andes){
+			ready(function(){
+			// parser.parse();
 	var contextOptions = {};
 	for(var i in spec){
 		wireItem(i, spec[i]);
 		contextItem(i, spec[i]);
 	}
+			});
+		    });
 	
-	function contextItem(desc, fn){
-		var label = dijit.byId(desc).get("label");
+        function contextItem(desc, fn){
+		var label = registry.byId(desc).get("label");
 		// Hack I'll fix later
 		if(label=="Options" || label=="Introduction"){
 			andes.contextMenu.addChild(new dijit.MenuSeparator());
@@ -101,7 +110,7 @@ define([
 	
 	// Set up option menu and right click menu
 	andes.options = new andes.options();
-	var _drawing = dijit.byId("drawing");
+	var _drawing = dom.byId("drawing");
 	
 	// Setup the menu onScreen
 	var cn = dojo.connect(_drawing, "onSurfaceReady", function(){

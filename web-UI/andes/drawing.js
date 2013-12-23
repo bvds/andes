@@ -1,5 +1,5 @@
 // Pre-AMD version had a function wrapper.
-define(["dojo/cookie"],function(cookie){
+define(["dojo/cookie","andes/startup"],function(cookie){
 	
 	cookie("mikeDev", null, { expires: -1 });
 	

@@ -1,7 +1,5 @@
-// Pre-AMD version had "andes.drawing.load();" at very end of the file.
 define([
-	"andes/WordTip",
-	// In the pre-AMD version, these were all at the end of the file:
+	// In the pre-AMD version, these were all after the body of main.js:
 	"andes/defaults",
 	"andes/PreferenceRegistry",
 	"andes/convert",
@@ -11,126 +9,8 @@ define([
 	"andes/api",
 	"andes/error",
 	"andes/variablename"
-],function(){ // Pre-AMD version had a function wrapper.
-
-
-	// summary:
-	//	Handles loading of app and the timing of how items load.
-	
-	var devMode = true, query;
-	if(!window.location.search){
-		query = {
-			p:"s2e",
-			//p:"s2esolved",
-			u:"joe1"
-		};
-	}else{
-		query = dojo.queryToObject(window.location.search.substring(1));
-	}
-	if(!query.u || !query.p){
-		dojo.addOnLoad(function(){
-			console.error("FIXME: Finalize the error message for needing to return to WebAssign.");
-			andes.error({
-				title: "Fatal Error",
-				message: "No user and/or problem data was provided; cannot continue. Please click on your browser's back button.",
-				dialogType: andes.error.FATAL
-			});
-		});
-	};
-        // FNV-1a for string, 32 bit version, returning hex.
-	var FNV1aHash = function(x){
-		var hash = 0x811c9dc5; // 2166136261
-		for (i = 0; i < x.length; i++) {
-			hash ^= x.charCodeAt(i);
-			hash *= 0x01000193; // 16777619
-		}
-		hash &= hash; // restrict to lower 32 bits.
-		// javascript doesn't handle negatives correctly
-		// when converting to hex.
-		if(hash<0){
-			hash = 0xffffffff + hash + 1;
-		}
-		return Number(hash).toString(16);
-	};
-	var setCookie = function(){
-		// Andes database requires that clientID be 50 characters.
-		andes.sessionId = FNV1aHash(andes.userId+andes.projectId) + 
-			'_' + new Date().getTime();
-		var andesCookie = {
-			u:andes.userId,
-			p:andes.projectId,
-			sid:andes.sessionId,
-			closed:false
-		};
-		dojo.cookie("andes", dojo.toJson(andesCookie), { expires: 999 });
-	};
-	
-	andes.closeFirst = false;
-	andes.userId = query.u;
-	andes.projectId = query.p;
-	andes.sectionId = query.s || 1234;
-	andes.extra = query.e; //extra field for Raj
-	var ck = dojo.cookie("andes");
-	if(ck && ck.u){
-		// There was already a cookie here
-		if(ck.u==andes.userId && ck.p==andes.projectId){
-			// we can continue the same session
-			andes.sessionId = ck.sid;
-		}else{
-			andes.closeFirst = true;
-			console.warn("Closing previous session", ck.u, andes.userId, ck.p, andes.projectId)
-			setCookie();
-		}
-	}else{
-		setCookie();	
-	}
-	
-	dojo.addOnUnload(function(){
-		andes.api.close({});
-		// but don't clear cookie
-	});
-	
-	dojo.addOnLoad(function(){
-		// WordTip needs to be added before conEdit is removed by drawing
-		andes.WordTip = new andes.WordTip();
-		
-		// Problem close actions set
-		dojo.connect(dojo.byId("submitButton"), "click", function(){
-			// Needs to be non-blocking
-			var closer = andes.api.close({});
-			closer.then(function(result){
-					// console.log("Made the trip", result);
-					// Look for url from server, if it doesn't
-					// exist, default takes user back one page
-					var url, found = false;
-					dojo.forEach(result, function(entry){
-						if(entry.url){
-							found = true;
-							//console.log("Found url: ",entry.url);
-							url = entry.url;
-						}
-					});
-					
-					found ? window.location = url : history.go(-1);
-				}, function(error){
-					console.warn("Server Error", error);
-					console.log("Returning to previous page");
-					history.go(-1);
-			});
-			dojo.cookie("andes", null, { expires: -1 });
-			// should look for url from server that
-			// can overrride default.
-		});
-		
-		// Splash animation
-		var splashNode = dojo.byId("splashOverlay"),
-		anim = dojo.fadeOut({node:dojo.byId("splashOverlay")}),
-		_h = dojo.connect(anim, "onEnd", function(){
-			dojo.disconnect(_h);
-			dojo.style(splashNode, "display", "none");
-			console.log("andes.main loaded");
-		});
-		anim.play();
-	});
-	
+],function(){ 
+    // Pre-AMD body of main.js moved to startup.js.
+    // Pre-AMD version had "andes.drawing.load();" at very end of the file.
+    andes.drawing.load();
 });
