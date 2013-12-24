@@ -1,8 +1,13 @@
 // Pre-AMD version had a function wrapper.
 define([
+    "dojo/_base/declare",
     "dojo/cookie",
-    "andes/startup"
-],function(cookie,andes){
+    "andes/startup",
+    "dojo/on",
+    "dijit/registry",
+    "andes/PreferenceRegistry",
+    "dojo/Evented"
+],function(declare,cookie,andes,on,registry,preferenceRegistry,Evented){
 
     // It would be better that this module returns an object called "drawing."
     // This is just to get things working with minimal changes to the pre-AMD version.
@@ -69,24 +74,25 @@ define([
 	var masterMap = {};
 
 	dojo.addOnLoad(function(){
-		_drawing = dijit.byId(drawingId);
-		var cn = dojo.connect(_drawing, "onSurfaceReady", function(){
-			dojo.disconnect(cn);
+		_drawing = registry.byId(drawingId);
+	    console.log("got drawing widget:  ",_drawing);
+		var cn = on(_drawing, "onSurfaceReady", function(){
+		        cn.remove();
 			andes.WordTip.add(_drawing);
 			andes.drawing.onSurfaceReady();
 			if(_drawing.stencils){
 				console.warn("Label double click connected");
-				dojo.connect(_drawing.stencils, "onLabelDoubleClick", andes.drawing, "onLabelDoubleClick");
+				on(_drawing.stencils, "onLabelDoubleClick", andes.drawing, "onLabelDoubleClick");
 			}
 		});
-		dojo.connect(_drawing, "onRenderStencil", andes.drawing, "onRenderStencil");
+		on(_drawing, "onRenderStencil", andes.drawing, "onRenderStencil");
 		
 		// Track user's focus on Andes.  So far only whether they are using the window/tab
 		// or have left to use another program
 		if(dojo.isIE){
-			dojo.connect(dojo.global, "onfocus", andes.drawing, "onWindowFocus");
-			//dojo.connect(dojo.global, "onfocusin", andes.drawing, "onWindowFocus");
-			dojo.connect(dojo.doc, "onfocusout", this, function() {
+			on(dojo.global, "onfocus", andes.drawing, "onWindowFocus");
+			// on(dojo.global, "onfocusin", andes.drawing, "onWindowFocus");
+			on(dojo.doc, "onfocusout", this, function() {
 				if (this._activeElement != document.activeElement){
 					this._activeElement = document.activeElement;
 				}else{
@@ -94,16 +100,16 @@ define([
 				}
 			});
 		}else if(dojo.isSafari){
-			dojo.connect(window, "onblur", andes.drawing, "onWindowBlur");
-			dojo.connect(window, "onfocus", andes.drawing, "onWindowFocus");
+			on(window, "onblur", andes.drawing, "onWindowBlur");
+			on(window, "onfocus", andes.drawing, "onWindowFocus");
 		}else{
-			dojo.connect(dojo.doc, "onblur", andes.drawing, "onWindowBlur");
-			dojo.connect(dojo.doc, "onfocus", andes.drawing, "onWindowFocus");
+			on(dojo.doc, "onblur", andes.drawing, "onWindowBlur");
+			on(dojo.doc, "onfocus", andes.drawing, "onWindowFocus");
 		}
 	});
 
 	
-	return {
+    return declare([Evented],{
 		// summary:
 		//	The master object that controls behavior of Drawing items
 		//	and handles transfer of data between server and client
@@ -180,7 +186,7 @@ define([
 			items[group.id] = group;
 
 			dojo.forEach(group.items,function(item){
-				dojo.connect(item.master,"onClick",this,function(item){
+				on(item.master,"onClick",this,function(item){
 
 					// Handle button clicks; don't do anything for done button.
 					if(item.buttonType == "checkbox"){
@@ -395,7 +401,7 @@ define([
 					// This opens the general introduction.
 					// It should be disconnected when the
 					// dialog box is closed!  See bug #1628
-					dojo.connect(dojo.byId("andesButtonPageDefault"), 
+					on(dojo.byId("andesButtonPageDefault"), 
 						     "click", 
 						     function(){
 							     // add 10 px padding
@@ -403,7 +409,7 @@ define([
 						     });
 					
 				}else if(obj.action=="new-user-dialog" && obj.url){
-					var x=dijit.byId("consentDialog");
+					var x=registry.byId("consentDialog");
 					x.set("href",obj.url);
 					x.set("title","Consent Form");
 					x.show();
@@ -417,7 +423,7 @@ define([
 				}else if(obj.action=="set-preference"){
 					// Try to set in the preferenceRegistry.  All
 					// values that can be saved should be available there
-					andes.preferenceRegistry.setPref(obj["name"],obj["value"]);
+					preferenceRegistry.setPref(obj["name"],obj["value"]);
 					
 				}else if(obj.action=="log"){
 					// Log actions are ignored by client.
@@ -582,6 +588,6 @@ define([
 			console.log("Gained window focus for ",this.name || "canvas","; ",this);
 			andes.api.recordAction({type:"window", name: this.name || "canvas", value: "focus"});
 		}
-	};
+    });
 
 });

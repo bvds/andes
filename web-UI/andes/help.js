@@ -1,7 +1,8 @@
 define([
     "andes/startup",
+    "dojo/on",
 	"andes/api"
-],function(andes){ // Pre-AMD version had a function wrapper.
+],function(andes,on){ // Pre-AMD version had a function wrapper.
 
     // It would be better that this module returns an object called "help."
     // This is just to get things working with minimal changes to the pre-AMD version.
@@ -128,7 +129,7 @@ define([
 	}
 	
 	dojo.addOnLoad(function(){
-		dojo.connect(dijit.byId("helpSubmit"), "onClick", function(){
+		on(dijit.byId("helpSubmit"), "onClick", function(){
 			var q = dijit.byId("helpInput").get("value"),
 			h = q ? {action:"get-help", text:q} : {action:"help-button"};
 			

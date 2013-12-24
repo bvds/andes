@@ -1,7 +1,8 @@
 // Pre-AMD version had a function wrapper.
 define([
-  "andes/startup"
-],function(andes){ 
+    "andes/startup",
+    "andes/defaults"
+],function(andes,defaults){ 
 
 	return {
 		// summary:
@@ -88,7 +89,7 @@ define([
 					ry:o.height/2
 				}
 			}else if(o.type=="radio"){
-				buttonWidth=andes.defaults.button.radioButtonRadius;
+				buttonWidth=defaults.button.radioButtonRadius;
 				obj.buttonType=o.type;
 				obj.data={
 					cx:o.x + 0.5*buttonWidth,
@@ -99,7 +100,7 @@ define([
 				};
 				obj.value = o.value;
 			}else if(o.type=="checkbox"){
-				buttonWidth=andes.defaults.button.checkboxWidth;
+				buttonWidth=defaults.button.checkboxWidth;
 				obj.buttonType=o.type;
 				obj.data.width = buttonWidth;
 				obj.data.height = buttonWidth;
@@ -184,7 +185,7 @@ define([
 				obj.data.text = o.text;
 			}else if(o.type=="axes"){
 				obj.label = o['x-label']+" and "+o['y-label'];
-				if(andes.defaults.zAxisEnabled){
+				if(defaults.zAxisEnabled){
 					obj.label += " and "+o['z-label'];
 				}
 			}

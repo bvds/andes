@@ -3,10 +3,11 @@ define([
     "dijit/registry",
         "andes/startup",
     "dojo/ready",
+    "dojo/on",
 	"andes/options",
 	"dijit/Menu",
     "dijit/MenuSeparator",
-],function(dom,registry,andes,ready){  
+],function(dom,registry,andes,ready,on,options){  
 	// In the pre-AMD version, the body was wrapped
         // in "dojo.addOnLoad(function(){ ... })
     ready(function(){
@@ -103,15 +104,15 @@ define([
 	};
 	
 	// Set up option menu and right click menu
-	andes.options = new andes.options();
+	andes.options = new options();
 	var _drawing = dom.byId("drawing");
 	
 	// Setup the menu onScreen
-	var cn = dojo.connect(_drawing, "onSurfaceReady", function(){
-		dojo.disconnect(cn);
+	var cn = on(_drawing, "onSurfaceReady", function(){
+		cn.remove;
 		
 		var node = null;
-		dojo.connect(_drawing.mouse, "onDown", function(evt){
+		on(_drawing.mouse, "onDown", function(evt){
 			// console.log("On down evt: ", evt);
 			// Dynamically prepare menu depending on the target
 			// if it's a stencil, allow delete

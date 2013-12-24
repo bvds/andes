@@ -1,9 +1,12 @@
 define([
     "andes/startup",
-	"dijit/ColorPalette"
-],function(andes){
+    "dojo/on",
+    "dojo/_base/declare",
+    "andes/PreferenceRegistry",
+    "dijit/ColorPalette"
+],function(andes,on,declare,preferenceRegistry){
 
-dojo.declare("andes.options",null,{
+return declare(null,{
     // Summary:
     //      Options is a pseudo dijit which is contained
     //      in a dijit.Dialog in HTML.  Probably should be a full
@@ -14,7 +17,7 @@ dojo.declare("andes.options",null,{
     //      Because of that it needs to register these prefs with PreferenceRegistry
     //      in order to interface with the server.
     _prefs: {
-        "angleSnap":    "setAngleSnap",
+	"angleSnap":    "setAngleSnap",
         "clickMode":    "setClickMode",
         "timer":        "setShowTimer",
         "correct":      "setCorrectColor",
@@ -49,7 +52,7 @@ dojo.declare("andes.options",null,{
         
         // Register preferences
         for(var nm in this._prefs){
-            andes.preferenceRegistry.registerPref(nm, this[this._prefs[nm]], this);
+            preferenceRegistry.registerPref(nm, this[this._prefs[nm]], this);
         }
         
         // Initialize values -- myDrawing is a GLOBAL
@@ -89,7 +92,7 @@ dojo.declare("andes.options",null,{
     
     connectMult: function(c){
         dojo.forEach(c, function(o){
-            dojo.connect.apply(this, o);
+            on.apply(this, o);
         });
     },
     
@@ -151,8 +154,8 @@ dojo.declare("andes.options",null,{
     // Connected to the color picker this allows the user to change
     // both correct and incorrect color schemes
     colorChange: function(evt){
-        var c = dojo.connect(this.picker, "onChange", this, function(value){
-            dojo.disconnect(c);
+        var c = on(this.picker, "onChange", this, function(value){
+            c.remove();
             if(evt.target == this.correct){
                 this.setCorrectColor(value);
             }else{
@@ -175,7 +178,7 @@ dojo.declare("andes.options",null,{
         }else{
             f.call(s, value);
         }
-        andes.preferenceRegistry.savePref(name, value);
+        preferenceRegistry.savePref(name, value);
     }
     //This should be instantiated in menu
 });

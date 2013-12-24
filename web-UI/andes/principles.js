@@ -1,8 +1,9 @@
 define([
     "andes/principles",
+    "dojo/on",
 	"dijit/Tree",
 	"dojo/data/ItemFileReadStore"
-],function(andes){
+],function(andes,on){
 
 // See review/principles-tree.html
 dojo.ready(function(){  // wait until dom is loaded
@@ -62,8 +63,8 @@ andes.principles={
 							obj.scrollIntoView();
 						}
 					}
-					dojo.connect(this.reviewp[file], "onblur", andes.drawing.onWindowBlur);
-					dojo.connect(this.reviewp[file], "onfocus", andes.drawing.onWindowFocus);
+					on(this.reviewp[file], "onblur", andes.drawing.onWindowBlur);
+					on(this.reviewp[file], "onfocus", andes.drawing.onWindowFocus);
 				}
 					
 			}else if(title=="Principles"){

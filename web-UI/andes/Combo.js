@@ -1,7 +1,9 @@
 define([
     "andes/startup",
-    "dojox/drawing/util/oo"
-],function(andes,oo){
+    "dojox/drawing/util/oo",
+    "dojo/on",
+    "dojo/_base/array"
+],function(andes,oo,on,array){
 
 andes.Combo = oo.declare(
 	// summary:
@@ -184,16 +186,16 @@ andes.Combo = oo.declare(
 				m = s; s = this;
 			}else if (once){
 				// ** object function object function Boolean **
-				c = dojo.connect(o, e, function(evt){
+				c = on(o, e, function(evt){
 					dojo.hitch(s, m)(evt);
-					dojo.disconnect(c);
+				    c.remove();
 				});
 				this._cons.push(c);
 				return c;
 			}else{
 				// ** object function object function **
 			}
-			c = dojo.connect(o, e, s, m);
+			c = on(o, e, s, m);
 			this._cons.push(c);
 			return c;
 		},
@@ -201,7 +203,7 @@ andes.Combo = oo.declare(
 		disconnect: function(handles){
 		  if(!handles) { return; }
 			if(!dojo.isArray(handles)){ handles=[handles]; }
-			dojo.forEach(handles, dojo.disconnect, dojo);
+		    array.forEach(handles, function(handle){handle.remove();},dojo);
 		}
 	}
 )

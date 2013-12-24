@@ -1,9 +1,9 @@
 // Pre-AMD version had a function wrapper.
 define([
    "andes/startup"
-],function(andes){
+],function(){
 
-	return {
+	var a = {
 		// summary:
 		//	The style used for Andes3.
 		// description:
@@ -295,11 +295,11 @@ define([
 	};
 	
 	// change Drawing defaults to andes defaults
-	var a = andes.defaults;
 	a.norm.fill = a.unknown.fill;
 	a.norm.color = a.unknown.color;
 	a.disabled.color = a.locked.color;
 	a.disabled.fill = a.locked.fill;
 	a.textDisabled.color = a.locked.fill;
 
+    return a;
 });

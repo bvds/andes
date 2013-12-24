@@ -1,7 +1,8 @@
 define([
     'dojo/_base/declare',
-    'andes/startup'
-], function(declare,andes){
+    'andes/startup',
+    'dojo/on'
+], function(declare,andes,on){
     return declare(null,{
 
     // Summary:
@@ -14,7 +15,7 @@ define([
     
     constructor: function(){
         this.conEdit = dojo.byId("conEdit");    
-        dojo.connect(this.conEdit, "keydown", this, "textMonitor");
+        on(this.conEdit, "keydown", this, "textMonitor");
         console.log("I've got conedit now", this.conEdit);
     },
     
@@ -41,8 +42,8 @@ define([
         if(evt.keyCode == dojo.keys.ENTER || evt.keyCode == dojo.keys.ESCAPE){
             dijit.hideTooltip(this.conEdit);
         }
-        var cn = dojo.connect(document,"mouseup",this, function(evt){
-            dojo.disconnect(cn);
+        var cn = on(document,"mouseup",this, function(evt){
+            cn.remove();
             dijit.hideTooltip(this.conEdit);
         })
     },
