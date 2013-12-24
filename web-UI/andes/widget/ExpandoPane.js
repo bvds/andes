@@ -4,7 +4,7 @@ define([
 	"dojo/_base/declare",
 	"dojox/layout/ExpandoPane"
 ],function(declare,expandoPane){
-	return declare(expandoPane, {
+    return declare("andes.widget.ExpandoPane",[expandoPane], {
 
 	// summary:
 	//	Allows the expandable Tutor pane.

@@ -6,7 +6,7 @@ define([
     "dojo/json",
     'dojo/_base/unload',
     "andes/WordTip"
-],function(cookie,ready,ioQuery,json,baseUnload){ // Pre-AMD version had a function wrapper.
+],function(cookie,ready,ioQuery,json,baseUnload,wordTip){ // Pre-AMD version had a function wrapper.
 
     // In the pre-AMD version, andes was a global variable
     // Here we make it the object returned by this module.
@@ -91,7 +91,7 @@ define([
 	
 	dojo.addOnLoad(function(){
 		// WordTip needs to be added before conEdit is removed by drawing
-		andes.WordTip = new andes.WordTip();
+		andes.WordTip = new wordTip();
 		
 		// Problem close actions set
 		dojo.connect(dojo.byId("submitButton"), "click", function(){

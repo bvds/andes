@@ -25,69 +25,81 @@
 		};
 	</script>
 	<script type="text/javascript">
-	        require(["dojo/parser","andes"]);
+	        require([
+                         "dojo/parser","andes",
+                         "dijit/MenuBar","dijit/PopupMenuBarItem",
+                         "dijit/layout/BorderContainer",
+                         "dojox/drawing/ui/Toolbar",
+                         "andes/widget/ExpandoPane",
+                         "dijit/form/TextBox",
+                         "dojox/widget/UpgradeBar",
+                         "dojox/drawing/plugins/drawing/GreekPalette",
+                         "dojox/widget/DialogSimple",
+                         "dijit/form/NumberSpinner",
+                         "dijit/form/ToggleButton"
+]);
 	</script>
 </head>
 <body class="tundra">
     <div id="splashOverlay"></div>
     <div id="conEdit" contenteditable="true"></div>
-    <div id="main" dojoType="dijit.layout.BorderContainer" gutters="false">
-	<div dojoType="dijit.MenuBar" id="navMenu" region="top" splitter="false">
+    <div id="main" data-dojo-type="dijit.layout.BorderContainer" gutters="false">
+	<div data-dojo-type="dijit.MenuBar" id="navMenu" region="top" splitter="false">
 	    <span id="problemName" class="dijitMenuItem dijitMenuItemLabel">Problem</span>
-	    <div dojoType="dijit.PopupMenuBarItem">
+	    <div data-dojo-type="dijit.PopupMenuBarItem">
 		<span>Edit</span>
-		<div dojoType="dijit.Menu" id="menuEdit">
-		    <div id="menuOptions" dojoType="dijit.MenuItem">Options</div>
+		<div data-dojo-type="dijit.Menu" id="menuEdit">
+		    <div id="menuOptions" data-dojo-type="dijit.MenuItem">Options</div>
 		</div>
 	    </div>
-	    <div dojoType="dijit.PopupMenuBarItem">
+	    <div data-dojo-type="dijit.PopupMenuBarItem">
 		<span>Physics</span>
-		<div dojoType="dijit.Menu" id="menuPhysics">
-		    <div id="menuPrinciples" dojoType="dijit.MenuItem">Principles</div>
-		    <div id="menuQuantities" dojoType="dijit.MenuItem">Quantities</div>
-		    <div id="menuUnits" dojoType="dijit.MenuItem">Units</div>
-		    <div id="menuConstants" dojoType="dijit.MenuItem">Constants</div>
+		<div data-dojo-type="dijit.Menu" id="menuPhysics">
+		    <div id="menuPrinciples" data-dojo-type="dijit.MenuItem">Principles</div>
+		    <div id="menuQuantities" data-dojo-type="dijit.MenuItem">Quantities</div>
+		    <div id="menuUnits" data-dojo-type="dijit.MenuItem">Units</div>
+		    <div id="menuConstants" data-dojo-type="dijit.MenuItem">Constants</div>
 		</div>
 	    </div>
 
 
-	    <div dojoType="dijit.PopupMenuBarItem">
+	    <div data-dojo-type="dijit.PopupMenuBarItem">
 		<span>Help</span>
-		<div dojoType="dijit.Menu" id="menuHelp">
-		    <div id="menuIntroText" dojoType="dijit.MenuItem">Introduction</div>
-		    <div id="menuIntroVideo" dojoType="dijit.MenuItem">Intro Video</div>
-		    <div id="menuIntroSlides" dojoType="dijit.MenuItem">Slide show</div>
-		    <div id="menuManual" dojoType="dijit.MenuItem">Manual</div>
+		<div data-dojo-type="dijit.Menu" id="menuHelp">
+		    <div id="menuIntroText" data-dojo-type="dijit.MenuItem">Introduction</div>
+		    <div id="menuIntroVideo" data-dojo-type="dijit.MenuItem">Intro Video</div>
+		    <div id="menuIntroSlides" data-dojo-type="dijit.MenuItem">Slide show</div>
+		    <div id="menuManual" data-dojo-type="dijit.MenuItem">Manual</div>
 		</div>
 	    </div>
 	    <div id="timer"></div>
-	    <div dojoType="dijit.form.Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
+	    <div data-dojo-type="dijit.form.Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
 	</div>
 	
-	<div id="toolPane" dojoType="dijit.layout.ContentPane" region="left" splitter="false">
-	    <div dojoType="dojox.drawing.ui.Toolbar" id="gfxToolbarNode" drawingId="drawing" class="gfxToolbar" orient="V" tools="line,rect,ellipse,textBlock,equation,vector,axes" plugs="all" selected=""></div>
+	<div id="toolPane" data-dojo-type="dijit.layout.ContentPane" region="left" splitter="false">
+	    <div data-dojo-type="dojox.drawing.ui.Toolbar" id="gfxToolbarNode" drawingId="drawing" class="gfxToolbar" orient="V" tools="line,rect,ellipse,textBlock,equation,vector,axes" plugs="all" selected=""></div>
 	</div>
-	<div id="drawingPane" dojoType="dijit.layout.ContentPane" region="center" >
-	    <div dojoType="dojox.drawing.Drawing" id="drawing" jsId="myDrawing" class="drawing" defaults="andes.defaults">
+	<div id="drawingPane" data-dojo-type="dijit.layout.ContentPane" region="center" >
+	    <div data-dojo-type="dojox.drawing.Drawing" id="drawing" jsId="myDrawing" class="drawing" defaults="andes.defaults">
 	    </div>
 	</div>
 		
-	<div id="helpPane" dojoType="andes.widget.ExpandoPane" region="right" splitter="true" title="Tutor" startExpanded="false">
-	    <div id="helpWrapPane" dojoType="dijit.layout.BorderContainer" gutters="false">
-		<div id="helpContentPane" dojoType="dijit.layout.ContentPane" region="center"></div>
+	<div id="helpPane" data-dojo-type="andes.widget.ExpandoPane" region="right" splitter="true" title="Tutor" startExpanded="false">
+	    <div id="helpWrapPane" data-dojo-type="dijit.layout.BorderContainer" gutters="false">
+		<div id="helpContentPane" data-dojo-type="dijit.layout.ContentPane" region="center"></div>
 
-		<div id="helpInputPane" dojoType="dijit.layout.ContentPane" region="bottom">
-		    <div dojoType="dijit.form.TextBox" id="helpInput"></div>
-		    <div dojoType="dijit.form.Button" id="helpSubmit">Hint</div>
+		<div id="helpInputPane" data-dojo-type="dijit.layout.ContentPane" region="bottom">
+		    <div data-dojo-type="dijit.form.TextBox" id="helpInput"></div>
+		    <div data-dojo-type="dijit.form.Button" id="helpSubmit">Hint</div>
 		</div>
 	    </div>
 	</div>
 
-	<div id="footerPane" dojoType="dijit.layout.ContentPane" region="bottom"></div>
+	<div id="footerPane" data-dojo-type="dijit.layout.ContentPane" region="bottom"></div>
     </div>
     
     
-    <div dojoType="dojox.widget.UpgradeBar" id="upgradeBar">
+    <div data-dojo-type="dojox.widget.UpgradeBar" id="upgradeBar">
         <!-- IE8 and below use VML which is very slow. -->
 	<div validate="dojo.isIE<9">
 	    <span>Andes does not work well with older versions of Internet Explorer.&nbsp; 
@@ -97,38 +109,38 @@
     </div>
 
     <!--Because this is a widget it is included in markup and NOT like the other plugins-->
-    <div id="greekPalette" dojoType="dojox.drawing.plugins.drawing.GreekPalette">
+    <div id="greekPalette" data-dojo-type="dojox.drawing.plugins.drawing.GreekPalette">
     </div>
 
     <!-- Modal dialog box for generic use.
          dojox.widget.DialogSimple has executeScripts="true" by default -->
-    <div id="consentDialog" dojoType="dojox.widget.DialogSimple">
+    <div id="consentDialog" data-dojo-type="dojox.widget.DialogSimple">
     </div>
 
     <!-- Principles menus constructed last -->
-    <div id="majorPrinciples" dojoType="dijit.Dialog" title="Major Principles">
+    <div id="majorPrinciples" data-dojo-type="dijit.Dialog" title="Major Principles">
 	<div id="majorModalTreeText"></div>
 	<div id="majorModalTree" class="tall">
 	    Loading list of major Principles
 	</div>
     </div>
     
-    <div id="allPrinciples" dojoType="dijit.Dialog" title="Principles">
+    <div id="allPrinciples" data-dojo-type="dijit.Dialog" title="Principles">
 	<div id="allModalTreeText"></div>
 	<div id="allModalTree" class="tall">
 	    Loading list of all Principles
 	</div>
     </div>
     
-    <div id="options" dojoType="dijit.Dialog" title="Options">
+    <div id="options" data-dojo-type="dijit.Dialog" title="Options">
 	<table id="optionsTable">
 	    <tr>
 		<td class="left">AngleSnap:</td>
-		<td><input dojoType="dijit.form.NumberSpinner" value="360" smallDelta="1" constraints="{min:1,max:360}" intermediateChanges="true" style="width:63px" id="optionsAngleSnap" name="angleSnap"/></td>
+		<td><input data-dojo-type="dijit.form.NumberSpinner" value="360" smallDelta="1" constraints="{min:1,max:360}" intermediateChanges="true" style="width:63px" id="optionsAngleSnap" name="angleSnap"/></td>
 	    </tr>
 	    <tr>
 		<td class="left">PowerPoint Style:</td>
-		<td><button dojoType="dijit.form.ToggleButton" checked="checked" iconClass="dijitCheckBoxIcon" id="optionsClickMode">Blip</button></td>
+		<td><button data-dojo-type="dijit.form.ToggleButton" checked="checked" iconClass="dijitCheckBoxIcon" id="optionsClickMode">Blip</button></td>
 	    </tr>
 	    <tr>
 		<td class="left">Correct:</td>
@@ -140,7 +152,7 @@
 	    </tr>
 	    <tr>
 		<td class="left">Timer:</td>
-		<td><button dojoType="dijit.form.ToggleButton" iconClass="dijitCheckBoxIcon" id="showTimer">Blip</button></td>
+		<td><button data-dojo-type="dijit.form.ToggleButton" iconClass="dijitCheckBoxIcon" id="showTimer">Blip</button></td>
 	    </tr>
 	</table>
     </div>

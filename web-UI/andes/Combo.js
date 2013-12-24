@@ -1,8 +1,9 @@
 define([
-    "andes/startup"
-],function(andes){
+    "andes/startup",
+    "dojox/drawing/util/oo"
+],function(andes,oo){
 
-andes.Combo = dojox.drawing.util.oo.declare(
+andes.Combo = oo.declare(
 	// summary:
 	//	A special object used to combine an Andes Stencil
 	//	(Vector, Rect, Ellipse)

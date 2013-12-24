@@ -2,7 +2,7 @@ define([
     'dojo/_base/declare',
     'andes/startup'
 ], function(declare,andes){
-	return declare(null, {
+    return declare(null,{
 
     // Summary:
     //      Singleton whose job is to watch the textbox
