@@ -1,6 +1,8 @@
-define([], function(){
+define([
+    "dojo/_base/declare"
+], function(declare){
 
-dojo.declare("andes.timer", null, {
+    return declare(null,{
     // summary:
     //      This is created from the api when startTime is
     //      initialized.
@@ -37,5 +39,5 @@ dojo.declare("andes.timer", null, {
             this.node.innerHTML = Math.floor(elapsed/1000);
         }
     }
-});
+    });
 });

@@ -1,4 +1,6 @@
-define([], function(){
+define([
+        "andes/startup"
+], function(andes){
 
 	//		This files contains general message strings
 	//		used for error handling (and could be used

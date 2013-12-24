@@ -1,5 +1,12 @@
 // Pre-AMD version had a function wrapper.
-define(["dojo/cookie","andes/startup"],function(cookie){
+define([
+    "dojo/cookie",
+    "andes/startup"
+],function(cookie,andes){
+
+    // It would be better that this module returns an object called "drawing."
+    // This is just to get things working with minimal changes to the pre-AMD version.
+    andes.drawing={};
 	
 	cookie("mikeDev", null, { expires: -1 });
 	

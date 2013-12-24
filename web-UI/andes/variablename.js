@@ -1,4 +1,8 @@
-define([], function(){
+define(["andes/startup"], function(andes){
+
+    // It would be better that this module returns an object called "variablename."
+    // This is just to get things working with minimal changes to the pre-AMD version.
+    andes.variablename={};
 
 // pick out variable name from definition string
 // The forms that are matched:

@@ -1,7 +1,8 @@
 define([
+    "andes/principles",
 	"dijit/Tree",
 	"dojo/data/ItemFileReadStore"
-],function(){
+],function(andes){
 
 // See review/principles-tree.html
 dojo.ready(function(){  // wait until dom is loaded

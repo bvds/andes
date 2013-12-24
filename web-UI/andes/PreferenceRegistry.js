@@ -1,5 +1,7 @@
 // Pre-AMD version had a function wrapper.
-define([],function(){
+define([
+   "andes/startup"
+],function(andes){
 
     // Summary:
     //      User preferences that can be saved are registered here.

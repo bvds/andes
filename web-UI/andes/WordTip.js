@@ -1,4 +1,7 @@
-define(['dojo/_base/declare'], function(declare){
+define([
+    'dojo/_base/declare',
+    'andes/startup'
+], function(declare,andes){
 	return declare(null, {
 
     // Summary:

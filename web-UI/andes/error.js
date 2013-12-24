@@ -1,9 +1,10 @@
 // Pre-AMD version had provides for "andes.error" and "andes.error._Error"
 // Pre-AMD version had a function wrapper.
 define([
+    "andes/startup",
 	"dijit/Dialog",
 	"dijit/form/Button"
-],function(){
+],function(andes){
 
 	var dialog = null;
 

@@ -1,10 +1,11 @@
 define([
-	"andes/api",
+    "andes/startup",
 	"andes/rpc",
+    "andes/timer",
+	"andes/api",
 	"andes/error",
-	"andes/messages",
-        "andes/timer"
-],function(){  // Pre-AMD version had a function wrapper.
+	"andes/messages"
+],function(andes,rpc,timer){  // Pre-AMD version had a function wrapper.
 	
 	var startTime = null,
 	    requestInFlight = false,
@@ -37,7 +38,7 @@ define([
 		var request = prepRequest(req.params);
 		requestInFlight = true;
 		req.startTime = (new Date()).getTime();
-		andes.rpc[req.method](request).addCallbacks(
+		rpc[req.method](request).addCallbacks(
 			function(result){
 				requestInFlight = false;
 				var dt=(new Date()).getTime()-req.startTime;
@@ -124,7 +125,7 @@ define([
 		open: function(params){
 			//console.info("andes.api.open", params);
 			startTime = (new Date()).getTime();
-			andes.timer = new andes.timer(startTime);
+			andes.timer = new timer(startTime);
 			var dfd = queueRequest("open-problem", params);
 			
 			dfd.addCallback(function(result){

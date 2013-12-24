@@ -1,5 +1,7 @@
 // Pre-AMD version had a function wrapper.
-define([],function(){
+define([
+   "andes/startup"
+],function(andes){
 
 	return {
 		// summary:

@@ -1,6 +1,7 @@
 define([
+    "andes/startup",
 	"dijit/ColorPalette"
-],function(){
+],function(andes){
 
 dojo.declare("andes.options",null,{
     // Summary:

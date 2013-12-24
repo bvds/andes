@@ -1,4 +1,7 @@
-(function(){
+define([
+    "andes/startup"
+],function(andes){
+
     var self = this;
     var andes = window.opener.andes;
     this.onfocus = function(){
@@ -20,4 +23,4 @@
         andes.drawing.onWindowBlur.call(self);
         //andes.api.recordAction({type:"window", name: "IntroVideo", value: "blur"});
     }
-})();
+});

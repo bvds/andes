@@ -1,4 +1,6 @@
-define([],function(){
+define([
+    "andes/startup"
+],function(andes){
 
 andes.Combo = dojox.drawing.util.oo.declare(
 	// summary:

@@ -2,14 +2,14 @@ define([
 	"dojo/dom",
     "dijit/registry",
         "andes/startup",
+    "dojo/ready",
 	"andes/options",
 	"dijit/Menu",
     "dijit/MenuSeparator",
-    "dojo/domReady!"
-],function(dom,registry,andes){  
+],function(dom,registry,andes,ready){  
 	// In the pre-AMD version, the body was wrapped
         // in "dojo.addOnLoad(function(){ ... })
-
+    ready(function(){
         // Add problem name to menu
 	dom.byId("problemName").innerHTML = andes.projectId;
 	
@@ -83,17 +83,11 @@ define([
 	
 	// Setup contextMenu and children
 	andes.contextMenu = new dijit.Menu();
-    require(["dojo/ready","dijit/registry","andes/startup"],
-		    function(ready,registry,andes){
-			ready(function(){
-			// parser.parse();
 	var contextOptions = {};
 	for(var i in spec){
 		wireItem(i, spec[i]);
 		contextItem(i, spec[i]);
 	}
-			});
-		    });
 	
         function contextItem(desc, fn){
 		var label = registry.byId(desc).get("label");
@@ -132,4 +126,5 @@ define([
 	function updateContext(){
 		console.log("yeps");
 	}
+    });
 });
