@@ -2,9 +2,11 @@
 // Pre-AMD version had a function wrapper.
 define([
     "andes/startup",
+    "dojo/ready",
+    "dojo/_base/declare",
 	"dijit/Dialog",
 	"dijit/form/Button"
-],function(andes){
+],function(andes,ready,declare,dialog){
 
 	var dialog = null;
 
@@ -40,7 +42,8 @@ define([
 	andes.error.FATAL = 0;
 	andes.error.OK = 1;
 
-	dojo.declare("andes.error._Error", dijit.Dialog, {
+       // In pre-AMD version, nothing outside this file uses _Error.
+	var _Error = declare(dialog, {
 		postCreate: function(){
 			this.inherited(arguments);
 			var container = dojo.create("div", {className:"dijitDialogPaneContent", style:"border-top:none;"});
@@ -92,8 +95,8 @@ define([
 		}
 	});
 
-	dojo.addOnLoad(function(){
-		dialog = new andes.error._Error({
+	ready(function(){
+		dialog = new _Error({
 			id: "andesErrorDialog",
 			title: "Error",
 			style: "width:400px"

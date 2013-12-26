@@ -1,22 +1,17 @@
 // Pre-AMD version had a function wrapper.
 define([
     "dojo/_base/declare",
+    "dojo/Evented",
     "dojo/cookie",
     "andes/startup",
     "dojo/on",
     "dijit/registry",
-    "andes/PreferenceRegistry",
-    "dojo/Evented"
-],function(declare,cookie,andes,on,registry,preferenceRegistry,Evented){
-
-    // It would be better that this module returns an object called "drawing."
-    // This is just to get things working with minimal changes to the pre-AMD version.
-    andes.drawing={};
+    "andes/PreferenceRegistry"
+],function(declare,Evented,cookie,andes,on,registry,preferenceRegistry){
 	
 	cookie("mikeDev", null, { expires: -1 });
 	
 	// the html ID in index for the drawing app
-	var drawingId = "drawing";
 	var _drawing;
 	var _surfaceLoaded = false;
 	
@@ -72,44 +67,8 @@ define([
 
 	var items = {};
 	var masterMap = {};
-
-	dojo.addOnLoad(function(){
-		_drawing = registry.byId(drawingId);
-	    console.log("got drawing widget:  ",_drawing);
-		var cn = on(_drawing, "onSurfaceReady", function(){
-		        cn.remove();
-			andes.WordTip.add(_drawing);
-			andes.drawing.onSurfaceReady();
-			if(_drawing.stencils){
-				console.warn("Label double click connected");
-				on(_drawing.stencils, "onLabelDoubleClick", andes.drawing, "onLabelDoubleClick");
-			}
-		});
-		on(_drawing, "onRenderStencil", andes.drawing, "onRenderStencil");
-		
-		// Track user's focus on Andes.  So far only whether they are using the window/tab
-		// or have left to use another program
-		if(dojo.isIE){
-			on(dojo.global, "onfocus", andes.drawing, "onWindowFocus");
-			// on(dojo.global, "onfocusin", andes.drawing, "onWindowFocus");
-			on(dojo.doc, "onfocusout", this, function() {
-				if (this._activeElement != document.activeElement){
-					this._activeElement = document.activeElement;
-				}else{
-					andes.drawing.onWindowBlur();
-				}
-			});
-		}else if(dojo.isSafari){
-			on(window, "onblur", andes.drawing, "onWindowBlur");
-			on(window, "onfocus", andes.drawing, "onWindowFocus");
-		}else{
-			on(dojo.doc, "onblur", andes.drawing, "onWindowBlur");
-			on(dojo.doc, "onfocus", andes.drawing, "onWindowFocus");
-		}
-	});
-
 	
-    return declare([Evented],{
+    return declare(Evented,{
 		// summary:
 		//	The master object that controls behavior of Drawing items
 		//	and handles transfer of data between server and client

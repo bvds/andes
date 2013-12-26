@@ -3,8 +3,10 @@ define([
     "dojo/on",
     "dojo/_base/declare",
     "andes/PreferenceRegistry",
+    "andes/defaults",
     "dijit/ColorPalette"
-],function(andes,on,declare,preferenceRegistry){
+],function(andes,on,declare,preferenceRegistry,defaults){
+// pre-AMD version used myDrawing.defaults for defaults.
 
 return declare(null,{
     // Summary:
@@ -55,12 +57,11 @@ return declare(null,{
             preferenceRegistry.registerPref(nm, this[this._prefs[nm]], this);
         }
         
-        // Initialize values -- myDrawing is a GLOBAL
-        this.angleSnap.set('value', myDrawing.defaults.angleSnap);
-        this.clickMode.set('label', myDrawing.defaults.clickMode ? "enabled" : "disabled");
+        this.angleSnap.set('value', defaults.angleSnap);
+        this.clickMode.set('label', defaults.clickMode ? "enabled" : "disabled");
         this.showTimer.set('label', andes.timer.display ? "enabled" : "disabled");
-        dojo.style(this.correct, "background", myDrawing.defaults.correct.color);
-        dojo.style(this.incorrect, "background", myDrawing.defaults.incorrect.color);
+        dojo.style(this.correct, "background", defaults.correct.color);
+        dojo.style(this.incorrect, "background", defaults.incorrect.color);
         
         var ops = this;
         this.picker = new dijit.ColorPalette({
@@ -174,7 +175,9 @@ return declare(null,{
         if(!f){
             var o = {};
             o[name] = value;
-            myDrawing.changeDefaults(o, true);
+	    // changeDefaults defined in dojox/drawing
+	    console.log("at call to changeDefaults, defaults=",defaults);
+            defaults.changeDefaults(o, true);
         }else{
             f.call(s, value);
         }
