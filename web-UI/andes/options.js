@@ -45,15 +45,16 @@ return declare(null,{
     
     constructor: function(){
         // Link up references to the HTML/Dijits
-        for(var nm in this.userWidgets){
+    var nm;
+        for(nm in this.userWidgets){
             this[nm] = dijit.byId(this.userWidgets[nm]);
         }
-        for(var nm in this.userVisuals){
+        for(nm in this.userVisuals){
             this[nm] = dojo.byId(this.userVisuals[nm]);
         }
         
         // Register preferences
-        for(var nm in this._prefs){
+        for(nm in this._prefs){
             preferenceRegistry.registerPref(nm, this[this._prefs[nm]], this);
         }
         

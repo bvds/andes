@@ -42,7 +42,7 @@ define([
 				x:box.x2 + gap,
 				y:box.y1,
 				showEmpty:true}
-			}
+			       };
 		},
 		
 		andesToDrawing: function(o){
@@ -58,7 +58,7 @@ define([
 					itemType:o.items[0].type,
 					items:dojo.map(o.items,andes.convert.andesToDrawing, this),
 					checked: o.checked || [] 
-				}
+				};
 				return obj;
 			}
 			if(o.x==undefined || o.y===undefined){
@@ -87,7 +87,7 @@ define([
 					cy:o.y + o.height/2,
 					rx:o.width/2,
 					ry:o.height/2
-				}
+				};
 			}else if(o.type=="radio"){
 				buttonWidth=defaults.button.radioButtonRadius;
 				obj.buttonType=o.type;
@@ -143,7 +143,7 @@ define([
 						text:dojox.drawing.util.typeset.convertHTML(o.text) || ""
 					},
 					enabled: false  // treat as mode=locked
-				}
+				};
 			}else if(o.type=="line" || o.type=="vector" || o.type=="rectangle" || o.type=="ellipse"){
 				// separate objects
 			        // match logic in drawingToAndes
@@ -180,7 +180,7 @@ define([
 					},
 					deleteEmptyCreate: false,
 					deleteEmptyModify: false
-				}
+				};
 			}else if(o.type=="statement" || o.type=="equation"){
 				obj.data.text = o.text;
 			}else if(o.type=="axes"){
@@ -205,7 +205,7 @@ define([
 					b[nm] = Math.round(b[nm]);
 				}
 				return b;
-			}
+			};
 			// combo...............
 			var combo, statement, sbox, id = item.id;
 			if(item.type=="andes.Combo"){
@@ -225,7 +225,7 @@ define([
 					type:item.group.type,
 					action:action,
 					checked:item.group.checked
-				}
+				};
 				return obj;
 			};
 			
@@ -237,7 +237,7 @@ define([
 				type:type,
 				id:id,
 				mode: "unknown"
-			}
+			};
 			
 			if(type!="vector" && type!="line" && type!="axes"){
 				obj.width = box.w;
@@ -295,6 +295,6 @@ define([
 			
 			return obj;
 		}
-	}
+	};
 	
 });

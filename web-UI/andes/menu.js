@@ -6,11 +6,12 @@ define([
     "dojo/on",
 	"andes/options",
 	"dijit/Menu",
-    "dijit/MenuSeparator",
+    "dijit/MenuSeparator"
 ],function(dom,registry,andes,ready,on,options){  
 	// In the pre-AMD version, the body was wrapped
         // in "dojo.addOnLoad(function(){ ... })
     ready(function(){
+	    console.info("andes/menu.js: wire up menus");
         // Add problem name to menu
 	dom.byId("problemName").innerHTML = andes.projectId;
 	
@@ -109,7 +110,7 @@ define([
 	
 	// Setup the menu onScreen
 	var cn = on(_drawing, "onSurfaceReady", function(){
-		cn.remove;
+		cn.remove();
 		
 		var node = null;
 		on(_drawing.mouse, "onDown", function(evt){

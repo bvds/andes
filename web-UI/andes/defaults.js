@@ -269,7 +269,7 @@ define([
 				if(obj.push){
 					o = [];
 					for(var i=0; i<obj.length;i++){
-						o.push(cpy(obj[i]))
+					  o.push(cpy(obj[i]));
 					}
 					return o;
 				}
@@ -279,12 +279,12 @@ define([
 						if(typeof(obj[nm])=="object"){
 							o[nm] = cpy(obj[nm]);
 						}else{
-							o[nm] = obj[nm]
+						  o[nm] = obj[nm];
 						}
 					}
 				}
 				return o;
-			}
+			};
 			var o = cpy(this);
 			o.current = o.norm;
 			o.currentHit = o.hitNorm;

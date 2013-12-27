@@ -7,7 +7,8 @@ define([
 ],function(andes,on,ready){
 
 // See review/principles-tree.html
-dojo.ready(function(){  // wait until dom is loaded
+  ready(function(){  // wait until dom is loaded
+	  console.info("andes/principles.js:  wire up principles tree");
   if(dijit._TreeNode._meta.hidden.attributeMap){   // old way
     // See Bug #1949
     dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
@@ -62,7 +63,7 @@ andes.principles={
 						this.reviewp[file].onload = function(){
 							var obj=this.document.getElementById(section); 
 							obj.scrollIntoView();
-						}
+						};
 					}
 					on(this.reviewp[file], "onblur", andes.drawing.onWindowBlur);
 					on(this.reviewp[file], "onfocus", andes.drawing.onWindowFocus);
@@ -83,11 +84,11 @@ andes.principles={
 			}
 		}
 	}
-}
+};
 
 // This should be loaded after everything else, in the background
 ready(function() {
-	
+	console.info("andes/principles.js: finish wiring principles tree.");
 	var principlesStore = new dojo.data.ItemFileReadStore({
 		url: "../review/principles.json"
 	});

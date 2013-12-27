@@ -1,5 +1,7 @@
 // Pre-AMD version had a function wrapper.
-define([],function(){
+define([
+"dojox/drawing/util/positioning"
+       ],function(positioning){
 	
 	// summary:
 	//	Overwrites the default methods in Drawing used for
@@ -15,8 +17,8 @@ define([],function(){
 	var textYOffset = 20;  // height of text box
 	
 	//create the namespace
-	dojox.drawing.util.positioning = {}
-	dojox.drawing.util.positioning.label = function(start, end){
+	positioning = {};
+	positioning.label = function(start, end){
 		// summary:
 		//		Returns the optimal text positions for annotations.Label.
 		
@@ -44,7 +46,7 @@ define([],function(){
 		return { x:x, y:y, foo:"bar", align:align}; // Object
 	};
 	
-	dojox.drawing.util.positioning.angle = function(start, end){
+	positioning.angle = function(start, end){
 		
 		// angle at first third of vector
 	        var x = 0.7*start.x+0.3*end.x;
@@ -64,6 +66,6 @@ define([],function(){
 	        y += end.x > start.x ? 0.5*textYOffset :  -0.5*textYOffset;
 		
 		return { x:x, y:y, align:align};
-	}
+	};
 	
 });

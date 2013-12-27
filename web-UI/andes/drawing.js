@@ -135,7 +135,7 @@ define([
 					// no text. will be deleted.
 					return;
 				}
-				console.log("ADD EQU OR STT>>>", item.customType)
+			  console.log("ADD EQU OR STT>>>", item.customType);
 				this.add(item, true);
 			}
 		},
@@ -159,7 +159,7 @@ define([
 						}
 					}else if(item.buttonType == "radio"){
 						item.group.checked=[item.value];
-						var myId=item.id
+					  var myId=item.id;
 						dojo.forEach(item.buttons,function(button){
 							if(button.id == myId){
 								if(!button.selected){button.select();}
@@ -220,14 +220,14 @@ define([
 				item.mod = true; // disable save to server, else we get a recursive call
 				item.attr(andes.defaults["unknown"]);
 				item.mod = false; // restore save to sever
-				var data = andes.convert.drawingToAndes(item, "modify-object")
+				       var data = andes.convert.drawingToAndes(item, "modify-object");
 				console.info("Save mod to server", data);
 				this.save(data);
 			});
 			
 			if(saveToServer){
 				// we need to save it to the server
-				var data = andes.convert.drawingToAndes(item, "new-object")
+			  var data = andes.convert.drawingToAndes(item, "new-object");
 				console.info("Save new to server:", data);
 				this.save(data);
 			}
@@ -258,7 +258,7 @@ define([
 				var ar = m.id.match(/\d/g);
 				if(!ar || !ar.length){ return 0; }
 				return parseInt(ar.join(""),10);
-			}
+			};
 			var idNum = 0;
 			dojo.forEach(data, function(m){
 				idNum = Math.max(getNum(m), idNum);
@@ -497,7 +497,7 @@ define([
 			//
 			// setting 'this'
 			this.loadProject = function(){
-				console.info("load server data", andes.userId, andes.projectId, andes.sectionId)
+			  console.info("load server data", andes.userId, andes.projectId, andes.sectionId);
 				andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId,extra:andes.extra})
 					.addCallback(this, function(data){
 						setTimeout(dojo.hitch(this, function(){
@@ -505,7 +505,7 @@ define([
 						}),0);
 					})
 					.addErrback(this, "onError");
-			}
+			};
 			if(andes.closeFirst){
 				// a previous project session is open. close it.
 				andes.api.close({}).addCallback(this, "loadProject").addErrback(this, "onError");

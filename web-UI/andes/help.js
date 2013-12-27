@@ -131,6 +131,7 @@ define([
 	}
 	
 	ready(function(){
+		console.info("andes/help.js:  Wire up the help button");
 		on(dijit.byId("helpSubmit"), "onClick", function(){
 			var q = dijit.byId("helpInput").get("value"),
 			h = q ? {action:"get-help", text:q} : {action:"help-button"};

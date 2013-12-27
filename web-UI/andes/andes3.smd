@@ -1,7 +1,7 @@
 {
   "envelope": "JSON-RPC-2.0",
   "transport": "POST",
-  "target": "/help-test",
+  "target": "/help",
   "SMDVersion": "2.0",
   "description": "Client-server communication for Andes3.  The server is be allowed to make arbitrary changes to graphics objects in the solution-step and seek-help methods.  This specification should match web-UI/Documentation/AsuDocs/nokes-example-json.txt.  There is a lot of duplication of code in this version.  Also, this enforces strict typing for return parameters, by setting additionalProperties to false.",
   "parameters": [

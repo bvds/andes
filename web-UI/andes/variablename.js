@@ -54,5 +54,5 @@ andes.variablename.parse = function(intext){
 		if (match) return match[1];	
 	}
 	return "";
-}
+};
 });

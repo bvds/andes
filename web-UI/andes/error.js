@@ -96,6 +96,7 @@ define([
 
     if(false){
 	ready(function(){
+		console.info("andes/error.js:  start logging errors");
 		dialog = new _Error({
 			id: "andesErrorDialog",
 			title: "Error",
@@ -111,7 +112,7 @@ define([
 		    console.log("Window error: ",msg,"; url: ",url, "; line: ",line,".");
 		    // Returning 'false' triggers the execution of the built-in error handler.
 		    return !dojoConfig.isDebug;
-		}
+		};
 	});
     };
 });

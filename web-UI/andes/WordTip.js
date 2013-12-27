@@ -1,8 +1,10 @@
 define([
-    'dojo/_base/declare',
-    'andes/startup',
-    'dojo/on'
-], function(declare,andes,on){
+	 'dojo/_base/declare',
+	 'andes/startup',
+	 'dojo/on',
+	 "dojo/dom",
+	 "dojo/domReady!"  // Needed to locate "conEdit"
+], function(declare,andes,on,dom){
     return declare(null,{
 
     // Summary:
@@ -14,7 +16,9 @@ define([
     stencil: null,
     
     constructor: function(){
-        this.conEdit = dojo.byId("conEdit");    
+      console.info("Constructing WordTip, this=",this);
+      this.conEdit = dom.byId("conEdit");
+      console.assert(this.conEdit,"conEdit is missing (already removed by drawing?).");
         on(this.conEdit, "keydown", this, "textMonitor");
         console.log("I've got conedit now", this.conEdit);
     },
@@ -45,7 +49,7 @@ define([
         var cn = on(document,"mouseup",this, function(evt){
             cn.remove();
             dijit.hideTooltip(this.conEdit);
-        })
+		    });
     },
     
     removeBreaks: function(txt){

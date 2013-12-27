@@ -39,7 +39,6 @@ if(true){
                 dojo.require("dojox.drawing.tools.Rect");
                 dojo.require("dojox.drawing.tools.Ellipse");
                 dojo.require("dojox.drawing.tools.Line");
-                dojo.require("dojox.drawing.tools.Path");
                 
                 dojo.require("dojox.drawing.annotations.Label");
                 dojo.require("dojox.drawing.annotations.Angle");
@@ -48,7 +47,10 @@ if(true){
 };
 if(true){
                 dojo.require("dojox.drawing.tools.custom.Vector");
-                dojo.require("dojox.drawing.tools.custom.Axes");                                
+                dojo.require("dojox.drawing.tools.custom.Axes"); 
+		// BvdS:  I added this: not in demo.
+		dojo.require("dojox.drawing.tools.custom.Equation"); 
+                
                 dojo.require("dojox.drawing.tools.Arrow");
                 dojo.require("dojox.drawing.plugins.tools.Pan");
                 dojo.require("dojox.drawing.plugins.tools.Zoom");
@@ -67,6 +69,7 @@ if(false){
                 dojo.require("dijit/PopupMenuBarItem");
                 dojo.require("dijit/Menu"); // not in original require
                 dojo.require("dijit/form/Button");  // not in original
+
 };
 
 if(true){
@@ -124,8 +127,7 @@ require([
 	    <div data-dojo-type="dijit.form.Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
 	</div>
 	<div id="toolPane" data-dojo-type="dijit.layout.ContentPane" region="left" splitter="false">
-	<!-- BvdS: for testing, remove explicit tool selection: line,rect,ellipse,textBlock,equation,vector,axes -->
-	    <div data-dojo-type="dojox.drawing.ui.Toolbar" id="gfxToolbarNode" drawingId="drawing" class="gfxToolbar" orient="V" tools="all" plugs="all" selected=""></div>
+	    <div data-dojo-type="dojox.drawing.ui.Toolbar" id="gfxToolbarNode" drawingId="drawing" class="gfxToolbar" orient="V" tools="line,rect,ellipse,textBlock,equation,vector,axes" plugs="all" selected=""></div>
 	</div>
 	<div id="drawingPane" data-dojo-type="dijit.layout.ContentPane" region="center" >
 	    <div data-dojo-type="dojox.drawing.Drawing" id="drawing" data-dojo-id="myDrawing" class="drawing" defaults="andes.defaults">

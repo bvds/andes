@@ -6,9 +6,8 @@ define([
     "dojo/json",
     'dojo/_base/unload',
     "andes/WordTip",
-    "dojo/on",
-    "dojo/ready"
-],function(cookie,ready,ioQuery,json,baseUnload,wordTip,on,ready){ // Pre-AMD version had a function wrapper.
+	 "dojo/on"
+],function(cookie,ready,ioQuery,json,baseUnload,wordTip,on){ // Pre-AMD version had a function wrapper.
 
     // In the pre-AMD version, andes was a global variable
     // Here we make it the object returned by this module.
@@ -79,7 +78,7 @@ define([
 			andes.sessionId = ck.sid;
 		}else{
 			andes.closeFirst = true;
-			console.warn("Closing previous session", ck.u, andes.userId, ck.p, andes.projectId)
+		  console.warn("Closing previous session", ck.u, andes.userId, ck.p, andes.projectId);
 			setCookie();
 		}
 	}else{
@@ -90,10 +89,13 @@ define([
 		andes.api.close({});
 		// but don't clear cookie
 	});
-	
+
+  // WordTip needs to be added before conEdit is removed by drawing
+  andes.WordTip = new wordTip();
+  console.log("Got WordTip=",andes.WordTip);
+
 	ready(function(){
-		// WordTip needs to be added before conEdit is removed by drawing
-		andes.WordTip = new wordTip();
+		console.info("andes/startup.js:  submit button.");
 		
 		// Problem close actions set
 	        submitButton=dojo.byId("submitButton");

@@ -13,6 +13,7 @@ define([
     constructor: function(st){
         this.startTime = st;
         ready(this, function(){
+		console.info("andes/timer.js: connect timer");
             this.node = dojo.byId("timer");
             this.ready = true;
             if(this.display) this.displayTimer(true);

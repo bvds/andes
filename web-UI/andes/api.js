@@ -2,10 +2,10 @@ define([
     "andes/startup",
 	"andes/rpc",
     "andes/timer",
+	 "andes/messages",
 	"andes/api",
-	"andes/error",
-	"andes/messages"
-],function(andes,rpc,timer){  // Pre-AMD version had a function wrapper.
+	"andes/error"
+       ],function(andes,rpc,timer,messages){  // Pre-AMD version had a function wrapper.
 	
 	var startTime = null,
 	    requestInFlight = false,
@@ -18,7 +18,7 @@ define([
 	// AOP-style function replacement that performs before-advice
 	// to add to the headers on all XHR requests. See dojox/rpc/Client.js
 	(function(){
-		console.info("api set headers", andes.sessionId)
+	   console.info("api set headers", andes.sessionId);
 		andes._originalXhr = dojo.xhr;
 		dojo.xhr = function(method,args){
 			var headers = args.headers = args.headers || {};
@@ -62,7 +62,7 @@ define([
 					//		the RPC action to open-problemo
 					//
 					req.dfd.errback(error);
-					var mo = andes.messages.server();
+					var mo = messages.server();
 					var msg = "<p>"+mo.message+"</p><div class='errMsg'>" + error.name + ": " + error.message;
 					if(error._rpcErrorObject.code){
 						msg += "\n(code " + error._rpcErrorObject.code + ")";
@@ -86,8 +86,8 @@ define([
 					}else{
 						req.dfd.errback(error);
 						console.error(error);
-						var mo = andes.messages.connection(MAX_RETRIES);
-						console.dir(mo)
+						var mo = messages.connection(MAX_RETRIES);
+					  console.dir(mo);
 						andes.error({
 							title: mo.title,
 							message: mo.message+"<div class='action'>"+mo.action+"</div>",

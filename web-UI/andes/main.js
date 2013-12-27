@@ -16,7 +16,8 @@ define([
     // Pre-AMD body of main.js moved to startup.js.
     // Pre-AMD version had "andes.drawing.load();" at very end of the file.
     console.log("object returned by andes/drawing: ",drawing);
-    d= new drawing();
+    var d= new drawing();
     d.load();
+  console.info("Finished with andes/main.js");
     return d;
 });

@@ -40,7 +40,7 @@ andes.Combo = oo.declare(
 		var s = this.statement;
 		var m = this.master;
 		
-		console.warn("combo statement:", this.statement)
+	  console.warn("combo statement:", this.statement);
 
 		this.statement.connectMult([
 			[this.statement, "onChangeData", this, "textPositionEdit"],
@@ -141,7 +141,7 @@ andes.Combo = oo.declare(
 		},
 
 		onDelete: function(value){ // value or 'this' ?
-			console.log("combo delete ", value)
+		  console.log("combo delete ", value);
 			// summary:
 			//	Stub - fires when master or an item is deleted
 			//	(which makes this _Connection worthless and it
@@ -206,7 +206,7 @@ andes.Combo = oo.declare(
 		    array.forEach(handles, function(handle){handle.remove();},dojo);
 		}
 	}
-)
+);
 
 andes.buttonCombo = dojox.drawing.util.oo.declare(
 	// summary:
@@ -242,5 +242,5 @@ andes.buttonCombo = dojox.drawing.util.oo.declare(
 		}
 
 	}
-)
+);
 });

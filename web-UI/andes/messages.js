@@ -1,6 +1,4 @@
-define([
-        "andes/startup"
-], function(andes){
+define([], function(){
 
 	//		This files contains general message strings
 	//		used for error handling (and could be used
@@ -10,7 +8,7 @@ define([
 	//		mechanism.
 	
 	
-	andes.messages = {
+	return {
 		// get message based on error type
 		server: function(){
 			return {
@@ -33,5 +31,5 @@ define([
 				action:"Check your internet connection and try again. There also may be server problems that will be corrected in a few minutes."
 			};
 		}
-	}
+	};
 });

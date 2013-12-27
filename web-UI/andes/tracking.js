@@ -10,6 +10,7 @@ define([
     // New to AMD version:  this was pulled out of drawing.js
     
     ready(function(){
+            console.log("andes/tracking.js: wire up logging.");
 	        var _drawing = registry.byId("drawing");
 	        console.log("got drawing widget:  ",_drawing);
 	// This was dojo.connect in pre-AMD version
