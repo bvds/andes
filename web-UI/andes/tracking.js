@@ -1,21 +1,24 @@
+/* global define, dojo */
 define([
-	 "andes/drawing",
-	 "andes/startup",
-	 "dojo/on",
-	 "dijit/registry",
-	 "dojo/ready",
-	 "dojo/aspect"
+    "andes/drawing",
+    "andes/startup",
+    "dojo/on",
+    "dijit/registry",
+    "dojo/ready",
+    "dojo/aspect"
 ],function(drawing,andes,on,registry,ready,aspect){
     // New to AMD version:  this was pulled out of drawing.js
-
+    
     ready(function(){
-	        _drawing = registry.byId("drawing");
+	        var _drawing = registry.byId("drawing");
 	        console.log("got drawing widget:  ",_drawing);
-		// This was dojo.connect in pre-AMD version
+	// This was dojo.connect in pre-AMD version
 		var cn = aspect.after(_drawing, "onSurfaceReady", function(){
 		        cn.remove();
 			andes.WordTip.add(_drawing);
-			drawing.onSurfaceReady();
+		    // This was in the pre-AMD version
+		    // This seems to lead to a recursion?
+		    // andes.drawing.onSurfaceReady();
 			if(_drawing.stencils){
 				console.warn("Label double click connected");
 				on(_drawing.stencils, "onLabelDoubleClick", drawing, "onLabelDoubleClick");

@@ -1,8 +1,10 @@
 define([
     "andes/startup",
     "dojo/on",
+    "dojox/drawing/util/typeset",
+    "dojo/ready",
 	"andes/api"
-],function(andes,on){ // Pre-AMD version had a function wrapper.
+],function(andes,on,typeset,ready){ // Pre-AMD version had a function wrapper.
 
     // It would be better that this module returns an object called "help."
     // This is just to get things working with minimal changes to the pre-AMD version.
@@ -98,7 +100,7 @@ define([
 				dijit.byId("helpPane").open();
 				var style = r.style ? " class=\""+ r.style + "\"":"";
 				// Student math symbols may be echoed in help statements.
-				hlp.containerNode.innerHTML = c + "\n<p" + style +">" + dojox.drawing.util.typeset.convertLaTeX(r.text) + "</p>";
+				hlp.containerNode.innerHTML = c + "\n<p" + style +">" + typeset.convertLaTeX(r.text) + "</p>";
 				break;
 			    case "echo-get-help-text":
 				dijit.byId("helpPane").open();
@@ -128,7 +130,7 @@ define([
 		hlp.domNode.scrollTop =  hlp.domNode.scrollHeight;
 	}
 	
-	dojo.addOnLoad(function(){
+	ready(function(){
 		on(dijit.byId("helpSubmit"), "onClick", function(){
 			var q = dijit.byId("helpInput").get("value"),
 			h = q ? {action:"get-help", text:q} : {action:"help-button"};

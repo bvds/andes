@@ -6,9 +6,8 @@ define([
     "dojo/_base/declare",
 	"dijit/Dialog",
 	"dijit/form/Button"
-],function(andes,ready,declare,dialog){
+], function(andes,ready,declare,dialog){
 
-	var dialog = null;
 
 	andes.errorLog = function(spec){
 		dojo.xhrPost({
@@ -95,6 +94,7 @@ define([
 		}
 	});
 
+    if(false){
 	ready(function(){
 		dialog = new _Error({
 			id: "andesErrorDialog",
@@ -103,14 +103,15 @@ define([
 		});
 
                 // This clobbers any existing onerror handler.
-		// Perhaps one should use addHandler instead.
 		window.onerror = function(msg, url, line){
 			andes.errorLog({
 				title:  "javascript-error",
 				message: url + ":" + line + " " + msg
 			});
-			console.log("Window error: ",msg," url: ",url, " line: ",line);
+		    console.log("Window error: ",msg,"; url: ",url, "; line: ",line,".");
+		    // Returning 'false' triggers the execution of the built-in error handler.
+		    return !dojoConfig.isDebug;
 		}
 	});
-
+    };
 });

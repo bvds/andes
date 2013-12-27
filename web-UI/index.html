@@ -3,29 +3,74 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>Andes Physics Tutor</title>
-	<script type="text/javascript">
+     <script type="text/javascript">
 		dojoConfig = {
 			isDebug:true,
 			parseOnLoad:true,
-			async: true,
-			popup:true,
-			baseUrl: "./",
-			packages: [
+			// async: true,
+			// popup:true,
+			 baseUrl: "./",
+			 packages: [
 			    {name: "dojo", location: "dojo"},
 			    {name: "dijit", location: "dijit"},
 			    {name: "dojox", location: "dojox"},
-			    {name: "andes", location: "andes"}]
+			    {name: "andes", location: "andes"}
+                         ]
 		};
 		if(dojoConfig.isDebug){
 			document.write('<link href="css/andes.css" rel="stylesheet" />');
-			document.write('<scr'+'ipt src="dojo/dojo.js"></scr'+'ipt>');
+                        // document.write('<scr'+'ipt src="dojo/dojo.js"></scr'+'ipt>'); 
 		}else{
 			document.write('<link href="release/dojo/css/andes.css" rel="stylesheet" />');
 			document.write('<scr'+'ipt src="release/dojo/dojo/dojo.js"></scr'+'ipt>');
 		};
 	</script>
+        <script src="dojo/dojo.js"></script>
 	<script type="text/javascript">
-	        require([
+if(false){
+               // From dojox/drawing/tests/test_drawing_toolbar.html
+    
+                dojo.require("dojo.parser");
+                dojo.require("dojox.drawing");
+}
+if(true){
+               // custom Tools and Plugins need to be required
+                dojo.require("dojox.drawing.tools.TextBlock");
+                dojo.require("dojox.drawing.tools.Rect");
+                dojo.require("dojox.drawing.tools.Ellipse");
+                dojo.require("dojox.drawing.tools.Line");
+                dojo.require("dojox.drawing.tools.Path");
+                
+                dojo.require("dojox.drawing.annotations.Label");
+                dojo.require("dojox.drawing.annotations.Angle");
+                dojo.require("dojox.drawing.annotations.Arrow");
+                dojo.require("dojox.drawing.annotations.BoxShadow");
+};
+if(true){
+                dojo.require("dojox.drawing.tools.custom.Vector");
+                dojo.require("dojox.drawing.tools.custom.Axes");                                
+                dojo.require("dojox.drawing.tools.Arrow");
+                dojo.require("dojox.drawing.plugins.tools.Pan");
+                dojo.require("dojox.drawing.plugins.tools.Zoom");
+                dojo.require("dojox.drawing.plugins.drawing.Grid");
+                dojo.require("dojox.drawing.plugins.drawing.GreekPalette");
+};
+if(true){
+                dojo.require("dojox.drawing.ui.Toolbar");
+                dojo.require("dojox.drawing.ui.Button");
+                dojo.require("dojox.drawing.library.icons");
+};
+                // Stuff I added to get it to work
+if(false){
+                dojo.require("dijit.layout.BorderContainer");
+                dojo.require("dijit/MenuBar");
+                dojo.require("dijit/PopupMenuBarItem");
+                dojo.require("dijit/Menu"); // not in original require
+                dojo.require("dijit/form/Button");  // not in original
+};
+
+if(true){
+require([
                          "dojo/parser","andes",
                          "dijit/MenuBar","dijit/PopupMenuBarItem",
                          "dijit/layout/BorderContainer",
@@ -36,9 +81,12 @@
                          "dojox/drawing/plugins/drawing/GreekPalette",
                          "dojox/widget/DialogSimple",
                          "dijit/form/NumberSpinner",
-                         "dijit/form/ToggleButton"
+                         "dijit/form/ToggleButton",
+                         "dijit/layout/ContentPane"
 ]);
-	</script>
+};
+
+</script>
 </head>
 <body class="tundra">
     <div id="splashOverlay"></div>
@@ -75,9 +123,9 @@
 	    <div id="timer"></div>
 	    <div data-dojo-type="dijit.form.Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
 	</div>
-	
 	<div id="toolPane" data-dojo-type="dijit.layout.ContentPane" region="left" splitter="false">
-	    <div data-dojo-type="dojox.drawing.ui.Toolbar" id="gfxToolbarNode" drawingId="drawing" class="gfxToolbar" orient="V" tools="line,rect,ellipse,textBlock,equation,vector,axes" plugs="all" selected=""></div>
+	<!-- BvdS: for testing, remove explicit tool selection: line,rect,ellipse,textBlock,equation,vector,axes -->
+	    <div data-dojo-type="dojox.drawing.ui.Toolbar" id="gfxToolbarNode" drawingId="drawing" class="gfxToolbar" orient="V" tools="all" plugs="all" selected=""></div>
 	</div>
 	<div id="drawingPane" data-dojo-type="dijit.layout.ContentPane" region="center" >
 	    <div data-dojo-type="dojox.drawing.Drawing" id="drawing" data-dojo-id="myDrawing" class="drawing" defaults="andes.defaults">

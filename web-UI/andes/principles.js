@@ -1,9 +1,10 @@
 define([
     "andes/principles",
     "dojo/on",
+    "dojo/ready",
 	"dijit/Tree",
 	"dojo/data/ItemFileReadStore"
-],function(andes,on){
+],function(andes,on,ready){
 
 // See review/principles-tree.html
 dojo.ready(function(){  // wait until dom is loaded
@@ -85,7 +86,7 @@ andes.principles={
 }
 
 // This should be loaded after everything else, in the background
-dojo.addOnLoad(function() {
+ready(function() {
 	
 	var principlesStore = new dojo.data.ItemFileReadStore({
 		url: "../review/principles.json"

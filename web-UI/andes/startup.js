@@ -6,8 +6,9 @@ define([
     "dojo/json",
     'dojo/_base/unload',
     "andes/WordTip",
-    "dojo/on"
-],function(cookie,ready,ioQuery,json,baseUnload,wordTip,on){ // Pre-AMD version had a function wrapper.
+    "dojo/on",
+    "dojo/ready"
+],function(cookie,ready,ioQuery,json,baseUnload,wordTip,on,ready){ // Pre-AMD version had a function wrapper.
 
     // In the pre-AMD version, andes was a global variable
     // Here we make it the object returned by this module.
@@ -90,12 +91,14 @@ define([
 		// but don't clear cookie
 	});
 	
-	dojo.addOnLoad(function(){
+	ready(function(){
 		// WordTip needs to be added before conEdit is removed by drawing
 		andes.WordTip = new wordTip();
 		
 		// Problem close actions set
-		on(dojo.byId("submitButton"), "click", function(){
+	        submitButton=dojo.byId("submitButton");
+	        console.log("About to connect submit button ",submitButton);
+		on(submitButton, "click", function(){
 			// Needs to be non-blocking
 			var closer = andes.api.close({});
 			closer.then(function(result){

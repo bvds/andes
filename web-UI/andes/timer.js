@@ -1,6 +1,7 @@
 define([
-    "dojo/_base/declare"
-], function(declare){
+    "dojo/_base/declare",
+    "dojo/ready"
+], function(declare,ready){
 
     return declare(null,{
     // summary:
@@ -11,7 +12,7 @@ define([
     ready:false,
     constructor: function(st){
         this.startTime = st;
-        dojo.addOnLoad(this, function(){
+        ready(this, function(){
             this.node = dojo.byId("timer");
             this.ready = true;
             if(this.display) this.displayTimer(true);
