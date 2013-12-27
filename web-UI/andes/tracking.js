@@ -1,16 +1,18 @@
 define([
-    "andes/drawing",
-    "andes/startup",
-    "dojo/on",
-    "dijit/registry",
-    "dojo/ready"
-],function(drawing,andes,on,registry,ready){
+	 "andes/drawing",
+	 "andes/startup",
+	 "dojo/on",
+	 "dijit/registry",
+	 "dojo/ready",
+	 "dojo/aspect"
+],function(drawing,andes,on,registry,ready,aspect){
     // New to AMD version:  this was pulled out of drawing.js
 
     ready(function(){
 	        _drawing = registry.byId("drawing");
 	        console.log("got drawing widget:  ",_drawing);
-		var cn = on(_drawing, "onSurfaceReady", function(){
+		// This was dojo.connect in pre-AMD version
+		var cn = aspect.after(_drawing, "onSurfaceReady", function(){
 		        cn.remove();
 			andes.WordTip.add(_drawing);
 			drawing.onSurfaceReady();
@@ -19,7 +21,8 @@ define([
 				on(_drawing.stencils, "onLabelDoubleClick", drawing, "onLabelDoubleClick");
 			}
 		});
-		on(_drawing, "onRenderStencil", drawing, "onRenderStencil");
+		// This was dojo.connect in pre-AMD version
+		aspect.after(_drawing, "onRenderStencil", drawing, "onRenderStencil");
 		
 		// Track user's focus on Andes.  So far only whether they are using the window/tab
 		// or have left to use another program
