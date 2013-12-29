@@ -6,8 +6,9 @@ define([
     "dojo/json",
     'dojo/_base/unload',
     "andes/WordTip",
-	 "dojo/on"
-],function(cookie,ready,ioQuery,json,baseUnload,wordTip,on){ // Pre-AMD version had a function wrapper.
+	 "dojo/on",
+    "andes/defaults"
+],function(cookie,ready,ioQuery,json,baseUnload,wordTip,on,defaults){ // Pre-AMD version had a function wrapper.
 
     // In the pre-AMD version, andes was a global variable
     // Here we make it the object returned by this module.
@@ -89,6 +90,9 @@ define([
 		andes.api.close({});
 		// but don't clear cookie
 	});
+
+    // Load defaults
+    andes.defaults=defaults;
 
   // WordTip needs to be added before conEdit is removed by drawing
   andes.WordTip = new wordTip();

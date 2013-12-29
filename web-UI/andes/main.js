@@ -2,7 +2,7 @@ define([
 	"andes/drawing",
     "andes/startup",
 	// In the pre-AMD version, these were all after the body of main.js:
-	"andes/defaults",
+//    "dojox/drawing",  // must come after andes/defaults
 	"andes/PreferenceRegistry",
 	"andes/convert",
 	"andes/menu",
@@ -15,7 +15,7 @@ define([
 ],function(drawing){ 
     // Pre-AMD body of main.js moved to startup.js.
     // Pre-AMD version had "andes.drawing.load();" at very end of the file.
-    console.log("object returned by andes/drawing: ",drawing);
+    console.log("andse/main.js:  create new andes.drawing object.");
     var d= new drawing();
     d.load();
   console.info("Finished with andes/main.js");

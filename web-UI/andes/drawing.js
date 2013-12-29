@@ -175,7 +175,9 @@ define([
 						// Send result to server
 						var data = andes.convert.drawingToAndes(group, "modify-object");
 						// BvdS:  Why doesn't this.save() work?
-						andes.drawing.save(data);
+						// andes.drawing.save(data);
+					    console.log("save drawing data, this=",this);
+					    this.save(data);
 					}
 				});
 			});

@@ -3,6 +3,7 @@ define([
    "andes/startup"
 ],function(){
 
+    console.info("andes/defaults.js:  defining andes default object.");
 	var a = {
 		// summary:
 		//	The style used for Andes3.

@@ -27,12 +27,16 @@
 	</script>
         <script src="dojo/dojo.js"></script>
 	<script type="text/javascript">
+                console.log("index.html dojo.require 0/4 done");
+
 if(false){
                // From dojox/drawing/tests/test_drawing_toolbar.html
     
                 dojo.require("dojo.parser");
-                dojo.require("dojox.drawing");
+               // try to do this in main.js
+               // dojo.require("dojox.drawing");
 }
+                console.log("index.html dojo.require 1/4 done");
 if(true){
                // custom Tools and Plugins need to be required
                 dojo.require("dojox.drawing.tools.TextBlock");
@@ -45,6 +49,7 @@ if(true){
                 dojo.require("dojox.drawing.annotations.Arrow");
                 dojo.require("dojox.drawing.annotations.BoxShadow");
 };
+                console.log("index.html dojo.require 2/4 done");
 if(true){
                 dojo.require("dojox.drawing.tools.custom.Vector");
                 dojo.require("dojox.drawing.tools.custom.Axes"); 
@@ -57,8 +62,10 @@ if(true){
                 dojo.require("dojox.drawing.plugins.drawing.Grid");
                 dojo.require("dojox.drawing.plugins.drawing.GreekPalette");
 };
+                console.log("index.html dojo.require 3/4 done");
 if(true){
-                dojo.require("dojox.drawing.ui.Toolbar");
+                // already below
+                // dojo.require("dojox.drawing.ui.Toolbar");
                 dojo.require("dojox.drawing.ui.Button");
                 dojo.require("dojox.drawing.library.icons");
 };
@@ -71,12 +78,14 @@ if(false){
                 dojo.require("dijit/form/Button");  // not in original
 
 };
+               console.log("index.html dojo.requires 4/4 done.");
 
 if(true){
 require([
                          "dojo/parser","andes",
                          "dijit/MenuBar","dijit/PopupMenuBarItem",
                          "dijit/layout/BorderContainer",
+                         "dojox/drawing/Drawing",
                          "dojox/drawing/ui/Toolbar",
                          "andes/widget/ExpandoPane",
                          "dijit/form/TextBox",
@@ -88,6 +97,14 @@ require([
                          "dijit/layout/ContentPane"
 ]);
 };
+
+      // Add defaults to drawing
+      require([
+          "andes/startup"
+      ],function(andes){
+          // Used to define "drawing" below.
+          andesDefaults=andes.defaults;
+      });
 
 </script>
 </head>
@@ -130,7 +147,7 @@ require([
 	    <div data-dojo-type="dojox.drawing.ui.Toolbar" id="gfxToolbarNode" drawingId="drawing" class="gfxToolbar" orient="V" tools="line,rect,ellipse,textBlock,equation,vector,axes" plugs="all" selected=""></div>
 	</div>
 	<div id="drawingPane" data-dojo-type="dijit.layout.ContentPane" region="center" >
-	    <div data-dojo-type="dojox.drawing.Drawing" id="drawing" data-dojo-id="myDrawing" class="drawing" defaults="andes.defaults">
+	    <div data-dojo-type="dojox.drawing.Drawing" id="drawing" data-dojo-id="myDrawing" class="drawing" defaults="andesDefaults">
 	    </div>
 	</div>
 		

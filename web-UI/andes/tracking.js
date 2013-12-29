@@ -19,7 +19,8 @@ define([
 			andes.WordTip.add(_drawing);
 		    // This was in the pre-AMD version
 		    // This seems to lead to a recursion?
-		    // andes.drawing.onSurfaceReady();
+		    console.log("tracking.js:  about to call onSurfaceReady from ",drawing);
+		    drawing.onSurfaceReady();
 			if(_drawing.stencils){
 				console.warn("Label double click connected");
 				on(_drawing.stencils, "onLabelDoubleClick", drawing, "onLabelDoubleClick");
