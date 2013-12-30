@@ -70,8 +70,7 @@ prompts the user to create a PIN, generates an encrypted
 <a href="#SyncKey">Sync Key</a>, and stores the 
 secure sync key on the device. The Sync Key gives the user secure access to an
 organization.</li>
-<li>If the user is returning to a previously started session, Sencha Space Client prompts
-the user for the user's PIN and retrieves the session key.</li>
+<li>If the user is returning to a previously started session, Sencha Space Client prompts the user for the user's PIN and retrieves the session key.</li>
 <li>Sencha Space Client retrieves the secure Sync Key and verifies it.</li>
 <li>Sencha Space Client encrypts the session.</li>
 <li>When a user exits without ending a session, Sencha Space Client encrypts 
@@ -161,7 +160,8 @@ The scrypt value returns a 144 byte packet that contains not only
 the 32 byte derived key, but also a 112 byte header. 
 The header object can be used to re-derive a password 
 using the same scrypt parameters and 
-<a href="http://en.wikipedia.org/wiki/Salt_(cryptography)">salt</a>, and therefore validate 
+<a href="http://en.wikipedia.org/wiki/Salt_(cryptography)">salt</a>, 
+and therefore validate 
 a given password as being a match to the original input. 
 The scrypt value is also the most advanced and resource intensive 
 key derivation function in popular use, making it too expensive and 
@@ -204,7 +204,8 @@ store(base64(sync_ciphertext + hmac + iv))
 <a name="SyncKeyBundle"></a>
 ### Sync Key Bundle
 
-The Sync Key Bundle is used to encrypt and sign all <a href="#KeyBundle">Key Bundles</a> 
+The Sync Key Bundle is used to encrypt and sign all 
+<a href="#KeyBundle">Key Bundles</a> 
 that are used to encrypt data. The bundles are stored alongside the encrypted data. 
 This bundle derives from the Sync Key using HKDF and SHA-256 (RFC 5869). 
 In pseudo-code:
@@ -308,7 +309,8 @@ and by following the formula described in <a href="#CollectionKeys">Collection K
 
 On iOS specifically, the OS takes a screenshot of the application’s current view 
 to perform the animation of the app entering into or returning from the background. 
-If an attacker jailbreaks the device, the attacker can sift through the device cache and 
+If an attacker jailbreaks the device, the attacker can sift 
+through the device cache and 
 find screenshots containing potentially sensitive data.
 
 On iOS, Space hides all application web views in the 
@@ -363,9 +365,11 @@ authentication using SMS text messages.  If a user's mobile phone number
 is in the system, Space performs the following:
 
 <ol>
-<li>User authenticates with the system using their normal passphrase-based credentials</li>
+<li>User authenticates with the system using their 
+normal passphrase-based credentials</li>
 <li>Space generates a short-TTL PIN code that is SMS messaged to the user</li>
-<li>User is prompted to enter in their PIN code, and must do it within the TTL (e.g. 60-90 seconds)</li>
+<li>User is prompted to enter in their PIN code, 
+and must do it within the TTL (e.g. 60-90 seconds)</li>
 <li>If the PIN is correct, the user receives an authenticated session token</li>
 </ol>
 
@@ -380,7 +384,8 @@ and their key.
 Space performs the following:
 
 <ol>
-<li>User authenticates with the system using their normal passphrase-based credentials</li>
+<li>User authenticates with the system using 
+their normal passphrase-based credentials</li>
 <li>User generates a token from their hardware device and submits that to Space</li>
 <li>Space submits the token to RSA SecurID and receives a yes or no response</li>
 <li>If the token is valid, the user receives an authenticated session token</li>
@@ -393,7 +398,8 @@ Client certificate authentication is one of the most common 2-factor authenticat
 schemes deployed in enterprises. Most if not all security devices 
 (firewalls, SSL proxies, etc.) are able to perform client certificate authentication. 
 Like other 2-factor schemes, it is an additional layer of security to verify that the 
-user "has" something (certificate) and that the user "knows" something (passphrase, etc.).
+user "has" something (certificate) and 
+that the user "knows" something (passphrase, etc.).
 
 Space provides organizations several options to effectively use 
 client certificates for authentication:
@@ -403,7 +409,8 @@ client certificates for authentication:
 	<ol>
 		<li>Client devices automatically are required to submit a CSR to 
 		the Space server, after validating their identity</li>
-		<li>Space issues a certificate for the client and store the certificate public key</li>
+		<li>Space issues a certificate for the client and 
+		store the certificate public key</li>
 		<li>Admins can export user certificates + public key via the management 
 		console to install on external security devices</li>
 	</ol></li>
@@ -474,7 +481,7 @@ This section contains these topics:
 		<li>Minimum number of each required character type</li>
 		<li>Password must be at least 12 characters with at least 1 uppercase letter, 
 		1 digit, and 1 special character</li>
-	</ol><li>
+	</ol></li>
 <li>Minimum number of digits (PIN code only)</li>
 </ol>
 
@@ -486,7 +493,8 @@ After a defined set of authentication failures:
 <ol>
 <li>Force a captcha (human element) to attempt another authentication request</li>
 <li>Temporarily lock out the user and/or device for a specified duration</li>
-<li>Permanently lock out the user and/or device, requiring admin intervention to unlock</li>
+<li>Permanently lock out the user and/or device, 
+requiring admin intervention to unlock</li>
 </ol>
 
 <a name="SessionSecurityPolicies"></a>

@@ -31,19 +31,22 @@ The Manager Application side menu contains these buttons:
 
 <table border="1" style="width: 600px">
 <tr><th>Icon</th><th>Description</th></tr>
-<tr><td>{@img Space_Ad_Overview_Icon.png}</td>
+<tr><td>{@img IconHome.png}</td>
   <td><a href="#OverviewTab">Overview</a> - Monitors organization Space usage and user 
   device and location</td></tr>
-<tr><td>{@img Space_Ad_Apps_Icon.png}</td>
+<tr><td>{@img IconApplications.png}</td>
   <td><a href="#AppsTab">Applications</a> - Lists, adds, and
 removes applications</td></tr>
-<tr><td>{@img Space_Ad_Users_Icon.png}</td>
+<tr><td>{@img IconDevices.png}</td><td><a href="#DevicesTab">Devices</a> - Lists,
+assigns device ownership, blocks a device, and wipes Space Client info 
+from a device</td></tr>
+<tr><td>{@img IconUsers.png}</td>
   <td><a href="#UsersTab">Users</a> - Lists, adds, and removes user access to Space</td></tr>
-<tr><td>{@img Space_Ad_GroupsIcon.png}</td>
+<tr><td>{@img IconGroups.png}</td>
   <td><a href="#GroupsTab">Groups</a> - Lists, adds, and removes group access to Space</td></tr>
-<tr><td>{@img Space_Ad_VPNServices_Icon.png}</td>
+<tr><td>{@img IconVPN.png}</td>
   <td><a href="#VPNServicesTab">VPN Services</a> - Manages VPN services</td></tr>
-<tr><td style="vertical-align: top">{@img Space_Ad_ReportsIcon.png}</td>
+<tr><td style="vertical-align: top">{@img IconReports.png}</td>
 <td><a href="#ReportsTab">Reports</a> - Provides interactive reports for:
 <ul>
 <li>Last Seen - Number of users logging in. Lets you filter by duration, 
@@ -58,14 +61,17 @@ by the user or the organization. Also lists the available apps by usage,
 with columns for when the app was created (made available to your organization).</li>
 </ul>
 </td></tr>
-<tr><td style="vertical-align: top">{@img Space_Ad_GearIcon.png}</td>
-  <td><a href="#GearTab">Settings</a> - Provides settings for:
+<tr><td style="vertical-align: top">{@img IconSettings.png}</td>
+  <td><a href="#SettingsTab">Settings</a> - Provides settings for:
 <ul>
 <li>General - Specify organization name, organization code, email method, and billing address.</li>
 <li>Security Policy - Specify user session duration, PIN length, 
 and maximum attempts before lock out.</li>
 <li>Authentication - Specify authentication method, Security Assertion Markup Language (SAML) 
 configuration, and Identity Provider (IDP) information.</li>
+<li>Subscription - Change your Space subscription when your organization 
+adds more users, devices per user, or apps.</li>
+<li>Billing - Specify your organization's contact and billing address.</li>
 </ul>
 </td></tr>
 </table>
@@ -78,8 +84,8 @@ The top menu contains these buttons:
   <td><a href="#AdminMenu">Admin Menu</a> - Edit the admin profile, 
   switch organizations, or log out of Sencha Space</td></tr>
 <tr><td>{@img Space_Ad_SenchaIcon.png}</td>
-  <td><a href="#SenchaMenu">Sencha Menu</a> - View a log of all 
-  administrator activities</td></tr>
+  <td><a href="#SenchaMenu">Sencha Menu</a> - View a log of your recent
+actions.</td></tr>
 </table>
 
 **Icons**:
@@ -102,7 +108,9 @@ These icons provide additional controls on tabs:
 
 The Overview tab lets you monitor system usage. 
 To scroll the list of devices, click in the 
-list and drag your mouse up or down.
+list and drag your mouse up or down. You can refresh 
+your view of the screen by clicking the list and dragging
+the list downward.
 
 The chart shows user activity for the current month:
 
@@ -205,10 +213,51 @@ so that the app can be accessed by Space Clients.
  - Description - Description of the app. This description appears on the Applications 
    tab and in the Space Client.
 
+<a name="DevicesTab"></a>
+## Devices Tab
+
+Lists, assigns device ownership, blocks a device, and wipes Space Client info 
+from a device.
+
+{@img DevicesTab.png}
+
+ - Device - Device name
+ - User - Device's owner - This name is set on the <a href="#UsersTab">Users tab</a>
+ - Last Access - Last use of Space Client by the device
+ - Ownership - How you designate the device - can by Unknown, Employee, or Corporate
+
+### Device Info
+
+Click a device to view and edit device information. This menu also lets you
+wipe the Space Client organization data from a device.
+
+{@img DeviceInfo.png}
+
+ - Device - Device type taken from the device's data provided in the connection
+ - Client - Space Client version number
+ - Ownership - How you classify the device - set this value by clicking **Edit**
+ - Blocked - Whether or not this device is currently blocked
+
+### Edit Device Info
+
+Edit device information to change the ownership, block a device, or wipe the device 
+by removing the organizational data from the Space Client on the device.
+
+{@img DeviceInfoEdit.png}
+
+ - Device - Device type taken from the device's data provided in the connection
+ - Client - Space Client version number
+ - Ownership - Set as needed to Employee or Corporate
+ - Block - Removes the ability of the device to access the Space Client - the user is sent a message stating that the device is blocked by an administrator
+ - Wipe Device - Removes all Sencha Client organizational data from the device - the user is logged out of the Space Client
+ - Done - If you make a change, click **Done** to complete the change
+
 <a name="UsersTab"></a>
 ## Users Tab
 
 Lists which users can log into the Space Client and run applications.
+You can also use this tab to add users, block users, change a login password, 
+and remove a user. 
 
 {@img SpaceMgrUsers.png}
  
@@ -237,21 +286,48 @@ Groups tab:
  - Members - Users in the group
  - Modified - When the group was last modified
 
+Devices tab:
+
+- Info - Device name and Space Client version
+- Type - Device type and device's operating system version
+- Last Access - When user last used Space Client on their device, and the user's location
+
 ### Invite Users
 
-Click the plus icon on the Users tab to invite one or more users to participate
-in Sencha Space. The users you invite receive an email with information about 
-how to log into the Sencha Space Client.
+Click the plus icon on the Users tab to invite a user to participate
+in Sencha Space. You can add additional users from the Invite Users
+menu, specifying each address separately.
+
+The users you invite receive an email with information about 
+how to obtain the Client app and how to log into the Sencha Space Client.
 
 {@img Space_Ad_Users_PlusIcon.png}
 
 To invite a user:
 
-1. Type the user's email address and click the plus symbol. You can enter
-   multiple addresses separated by commas.
+1. Type the user's email address and click the plus symbol. 
    {@img Space_Ad_Invite_Users.png}
 2. If needed, delete an address and re-type.
-3. Click Invite.
+3. Add each address you want to invite and click the plus symbol.
+3. Click **Invite**.
+
+You can invite a user more than once if needed. 
+
+### Remove a User
+
+To remove a user:
+
+1. Click the Users tab in Space Manager.
+2. Click the checkbox next to the user's name in the Users tab list.
+3. Click the trash can icon at the top of the screen.
+
+Or:
+
+1. Click the Users tab in Space Manager.
+2. Click the user in the list.
+3. Click **Edit**
+4. Click **Remove User** at the bottom of the page.
+
 
 <a name="GroupsTab"></a>
 ## Groups Tab
@@ -319,56 +395,104 @@ Provides interactive reports for:
 <li><b>Last Seen</b> - Number of users logging in. Lets you filter by duration, 
 date range, platform OS, platform version, and whether the device is 
 owned by the user or the organization. Also lists recent logins.<br><br>
-{@img Space_Ad_ReportLastSeen.png}<br></li>
+{@img ManagerReportsLastSeen.png}<br></li>
 <li><b>Platform Distribution</b> - Pie chart by device platform with filters for 
 date range, platform OS, platform version, and whether the device is owned 
 by the user or the organization. Also lists current devices.<br><br>
-{@img Space_Ad_ReportPlatDist.png}<br></li>
+{@img ManagerReportsPlatDist.png}<br></li>
 <li><b>App Launches</b> - Number of app launches with filters for 
 date range, platform OS, platform version, and whether the device is owned 
 by the user or the organization. Also lists the available apps by usage,
 with columns for when the app was created (made available to 
 your organization).<br><br>
-{@img Space_Ad_ReportAppLaunches.png}</li>
+{@img ManagerReportsAppLaunches.png}</li>
 </ul>
 
-<a name="GearTab"></a>
+<a name="SettingsTab"></a>
 ## Settings Tab
 
-Provides settings for:
+Enables you to set general information, manage your security policy, 
+set authentication requirements, change your subscription, and change
+contact and billing information. 
+
+{@img ManagerSettings.png}
+
+Settings sections:
 <ul>
-<li>General - Lets you set:
+<li><a href="#GeneralSettings">General Settings</a></li>
+<li><a href="#SecuritySettings">Security Settings</a></li>
+<li><a href="#AuthenticationSettings">Authentication Settings</a></li>
+<li><a href="#SubscriptionSettings">Subscription Settings</a></li>
+<li><a href="#BillingSettings">Billing Settings</a></li>
+</ul>
+
+<a name="GeneralSettings"></a>
+### General Settings
+
+Lets you set:
+
 <ul>
 <li>Organization Name - Any string.</li>
 <li>Organization Code - A string you receive from Sencha after you register 
 your organization with Sencha</li>
-<li>Email Method - Native (HTTP address) or Good Enterprise (HTTPS address)</li>
-<li>Billing - Where Sencha bills your organization</li>
-<li>Email Pattern - Indicates how to resolve <code>mailto</code> links</li>
+<li>Email Method - Native email pattern or Good Enterprise email pattern.</li>
+<li>Email Pattern - Indicates how to resolve <code>mailto</code> links per the
+email method you select. A Native pattern starts with <code>mailto</code>, 
+whereas a Good Enterprise pattern starts with the <code>gdmailto</code>
+or <code>ggmailto</code> value.</li>
 </ul>
-{@img SpaceMgrGeneralSettings.png}<br></li>
-<li>Security Policy - Lets you set:
+
+{@img GeneralSettings.png}
+
+<a name="SecuritySettings"></a>
+### Security Settings
+
+<b>Important</b>: When you change any of the 
+options in the Security Policy, all users are sent 
+a notice when they log in that 
+they need to change their PIN.
+
+Lets you set:
 <ul>
-<li>Session Duration</li>
-<li>Pin Type Slider - Slide to <b>None</b> to not require a PIN or password 
+<li>Max Idle Time Before PIN Challenge - How long a user can perform other
+activities outside the Client app before being reprompted for a PIN. For 
+example, a presses the Home button on their mobile device to exit the 
+Space client. If the Session Duration is set to 5 minutes, the user has up
+to 5 minutes before the Space Client reprompts for a PIN upon returning
+to the Space Client. The tradeoff is that the Space Client data is more
+vulnerable during the Session Duration interval should the device
+be lost or stolen, but the duration gives users more time 
+to perform other activities before being reprompted 
+when returning to the Space Client. The duration can be set to minutes,
+hours, days, weeks, or months.</li>
+<li>PIN Type (slider) - Slide to <b>None</b> to not require a PIN or password 
 when users access the Space client on their mobile device - only use this 
 setting during debugging, 
 slide to <b>Number</b> to require users to supply a PIN for authentication, 
 slide to <b>Secure</b> to require a secure password that has a combination
 of letters, numbers, and special characters. A password must consist of at
-least 4 characters and can be any length.</li>
-<li>Pin Minimum Length - The least number of numbers a user can enter
+least 4 characters, have at least one number, letter, and special character, 
+and can be any length.</li>
+<li>PIN Minimum Length - The least number of numbers a user can enter
 to be authenticated in the Space client. The default is 6 digits.</li>
-<li>Pin Lock After Attempts - The number of tries a user gets to supply
+<li>Lock Out After Failed PIN Attempts - The number of tries a user gets to supply
 the correct PIN value before being locked out. The default is 10 attempts.
 If a user is locked out, the user must re-enter their username and password
 to gain access to the Space client.</li>
-<li>Maximum time of offline work - Maximum duration that a device can use
-Sencha Space offline before being automatically logged off. The duration
+<li>Max Time Working Offline Before Automatic Log Out - Maximum 
+duration that a user can 
+perform other activities outside the Space Client before being 
+automatically logged off. The duration
 can be set to an amount of minutes, hours, days, weeks, or months.</li>
+<li>Save - Save settings.</li>
 </ul>
-{@img Space_Ad_Settings_Security.png}<br></li>
-<li>Authentication - Lets you set:
+
+{@img SecurityPolicySettings.png}
+
+<a name="AuthenticationSettings"></a>
+### Authentication Settings
+
+Lets you set:
 <ul>
 <li>Authentication Method - <b>Invite Only</b> - Indicates that 
 you can only add user access to the Space client by an email
@@ -384,25 +508,54 @@ to Sencha Space.</li>
 -----BEGIN CERTIFICATE----- Insert your certificate here -----END CERTIFICATE----- 
 </pre>
  </li>
-  <li>Attribute Presets - </li>
+  <li>Attribute Presets - Custom, OneLogin (single sign-on), 
+  or <a href="http://en.wikipedia.org/wiki/Active_Directory_Federation_Services">Active Directory Federation Services 2.0</a></li>
   <li>Email Attribute - Specify the email address of your IDP</li>
   <li>First Name Attribute - Specify the first name of the IDP</li>
   <li>Last Name Attribute - Specify the last name of the IDP</li>
   </ul></li>
 </ul>
-{@img Space_Ad_Settings_AuthN.png}<br></li>
-</ul> 
 
+{@img AuthenticationSettings.png}
+
+<a name="SubscriptionSettings"></a>
+### Subscription Settings
+
+Lets you change your Space subscription, which depends on how many users,
+users per device, and apps your organization requires.
+
+{@img SubscriptionSettings.png}
+
+To upgrade or downgrade, click <b>Change</b> for the subscription option
+you require.
+
+<a name="BillingSettings"></a>
+### Billing Settings
+
+Information about your Space Manager subscription:
+<ul>
+<li>Status of Your Current Subscription - Whether you are using Space
+on a trial or are active.</li>
+<li>Subscription Period End - The date your Space subscriptiption ends.</li>
+<li>Billing Tier - Indicates whether your subscription applies to your
+team, workforce, or enterprise.</li>
+<li>Contact Information - Who to contact who is responsible for maintaining
+the Sencha Space subscription.</li>
+<li>Credit Card - Which credit card to use to bill for your Sencha
+Space subscription.</li>
+<li>Update - Click to save changed information in this form.</li>
+</ul>
+
+{@img BillingSettings.png}
 
 <a name="AdminMenu"></a>
 ## Admin Menu
 
-{@img Space_Ad_AdminMenuOptions.png}
+{@img ManagerAdminMenu.png}
 
 Lets you:
 
  - Edit your administrator profile
- - Switch organizations
  - Log out of Sencha Space
 
 ### Edit Your Admin Profile
@@ -423,58 +576,30 @@ Add or change:
 You can also click <b>X Block</b> to block the administrator, or click
 **Remove User** to remove your access to Sencha Space.
 
-### Switch Organizations
-
-Click the administrator menu drop-down and click **Switch organizations**:
-
-{@img Space_Ad_SwitchOrgs.png}
-
-The first organization in the list is the one you are currently administering. 
-
-When you switch organizations, all the settings from the former organization 
-store while you work with other organizations.
-
-This tab lists:
-
-- Name - Organization name 
-- Code - Organization code
-- Users - Number of users in the organization 
-- Groups - Number of groups in the organization
-- Apps - Number of apps handled for this organization
-
-To add or change organization information:
-
- - Add an organization by clicking the Add button.
- - Change the information for an organization by clicking the Pencil button: 
-   {@img Space_Ad_OrgEditButton.png}
- - Change the current organization by clicking the Switching button:
-   {@img Space_Ad_OrgChangeButton.png}
 
 #### Add or Change an Organization
 
 Add an organization by clicking **Add** in the Organizations menu. 
-Change organization information by clicking the pencil icon in
-the Organizations menu.
 
 Fields:
 
- - Organization Name 
- - Organization Code - A keyword to describe the organization
- - Cache Max Age - The duration in minutes that you want information 
-   about an organization to persist in the Client. Zero indicates
-   that the information persists indefinitely and only updates when a
-   user clicks the Refresh button.
+ - Name - Organization name
+ - Code - A keyword to describe the organization
+ - Users - Total number of users in the organization
+ - Groups - Total number of groups in the organization
+ - Apps - Total number of apps available to Space Client users
 
 <a name="SenchaMenu"></a>
 ## Sencha Menu
 
-Logs all administration activities.
+Lists your recent activities. Each time the browser refreshes, 
+the previous entries no longer display.
 
 {@img Space_Ad_SenchaLogMenu.png}
 
 Icons from left to right: 
 
- - Infinity - Lists all log entries
+ - Infinity - Lists recent log entries
  - Success - Lists successful actions, such as inviting a user or creating a group
  - Failure - Lists actions that failed
  - Information - Lists entries for review or that are informative
