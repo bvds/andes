@@ -1,5 +1,5 @@
 /**
-    
+    @aside guide invoke
     The Invoke API allows Applications running inside a Sencha Space client to communicate.
     Applications can securely exchange data with each other.  
 
@@ -8,45 +8,10 @@
     the called app returns data back to the calling application, and Sencha Space
     returns the user to the original application. 
 
-    A simple interactive example is an application that requests a photo from an application that 
-    know about photos. The photos app is loads.  The user selects a photo. The photo app returns 
-    data about the photo to the calling application.
+    The two primary functions for Invoke are Ext.space.Invoke.get and Ext.space.Invoke.onMessage
 
-        var success = function(message) {
-            console.log('Received response: ', message.photo.url, message.photo.title);
-        };
+    For additional information on how to use  please see our [Invoke Guide](#!/guide/invoke) and [example applications](#!/guide/examples)
 
-        var failure = function(error) {
-            console.('Received error:', error);
-        }
-
-        var send = function(connection) {
-            connection.send(data, background).then(
-                success,
-                failure
-            );
-        };
-
-        Ext.space.Invoke.get('photos').then(send, failure);
-
- *
- * For async message handling:
- *
- *   The photos application in the previous example lists messages:
- *
- *       Invoke.onMessage(function(appId, message) {
- *          var promise = new Ext.Promise();
- *
- *          console.log('Got message from ' + appId + ' ' + message);
- *
- *          // Do whatever is needed asynchronously before returning the result 
- *          //  (fulfilling the promise)
- *          setTimeout(function(){
- *             promise.fulfill('Yeah I got it');
- *          }, 3000);
- *
- *          return promise;
- *      });
  */
 Ext.define('Ext.space.Invoke', {
     singleton: true,
@@ -84,7 +49,21 @@ Ext.define('Ext.space.Invoke', {
     },
 
     /**
-     * Create a connection to another application with the given ID
+     * Get a connection to another application.
+
+        Ext.space.Invoke.get('photos').then(send, failure);
+
+        var failure = function(error) {
+            console.('Received error:', error);
+        }
+
+        var send = function(connection) {
+            connection.send(data, background).then(
+                success,
+                failure
+            );
+        };
+
      * @param {String} receiverId The ID of the application to connect to. Get this ID from #broadcast
      * @returns {Ext.Promise}
      */
@@ -105,6 +84,7 @@ Ext.define('Ext.space.Invoke', {
 
     /**
      * Send a message
+     * @private
      * @param {String} receiverId The ID of the application to connect to. Get this ID from #broadcast
      * @param {*} message The message to send, can be an object, as long as it is JSON-able.
      * @param {Boolean} [foreground] Whether or not to bring the receiver app to the foreground.
@@ -150,8 +130,24 @@ Ext.define('Ext.space.Invoke', {
     },
 
     /**
-     * Assign the callback to handle incoming messages. The returned value is passed back to the sender.
-     * If the operation needs to be async, simply return an instance of Ext.Promise.
+     *   onMessage registers a function to be called each time another application 
+     *   invokes this application. 
+     *
+     *   For example for the photos application to respond to a request to get photos:
+     *
+     *       Invoke.onMessage(function(appId, message) {
+     *          var promise = new Ext.Promise();
+     *
+     *          console.log('Got message from ' + appId + ' ' + message);
+     *
+     *          // Do whatever is needed asynchronously before returning the result 
+     *          //  (fulfilling the promise)
+     *          setTimeout(function(){
+     *             promise.fulfill('Yeah I got it');
+     *          }, 3000);
+     *
+     *          return promise;
+     *      });
      * @param callback
      */
     onMessage: function(callback) {
