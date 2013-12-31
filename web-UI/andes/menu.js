@@ -2,12 +2,13 @@ define([
 	"dojo/dom",
     "dijit/registry",
         "andes/startup",
+    "andes/api",
     "dojo/ready",
     "dojo/on",
 	"andes/options",
 	"dijit/Menu",
     "dijit/MenuSeparator"
-],function(dom,registry,andes,ready,on,options){  
+],function(dom,registry,andes,api,ready,on,options){  
 	// In the pre-AMD version, the body was wrapped
         // in "dojo.addOnLoad(function(){ ... })
     ready(function(){
@@ -22,7 +23,7 @@ define([
 			// Wrapper function which adds logging to server
 			// when menu item is selected.
           		var extendfn = function(){
-				andes.api.recordAction({
+				api.recordAction({
 					type: "menu-choice",
 					name: item
 				});

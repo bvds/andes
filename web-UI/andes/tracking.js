@@ -10,9 +10,9 @@ define([
     // New to AMD version:  this was pulled out of drawing.js
     
     ready(function(){
-            console.log("andes/tracking.js: wire up logging.");
-	        var _drawing = registry.byId("drawing");
-	        console.log("got drawing widget:  ",_drawing);
+            console.log("andes/tracking.js: connect to \"drawing,\" wire up logging.");
+	var _drawing = registry.byId(drawing.name);
+	console.log("got drawing widget:  ",_drawing);
 	// This was dojo.connect in pre-AMD version
 		var cn = aspect.after(_drawing, "onSurfaceReady", function(){
 		        cn.remove();
@@ -23,7 +23,7 @@ define([
 		    drawing.onSurfaceReady();
 			if(_drawing.stencils){
 				console.warn("Label double click connected");
-				on(_drawing.stencils, "onLabelDoubleClick", drawing, "onLabelDoubleClick");
+				aspect.after(_drawing.stencils, "onLabelDoubleClick", drawing, "onLabelDoubleClick");
 			}
 		});
 		// This was dojo.connect in pre-AMD version

@@ -6,9 +6,11 @@ define([
     "dojo/json",
     'dojo/_base/unload',
     "andes/WordTip",
+    "andes/timer",
 	 "dojo/on",
-    "andes/defaults"
-],function(cookie,ready,ioQuery,json,baseUnload,wordTip,on,defaults){ // Pre-AMD version had a function wrapper.
+    "andes/defaults",
+    "dojo/require"
+],function(cookie,ready,ioQuery,json,baseUnload,wordTip,timer,on,defaults,require){ // Pre-AMD version had a function wrapper.
 
     // In the pre-AMD version, andes was a global variable
     // Here we make it the object returned by this module.
@@ -87,12 +89,18 @@ define([
 	}
 	
 	baseUnload.addOnUnload(function(){
-		andes.api.close({});
+	    require(["andes/api"],function(api){
+		api.close({});
 		// but don't clear cookie
+	    });
 	});
 
     // Load defaults
     andes.defaults=defaults;
+
+    // Start timer
+    var startTime = (new Date()).getTime();
+    andes.timer = new timer(startTime);
 
   // WordTip needs to be added before conEdit is removed by drawing
   andes.WordTip = new wordTip();
@@ -105,8 +113,9 @@ define([
 	        submitButton=dojo.byId("submitButton");
 	        console.log("About to connect submit button ",submitButton);
 		on(submitButton, "click", function(){
+		    require(["andes/api"],function(api){
 			// Needs to be non-blocking
-			var closer = andes.api.close({});
+			var closer = api.close({});
 			closer.then(function(result){
 					// console.log("Made the trip", result);
 					// Look for url from server, if it doesn't
@@ -129,6 +138,7 @@ define([
 			cookie("andes", null, { expires: -1 });
 			// should look for url from server that
 			// can overrride default.
+		    });
 		});
 		
 		// Splash animation

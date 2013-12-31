@@ -1,3 +1,4 @@
+/* global define */
 // Pre-AMD version had a function wrapper.
 define([
     "dojo/_base/declare",
@@ -6,13 +7,19 @@ define([
     "andes/startup",
     "dojo/on",
     "dijit/registry",
-    "andes/PreferenceRegistry"
-],function(declare,Evented,cookie,andes,on,registry,preferenceRegistry){
+    "andes/PreferenceRegistry",
+    "andes/convert",
+    "andes/api",
+    "andes/help",
+    "dojox/drawing/util/common",
+    "dojox/drawing/manager/_registry",
+    "dojox/drawing/tools/custom/Axes",
+    "dojox/drawing/tools/custom/Vector",
+    "dojox/drawing/tools/TextBlock"
+],function(declare,Evented,cookie,andes,on,registry,preferenceRegistry,convert,api,help,common,managerRegistry){
 	
 	cookie("mikeDev", null, { expires: -1 });
 	
-	// the html ID in index for the drawing app
-	var _drawing;
 	var _surfaceLoaded = false;
 	
 	
@@ -68,7 +75,7 @@ define([
 	var items = {};
 	var masterMap = {};
 	
-    return declare(Evented,{
+    return {
 		// summary:
 		//	The master object that controls behavior of Drawing items
 		//	and handles transfer of data between server and client
@@ -94,6 +101,7 @@ define([
 			//	Called on drag-create. This method should call add()
 			//	then save info to the server.
 			//
+		    var _drawing = registry.byId(this.name);
 			if(items[item.id]){
 				console.warn("BLOCKED on render: ", item.id);
 				return;
@@ -248,11 +256,13 @@ define([
 			//	Handles all returns, including open-problem
 			//	and solution-step.
 			//
-			//	NOTE: andes.help intercepts calls and handles
+			//	NOTE: andes/help intercepts calls and handles
 			//	any help associated with the data.
 			//
 			console.log("handleServerActions starting", data.length);
 			
+		    var _drawing = registry.byId(this.name);
+
 			// check for highest numerical ID
 			// start from there
 			var getNum = function(m){
@@ -267,7 +277,7 @@ define([
 			});
 			++idNum;
 			
-			dojox.drawing.util.common.idSetStart(idNum);
+			common.idSetStart(idNum);
 			
 			//console.dir(data);
 			var mods = [];
@@ -285,7 +295,7 @@ define([
 				}*/
 				
 				if(obj.action =="new-object"){
-					var o = andes.convert.andesToDrawing(obj);
+					var o = convert.andesToDrawing(obj);
 					
 					var t = o.stencilType;
 					// o.stencilType includes:  text, image, line, rect, ellipse, vector
@@ -349,7 +359,7 @@ define([
 					}
 					
 				}else if(obj.action=="set-score"){
-					andes.help.score(obj.score);
+					help.score(obj.score);
 					
 				}else if(obj.action=="new-user-dialog" && obj.text){
 					andes.error({
@@ -377,7 +387,8 @@ define([
 				}else if(obj.action=="set-styles"){
 					if(obj["tool"] && obj["style"]){
 						var disable = obj["style"]=="disabled" ? true : false;
-						var tool = dojox.drawing.getRegistered("button",obj["tool"]);
+						var tool = managerRegistry.getRegistered("button",obj["tool"]);
+					    console.assert(tool,"Unregistered button",obj["tool"]);
 						disable ? tool.disable() : tool.enable();
 					}
 
@@ -482,7 +493,7 @@ define([
 			// summary:
 			//	Save an object to the server.
 			
-			var dfd = andes.api.step(data);
+			var dfd = api.step(data);
 			dfd.addCallback(this, function(data){
 				setTimeout(dojo.hitch(this, function(){
 					this.handleServerActions(data);
@@ -491,16 +502,19 @@ define([
 			dfd.addErrback(this, "onError");
 		},
 		
-		load: function(){
+		load: function(name){
 			// summary:
 			//	loads project data
 			//
 			// called from the very bottom of main.js
 			//
+		    console.info("andes/drawing.js:  loading drawing ",name);
+		    this.name=name;
+
 			// setting 'this'
 			this.loadProject = function(){
 			  console.info("load server data", andes.userId, andes.projectId, andes.sectionId);
-				andes.api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId,extra:andes.extra})
+				api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId,extra:andes.extra})
 					.addCallback(this, function(data){
 						setTimeout(dojo.hitch(this, function(){
 							this.onLoad(data);
@@ -510,7 +524,7 @@ define([
 			};
 			if(andes.closeFirst){
 				// a previous project session is open. close it.
-				andes.api.close({}).addCallback(this, "loadProject").addErrback(this, "onError");
+				api.close({}).addCallback(this, "loadProject").addErrback(this, "onError");
 			}else{
 				this.loadProject();
 			}
@@ -529,7 +543,7 @@ define([
 			console.error("There was an error in the project data:", err);
 			if(!this._initialData){
 				// apparently an error on open-problem. Try closing session.
-				andes.api.close({});
+				api.close({});
 				dojo.cookie("andes", null, { expires: -1 });
 			}
 		},
@@ -539,7 +553,7 @@ define([
 			//	Event for when the user leaves this window
 			//	say to open another tab.
 			console.log("Lost window focus for ",this.name || "canvas","; ",this);
-			andes.api.recordAction({type:"window", name: this.name || "canvas", value: "blur"});
+			api.recordAction({type:"window", name: this.name || "canvas", value: "blur"});
 		},
 		
 		onWindowFocus: function(){
@@ -547,8 +561,8 @@ define([
 			// 	Event for when this window is focused, such as
 			// 	switching back to this tab from another browser tab
 			console.log("Gained window focus for ",this.name || "canvas","; ",this);
-			andes.api.recordAction({type:"window", name: this.name || "canvas", value: "focus"});
+			api.recordAction({type:"window", name: this.name || "canvas", value: "focus"});
 		}
-    });
+    };
 
 });

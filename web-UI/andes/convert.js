@@ -1,7 +1,14 @@
 // Pre-AMD version had a function wrapper.
 define([
-    "andes/startup"
-],function(andes){ 
+    "andes/startup",
+    "dojox/drawing/util/typeset",
+    // Needed for stencil registration in dojox/drawing/Drawing.js
+    "dojox/drawing/stencil/Image",
+    "dojox/drawing/tools/custom/Equation",
+    "dojox/drawing/tools/custom/Axes",
+    "dojox/drawing/tools/custom/Vector",
+    "dojox/drawing/tools/TextBlock"
+],function(andes,typeset){ 
 
 	return {
 		// summary:
@@ -130,7 +137,7 @@ define([
 				obj.stencilType = "text";
 				// Problem statements may contain HTML character codes.
 				// Since these don't render on the canvas, convert to UTF-16 characters.
-				obj.data.text = dojox.drawing.util.typeset.convertHTML(o.text);
+				obj.data.text = typeset.convertHTML(o.text);
 			}else if(o.type=="done" || o.type=="checkbox" || o.type=="radio"){
 				// In principle, we could omit the statement object if there is no text,
 				// but the code gets a lot hairier.

@@ -39,6 +39,7 @@ if(false){
                 console.log("index.html dojo.require 1/4 done");
 if(true){
                // custom Tools and Plugins need to be required
+                // This is needed for the 100% button:
                 dojo.require("dojox.drawing.tools.TextBlock");
                 dojo.require("dojox.drawing.tools.Rect");
                 dojo.require("dojox.drawing.tools.Ellipse");
@@ -51,10 +52,9 @@ if(true){
 };
                 console.log("index.html dojo.require 2/4 done");
 if(true){
-                dojo.require("dojox.drawing.tools.custom.Vector");
-                dojo.require("dojox.drawing.tools.custom.Axes"); 
-		// BvdS:  I added this: not in demo.
-		dojo.require("dojox.drawing.tools.custom.Equation"); 
+                // moved into js files.
+                // dojo.require("dojox.drawing.tools.custom.Vector");
+                // dojo.require("dojox.drawing.tools.custom.Axes"); 
                 
                 dojo.require("dojox.drawing.tools.Arrow");
                 dojo.require("dojox.drawing.plugins.tools.Pan");
@@ -94,7 +94,7 @@ require([
                          "dojox/widget/DialogSimple",
                          "dijit/form/NumberSpinner",
                          "dijit/form/ToggleButton",
-                         "dijit/layout/ContentPane"
+                         "dijit/layout/ContentPane" 
 ]);
 };
 

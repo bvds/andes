@@ -1,10 +1,11 @@
 define([
-	 'dojo/_base/declare',
-	 'andes/startup',
-	 'dojo/on',
-	 "dojo/dom",
-	 "dojo/domReady!"  // Needed to locate "conEdit"
-], function(declare,andes,on,dom){
+    'dojo/_base/declare',
+    'andes/startup',
+    'dojo/on',
+    "dojo/dom",
+    "andes/api",
+    "dojo/domReady!"  // Needed to locate "conEdit"
+], function(declare,andes,on,dom,api){
     return declare(null,{
 
     // Summary:
@@ -87,7 +88,7 @@ define([
         };
         // console.log("current: ",current);
 	if(current && this.hasTip[current]){
-	    andes.api.suggestWord({type: current, text: text, symbol:symbol});
+	    api.suggestWord({type: current, text: text, symbol:symbol});
 	}
     },
     

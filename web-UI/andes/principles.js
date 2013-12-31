@@ -1,12 +1,12 @@
 define([
-    "andes/principles",
     "dojo/on",
     "dojo/ready",
-    "andes/drawing",
-	"dijit/Tree",
-	"dojo/data/ItemFileReadStore"
-],function(andes,on,ready,drawing){
-
+    "andes/startup",
+    "andes/help", 
+    "dijit/Tree",
+    "dojo/data/ItemFileReadStore"
+],function(on,ready,andes,help){
+    
 // See review/principles-tree.html
   ready(function(){  // wait until dom is loaded
 	  console.info("andes/principles.js:  wire up principles tree");
@@ -114,8 +114,8 @@ ready(function() {
 			var psm=principlesStore.getValue(item,"psm");
 			// if student clicks on a group, there is no psm.
 			if(psm){
-				andes.help.echo(principlesStore.getValue(item,"label"));
-				andes.help.principles(psm);
+				help.echo(principlesStore.getValue(item,"label"));
+				help.principles(psm);
 				dijit.byId("majorPrinciples").hide();
 			}
 		}
@@ -128,8 +128,8 @@ ready(function() {
 			var psm=principlesStore.getValue(item,"psm");
 			// if student clicks on a group, there is no psm.
 			if(psm){
-				andes.help.echo(principlesStore.getValue(item,"label"));
-				andes.help.principles(psm);
+			        help.echo(principlesStore.getValue(item,"label"));
+				help.principles(psm);
 				// This is a bit ugly, but close both possible windows:
 				dijit.byId("allPrinciples").hide();
 			}

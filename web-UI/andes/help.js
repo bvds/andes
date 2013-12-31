@@ -1,16 +1,15 @@
 define([
     "andes/startup",
+    "andes/api",
     "dojo/on",
     "dojox/drawing/util/typeset",
     "dojo/ready",
 	"andes/api"
-],function(andes,on,typeset,ready){ // Pre-AMD version had a function wrapper.
+],function(andes,api,on,typeset,ready){ // Pre-AMD version had a function wrapper.
 
-    // It would be better that this module returns an object called "help."
-    // This is just to get things working with minimal changes to the pre-AMD version.
-    andes.help={};
+    var help={
 
-	andes.help.echo = function(value){
+	echo: function(value){
 		// summary:
 		//	Echo any input text in the Tutor pane.
 		//
@@ -26,24 +25,24 @@ define([
       			hlp.containerNode.innerHTML = c + "\n<p><span class=\"comment\">" + value + "</span></p>";
 			hlp.domNode.scrollTop = hlp.domNode.scrollHeight;
 		}
-	};
+	},
 	
-	andes.help.processStep = function(result){
+	processStep: function(result){
 		// summary:
 		// look for any help coming back from the server (such as in
-		// the results from andes.api.step()
+		// the results from api.step()
 		handleHelp(result);
-	};
+	},
 	
-	andes.help.explain = function(s){
-		andes.api.help({action:"get-help", value:s}).addCallback(handleHelp);
-	};
+	explain: function(s){
+		api.help({action:"get-help", value:s}).addCallback(handleHelp);
+	},
 	
-   	andes.help.principles = function(s){
-		andes.api.help({action:"principles-menu", value:s}).addCallback(handleHelp);
-	};
+   	principles: function(s){
+		api.help({action:"principles-menu", value:s}).addCallback(handleHelp);
+	},
 	
-	andes.help.link = function(href){
+	link: function(href){
 		// summary:
 		//	Calls api after a link in Tutor pane has been clicked.
 		dojo.xhrGet({
@@ -54,21 +53,25 @@ define([
 				dijit.byId("helpContentPane").attr("content", result);
 			}
 		});
-	};
+	},
 	
-	andes.help.score = function(value){
+	score: function(value){
 		// summary:
 		// updates score
 		return dijit.byId("helpPane").score(value);
-	};
+	},
 
-	andes.help.link = function(name,value){
+	link: function(name,value){
 		var s={type: "tutor-link",name: name};
 		if(value){
 			s.value=value; // value is optional
 		}
-		andes.api.recordAction(s);
-	};
+		api.recordAction(s);
+	}
+    };
+
+    // handleHelp creates reference to a global variable
+    window.andesHelp = help;
 	
 	function handleHelp(result){
 		// summary:
@@ -94,7 +97,7 @@ define([
 				dijit.byId("helpPane").open();
 				var fn = r.href ? "link" : "explain",
 				val = r.href || r.value;
-				hlp.containerNode.innerHTML = c + "\n<p><a href=\"#\" onclick=\"andes.help." + fn + "('" + val + "'); return false\">" + r.text + "</a></p>";
+				hlp.containerNode.innerHTML = c + "\n<p><a href=\"#\" onclick=\"andesHelp." + fn + "('" + val + "'); return false\">" + r.text + "</a></p>";
 				break;
 			    case "show-hint":
 				dijit.byId("helpPane").open();
@@ -107,7 +110,7 @@ define([
 		  		// Escape any html codes on input text echo.
                		        // Should use future function dojo.string.escape
                                 // See http://trac.dojotoolkit.org/ticket/8995
-				andes.help.echo(r.text.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
+				help.echo(r.text.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
 				break;
 			    case "focus-hint-text-box":
 				dijit.byId("helpPane").open();
@@ -139,11 +142,11 @@ define([
 			// Escape any html codes on input text echo.
 		        // Should use future function dojo.string.escape
                         // See http://trac.dojotoolkit.org/ticket/8995
-			andes.help.echo(q.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
+			help.echo(q.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
 			dijit.byId("helpInput").set("value", "");
-			andes.api.help(h).addCallback(handleHelp);
+			api.help(h).addCallback(handleHelp);
 		});
 	});
-	
-		
+
+        return help;
 });

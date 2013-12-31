@@ -1,11 +1,11 @@
 define([
+    "dojo",
     "andes/startup",
-	"andes/rpc",
-    "andes/timer",
-	 "andes/messages",
-	"andes/api",
-	"andes/error"
-       ],function(andes,rpc,timer,messages){  // Pre-AMD version had a function wrapper.
+    "andes/rpc",
+    "andes/messages",
+    "andes/help",
+    "andes/error"
+],function(dojo,andes,rpc,messages,help){  // Pre-AMD version had a function wrapper.
 	
 	var startTime = null,
 	    requestInFlight = false,
@@ -121,17 +121,15 @@ define([
 		return dfd;
 	}
 
-	andes.api = {
+	return {
 		open: function(params){
 			//console.info("andes.api.open", params);
-			startTime = (new Date()).getTime();
-			andes.timer = new timer(startTime);
 			var dfd = queueRequest("open-problem", params);
 			
 			dfd.addCallback(function(result){
 				// look for help embedded in the returned result, so we can
 				// queue it up in case the user opens the Tutor pane
-				andes.help.processStep(result);
+				help.processStep(result);
 			});
 			return dfd;
 		},
@@ -142,7 +140,7 @@ define([
 			dfd.addCallback(function(result){
 				// look for help embedded in the returned result, so we can
 				// queue it up in case the user opens the Tutor pane
-				andes.help.processStep(result);
+				help.processStep(result);
 			});
 			return dfd;
 		},
@@ -173,4 +171,3 @@ define([
 	};
 
 });
-

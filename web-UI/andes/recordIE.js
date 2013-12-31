@@ -1,14 +1,14 @@
 define([
     "andes/startup",
-    "andes/drawing"
-],function(andes,drawing){
+    "andes/api"
+],function(andes,api){
 
     var self = this;
     // From pre-AMD version.  Not sure why this form was used?
     // var andes = window.opener.andes;
     this.onfocus = function(){
         //console.log("Window focus, title: ",self.name);
-        drawing.onWindowFocus.call(self);
+        andes.drawing.onWindowFocus.call(self);
     };
     
     this.document.onfocusout = function(){
@@ -16,13 +16,13 @@ define([
         if (this._activeElement != document.activeElement){
             this._activeElement = document.activeElement;
         }else{
-            drawing.onWindowBlur.call(self);
+            andes.drawing.onWindowBlur.call(self);
         }    
     };
     
     this.onunload = function(){
         //console.log("Window unload, title: ",self.name);
-        drawing.onWindowBlur.call(self);
-        //andes.api.recordAction({type:"window", name: "IntroVideo", value: "blur"});
+        andes.drawing.onWindowBlur.call(self);
+        //api.recordAction({type:"window", name: "IntroVideo", value: "blur"});
     };
 });
