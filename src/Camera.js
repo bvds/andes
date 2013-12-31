@@ -1,5 +1,5 @@
 /**
- *
+  @aside guide sensor_apis
  * ## Example
  *
  * You can use the {@link Ext.space.Camera#capture} function to take a photo:

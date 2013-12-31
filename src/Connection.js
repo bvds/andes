@@ -1,4 +1,5 @@
 /**
+  @aside guide sensor_apis
  * This class is used to check if the current device is currently online or not.
  *
  * ## Examples
