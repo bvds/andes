@@ -7,10 +7,11 @@ define([
     'dojo/_base/unload',
     "andes/WordTip",
     "andes/timer",
+    "andes/api",
 	 "dojo/on",
     "andes/defaults",
     "dojo/require"
-],function(cookie,ready,ioQuery,json,baseUnload,wordTip,timer,on,defaults,require){ // Pre-AMD version had a function wrapper.
+],function(cookie,ready,ioQuery,json,baseUnload,wordTip,timer,api,on,defaults,require){ // Pre-AMD version had a function wrapper.
 
     // In the pre-AMD version, andes was a global variable
     // Here we make it the object returned by this module.
@@ -39,6 +40,11 @@ define([
 			});
 		});
 	};
+
+    // Start timer.  Define before sessionId is set
+    var startTime = (new Date()).getTime();
+    andes.timer = new timer(startTime);
+
         // FNV-1a for string, 32 bit version, returning hex.
 	var FNV1aHash = function(x){
 		var hash = 0x811c9dc5; // 2166136261
@@ -58,6 +64,7 @@ define([
 		// Andes database requires that clientID be 50 characters.
 		andes.sessionId = FNV1aHash(andes.userId+andes.projectId) + 
 			'_' + new Date().getTime();
+	    console.log("andes.sessionId new value ",andes.sessionId);
 		var andesCookie = {
 			u:andes.userId,
 			p:andes.projectId,
@@ -79,6 +86,7 @@ define([
 		if(ck.u==andes.userId && ck.p==andes.projectId){
 			// we can continue the same session
 			andes.sessionId = ck.sid;
+		    console.log("andes.sessionId set from cookie to ",andes.sessionId);
 		}else{
 			andes.closeFirst = true;
 		  console.warn("Closing previous session", ck.u, andes.userId, ck.p, andes.projectId);
@@ -89,18 +97,12 @@ define([
 	}
 	
 	baseUnload.addOnUnload(function(){
-	    require(["andes/api"],function(api){
 		api.close({});
 		// but don't clear cookie
-	    });
 	});
 
     // Load defaults
     andes.defaults=defaults;
-
-    // Start timer
-    var startTime = (new Date()).getTime();
-    andes.timer = new timer(startTime);
 
   // WordTip needs to be added before conEdit is removed by drawing
   andes.WordTip = new wordTip();
@@ -113,7 +115,6 @@ define([
 	        submitButton=dojo.byId("submitButton");
 	        console.log("About to connect submit button ",submitButton);
 		on(submitButton, "click", function(){
-		    require(["andes/api"],function(api){
 			// Needs to be non-blocking
 			var closer = api.close({});
 			closer.then(function(result){
@@ -138,7 +139,6 @@ define([
 			cookie("andes", null, { expires: -1 });
 			// should look for url from server that
 			// can overrride default.
-		    });
 		});
 		
 		// Splash animation

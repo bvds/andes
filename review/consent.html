@@ -4,13 +4,15 @@
 
 -->
 <script type="text/javascript">
-    consentResponse=function(reply){
-      console.log("Dialog button response: ",reply);
-      andes.api.recordAction({type:"set-preference", name: "informed-consent", 
+    require(["andes/api"],function(api){
+        consentResponse=function(reply){
+            console.log("Dialog button response: ",reply);
+            api.recordAction({type:"set-preference", name: "informed-consent", 
                           value: reply + ":default-consent-asu"});
-      dijit.byId("consentDialog").hide();
-    };
- </script>
+            dijit.byId("consentDialog").hide();
+        };
+    });
+</script>
 
 <h2 class="tall">Consent Form</h2>
 <h3 class="tall">Arizona State University</h3>

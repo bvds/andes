@@ -15,18 +15,6 @@ define([
 	var MAX_RETRIES = 5,
 	RETRY_TIMEOUT = 2000; // milliseconds
 	
-	// AOP-style function replacement that performs before-advice
-	// to add to the headers on all XHR requests. See dojox/rpc/Client.js
-	(function(){
-	   console.info("api set headers", andes.sessionId);
-		andes._originalXhr = dojo.xhr;
-		dojo.xhr = function(method,args){
-			var headers = args.headers = args.headers || {};
-			headers["Client-Id"] = andes.sessionId;
-			return andes._originalXhr.apply(dojo,arguments);
-		};
-	})();
-
 	function prepRequest(req){
 		// add common elements to our requests
 		var tm = ((new Date()).getTime() - (startTime || (new Date()).getTime()))/1000.0;
@@ -122,6 +110,19 @@ define([
 	}
 
 	return {
+
+	    // AOP-style function replacement that performs before-advice
+	    // to add to the headers on all XHR requests. See dojox/rpc/Client.js
+	    setHeaders: function(){
+		console.info("api set headers", andes.sessionId);
+		andes._originalXhr = dojo.xhr;
+		dojo.xhr = function(method,args){
+		    var headers = args.headers = args.headers || {};
+		    headers["Client-Id"] = andes.sessionId;
+			return andes._originalXhr.apply(dojo,arguments);
+		};
+	    },
+
 		open: function(params){
 			//console.info("andes.api.open", params);
 			var dfd = queueRequest("open-problem", params);
