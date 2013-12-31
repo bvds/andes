@@ -6,7 +6,7 @@ dojo.require("dijit.MenuSeparator");
 dojo.addOnLoad(function(){
 	
         // Add problem name to menu
-	dojo.byId("problemName").innerHTML = andes.projectId;
+	dojo.byId("problemName").innerHTML = window.andes.projectId;
 	
 	// shortcut for adding an onClick handler to a dijit
 	function wireItem(item, fn){
@@ -15,7 +15,7 @@ dojo.addOnLoad(function(){
 			// Wrapper function which adds logging to server
 			// when menu item is selected.
           		var extendfn = function(){
-				andes.api.recordAction({
+				window.andes.api.recordAction({
 					type: "menu-choice",
 					name: item
 				});
@@ -32,38 +32,38 @@ dojo.addOnLoad(function(){
 	// in calls to open-review-window-html.
 	var spec = {
 		"menuPrinciples":function(){
-			andes.principles.review('principles-tree.html','Principles');
+			window.andes.principles.review('principles-tree.html','Principles');
 		},
 
 		"menuQuantities":function(){
-			andes.principles.review('quantities.html','Quantities');
+			window.andes.principles.review('quantities.html','Quantities');
 		},
 		
 		"menuUnits":function(){
-			andes.principles.review('units.html','Units');
+			window.andes.principles.review('units.html','Units');
 		},
 		
 		"menuConstants":function(){
-			andes.principles.review('constants.html','Constants');
+			window.andes.principles.review('constants.html','Constants');
 		},
 		
 		"menuIntroText":function(){
-			andes.principles.review('introduction.html','IntroText');
+			window.andes.principles.review('introduction.html','IntroText');
 		},
 
 		"menuIntroVideo":function(){
 			// add 10px padding.
 			// should match call in drawing.js
-			andes.principles.review('vec1a-video.html','IntroVideo',null,"width=650,height=395");
+			window.andes.principles.review('vec1a-video.html','IntroVideo',null,"width=650,height=395");
 		},		
 		
 	        "menuIntroSlides":function(){
-			andes.principles.review('try11/andes.intro.try11_controller.swf',
+			window.andes.principles.review('try11/andes.intro.try11_controller.swf',
 						'IntroSlides',null,"width=640,height=385");
 		},
 		
 		"menuManual":function(){
-			andes.principles.review('manual.html','Manual');
+			window.andes.principles.review('manual.html','Manual');
 		},
 		
 		"menuOptions":function(){
@@ -77,7 +77,7 @@ dojo.addOnLoad(function(){
 	};
 	
 	// Setup contextMenu and children
-	andes.contextMenu = new dijit.Menu();
+	window.andes.contextMenu = new dijit.Menu();
 	var contextOptions = {};
 	for(var i in spec){
 		wireItem(i, spec[i]);
@@ -88,17 +88,17 @@ dojo.addOnLoad(function(){
 		var label = dijit.byId(desc).get("label");
 		// Hack I'll fix later
 		if(label=="Options" || label=="Introduction"){
-			andes.contextMenu.addChild(new dijit.MenuSeparator());
+			window.andes.contextMenu.addChild(new dijit.MenuSeparator());
 		};
 		contextOptions[label] = new dijit.MenuItem({
 			label:label,
 			onClick:fn
 		});
-		andes.contextMenu.addChild(contextOptions[label]);
+		window.andes.contextMenu.addChild(contextOptions[label]);
 	};
 	
 	// Set up option menu and right click menu
-	andes.options = new andes.options();
+	window.andes.options = new window.andes.options();
 	var _drawing = dijit.byId("drawing");
 	
 	// Setup the menu onScreen
@@ -110,9 +110,9 @@ dojo.addOnLoad(function(){
 			// console.log("On down evt: ", evt);
 			// Dynamically prepare menu depending on the target
 			// if it's a stencil, allow delete
-			andes.contextMenu.unBindDomNode(node);
+			window.andes.contextMenu.unBindDomNode(node);
 			node = evt.id=="canvasNode" ? dojo.byId("drawing") : dojo.byId(evt.id);
-			andes.contextMenu.bindDomNode(node);
+			window.andes.contextMenu.bindDomNode(node);
 		});
 		
 	});

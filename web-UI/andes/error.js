@@ -7,17 +7,17 @@ dojo.require("dijit.form.Button");
 
 	var dialog = null;
 
-	andes.errorLog = function(spec){
+	window.andes.errorLog = function(spec){
 		dojo.xhrPost({
 			url: "client_log.php",
 			content: {
-				"Client-Id": andes.sessionId,
+				"Client-Id": window.andes.sessionId,
 				tag: spec.title,
 				text: spec.message
 			}});
 	};				
 
-	andes.error = function(spec){
+	window.andes.error = function(spec){
 		var message = spec.message || "An unknown error occurred.",
 		    title = spec.title || "Error",
 		    dialogType = spec.dialogType || 0;
@@ -28,7 +28,7 @@ dojo.require("dijit.form.Button");
 		});
 		dialog.show();
 		if(!spec.noLog){
-			andes.errorLog({
+			window.andes.errorLog({
 				title: title,
 			        message: message
 			});
@@ -36,10 +36,10 @@ dojo.require("dijit.form.Button");
 	};
 		
 	// dialogType constants
-	andes.error.FATAL = 0;
-	andes.error.OK = 1;
+	window.andes.error.FATAL = 0;
+	window.andes.error.OK = 1;
 
-	dojo.declare("andes.error._Error", dijit.Dialog, {
+	dojo.declare("window.andes.error._Error", dijit.Dialog, {
 		postCreate: function(){
 			this.inherited(arguments);
 			var container = dojo.create("div", {className:"dijitDialogPaneContent", style:"border-top:none;"});
@@ -57,7 +57,7 @@ dojo.require("dijit.form.Button");
 		},
 
 		_onKey: function(evt){
-			if(this.dialogType == andes.error.FATAL){
+			if(this.dialogType == window.andes.error.FATAL){
 				if(evt.charOrCode == dojo.keys.ESC || evt.charOrCode == dojo.keys.TAB){
 					dojo.stopEvent(evt);
 				}
@@ -80,10 +80,10 @@ dojo.require("dijit.form.Button");
 
 		_chooseButtonPageNode: function(){
 			switch(this.dialogType){
-				case andes.error.FATAL:
+				case window.andes.error.FATAL:
 					return null; // fatal errors won't have any dialog buttons
 					break;
-				case andes.error.OK:
+				case window.andes.error.OK:
 				default:
 					return "andesButtonPageDefault";
 			}
@@ -92,7 +92,7 @@ dojo.require("dijit.form.Button");
 	});
 
 	dojo.addOnLoad(function(){
-		dialog = new andes.error._Error({
+		dialog = new window.andes.error._Error({
 			id: "andesErrorDialog",
 			title: "Error",
 			style: "width:400px"
@@ -101,12 +101,12 @@ dojo.require("dijit.form.Button");
                 // This clobbers any existing onerror handler.
 		// Perhaps one should use addHandler instead.
 		window.onerror = function(msg, url, line){
-			andes.errorLog({
+			window.andes.errorLog({
 				title:  "javascript-error",
 				message: url + ":" + line + " " + msg
 			});
 			console.log("Window error: ",msg," url: ",url, " line: ",line);
-		}
+		};
 	});
 
 })();

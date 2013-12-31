@@ -16,7 +16,7 @@ dojo.provide("andes.positioning");
 	var textYOffset = 20;  // height of text box
 	
 	//create the namespace
-	dojox.drawing.util.positioning = {}
+	dojox.drawing.util.positioning = {};
 	dojox.drawing.util.positioning.label = function(start, end){
 		// summary:
 		//		Returns the optimal text positions for annotations.Label.
@@ -65,6 +65,6 @@ dojo.provide("andes.positioning");
 	        y += end.x > start.x ? 0.5*textYOffset :  -0.5*textYOffset;
 		
 		return { x:x, y:y, align:align};
-	}
+	};
 	
 })();

@@ -8,7 +8,7 @@ dojo.provide("andes.messages");
 	//		mechanism.
 	
 	
-	andes.messages = {
+	window.andes.messages = {
 		// get message based on error type
 		server: function(){
 			return {
@@ -31,4 +31,4 @@ dojo.provide("andes.messages");
 				action:"Check your internet connection and try again. There also may be server problems that will be corrected in a few minutes."
 			};
 		}
-	}
+	};
