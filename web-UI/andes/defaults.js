@@ -1,10 +1,10 @@
 // Pre-AMD version had a function wrapper.
+// pre-AMD version had no requires
 define([
-   "andes/startup"
 ],function(){
 
     console.info("andes/defaults.js:  defining andes default object.");
-	var a = {
+	window.andes.defaults = {
 		// summary:
 		//	The style used for Andes3.
 		// description:
@@ -270,7 +270,7 @@ define([
 				if(obj.push){
 					o = [];
 					for(var i=0; i<obj.length;i++){
-					  o.push(cpy(obj[i]));
+						o.push(cpy(obj[i]));
 					}
 					return o;
 				}
@@ -280,7 +280,7 @@ define([
 						if(typeof(obj[nm])=="object"){
 							o[nm] = cpy(obj[nm]);
 						}else{
-						  o[nm] = obj[nm];
+							o[nm] = obj[nm];
 						}
 					}
 				}
@@ -296,11 +296,11 @@ define([
 	};
 	
 	// change Drawing defaults to andes defaults
+	var a = window.andes.defaults;
 	a.norm.fill = a.unknown.fill;
 	a.norm.color = a.unknown.color;
 	a.disabled.color = a.locked.color;
 	a.disabled.fill = a.locked.fill;
 	a.textDisabled.color = a.locked.fill;
 
-    return a;
 });

@@ -1,6 +1,6 @@
 // Pre-AMD version had a function wrapper.
+// pre-AMD version had no requires.
 define([
-    "andes/startup",
     "dojox/drawing/util/typeset",
     // Needed for stencil registration in dojox/drawing/Drawing.js
     "dojox/drawing/stencil/Image",
@@ -8,9 +8,9 @@ define([
     "dojox/drawing/tools/custom/Axes",
     "dojox/drawing/tools/custom/Vector",
     "dojox/drawing/tools/TextBlock"
-],function(andes,typeset){ 
+],function(typeset){ 
 
-	return {
+	window.andes.convert = {
 		// summary:
 		//	The conversion object used to transform objects
 		//	from and ande object to a drawing object and
@@ -48,7 +48,7 @@ define([
 				x:box.x2 + gap,
 				y:box.y1,
 				showEmpty:true}
-			       };
+			};
 		},
 		
 		andesToDrawing: function(o){
@@ -58,14 +58,14 @@ define([
 			//console.warn(" ---------------> andesToDrawing:", o.type,o.id)
 			// Group of objects:  call conversion recursively
 			if(o.items) {
-				var obj = {
+				var obj1 = {
 					id:o.id,
 					type:o.type,
 					itemType:o.items[0].type,
-					items:dojo.map(o.items,andes.convert.andesToDrawing, this),
+					items:dojo.map(o.items,window.andes.convert.andesToDrawing, this),
 					checked: o.checked || [] 
 				};
-				return obj;
+				return obj1;
 			}
 			if(o.x==undefined || o.y===undefined){
 				console.error("Imported Object '" + o.id + "' contains no X or Y coordinates.");
@@ -95,7 +95,7 @@ define([
 					ry:o.height/2
 				};
 			}else if(o.type=="radio"){
-				buttonWidth=andes.defaults.button.radioButtonRadius;
+				buttonWidth=window.andes.defaults.button.radioButtonRadius;
 				obj.buttonType=o.type;
 				obj.data={
 					cx:o.x + 0.5*buttonWidth,
@@ -106,7 +106,7 @@ define([
 				};
 				obj.value = o.value;
 			}else if(o.type=="checkbox"){
-				buttonWidth=andes.defaults.button.checkboxWidth;
+				buttonWidth=window.andes.defaults.button.checkboxWidth;
 				obj.buttonType=o.type;
 				obj.data.width = buttonWidth;
 				obj.data.height = buttonWidth;
@@ -146,7 +146,7 @@ define([
 						x:o.x+buttonWidth,
 						y:o.y,
 						// Convert HTML, just like for problem statements above.
-						text:dojox.drawing.util.typeset.convertHTML(o.text) || ""
+						text:typeset.convertHTML(o.text) || ""
 					},
 					enabled: false  // treat as mode=locked
 				};
@@ -191,7 +191,7 @@ define([
 				obj.data.text = o.text;
 			}else if(o.type=="axes"){
 				obj.label = o['x-label']+" and "+o['y-label'];
-				if(andes.defaults.zAxisEnabled){
+				if(window.andes.defaults.zAxisEnabled){
 					obj.label += " and "+o['z-label'];
 				}
 			}
@@ -226,13 +226,13 @@ define([
 				if(!item.group){
 					console.warn("drawingToAndes: invalid button object ",item);
 				}
-				var obj = {
+				var obj1 = {
 					id:item.group.id,
 					type:item.group.type,
 					action:action,
 					checked:item.group.checked
 				};
-				return obj;
+				return obj1;
 			};
 			
 			var box = round(item.getBounds(true));
@@ -258,18 +258,18 @@ define([
 				obj.text = item.getText() || "";
 				if(type == "statement"){
 					// need to add any 'symbol' derived from variablename.js
-					obj.symbol = andes.variablename.parse(obj.text);
+					obj.symbol = window.andes.variablename.parse(obj.text);
 				}
 			}else if(type != "axes"){
 				obj["x-statement"] = sbox.x;
 				obj["y-statement"] = sbox.y;
 				
 			}else if(type == "axes"){
-				var lbl = item.getLabel();
-				obj["x-label"] = lbl.x;
-				obj["y-label"] = lbl.y;
-				if(lbl.z) {
-					obj["z-label"] = lbl.z;
+				var lbl1 = item.getLabel();
+				obj["x-label"] = lbl1.x;
+				obj["y-label"] = lbl1.y;
+				if(lbl1.z) {
+					obj["z-label"] = lbl1.z;
 				}
 				obj.radius = Math.ceil(item.getRadius());
 				obj.angle = item.getAngle();
@@ -288,7 +288,7 @@ define([
 				if(txt){
 					// Variable and symbol mismatch.
 					// See Bug #1962.
-					if(lbl != andes.variablename.parse(txt)){
+					if(lbl != window.andes.variablename.parse(txt)){
 						console.warn("Symbol '" +lbl+"' does not match text '"+txt+"'.");
 					}
 					obj.text = txt;

@@ -1,7 +1,7 @@
 // Pre-AMD version had a function wrapper.
 define([
-"dojox/drawing/util/positioning"
-       ],function(positioning){
+    "dojox/drawing/util/positioning"
+],function(positioning){
 	
 	// summary:
 	//	Overwrites the default methods in Drawing used for

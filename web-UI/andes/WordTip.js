@@ -1,11 +1,10 @@
 define([
     'dojo/_base/declare',
-    'andes/startup',
     'dojo/on',
     "dojo/dom",
-    "andes/api",
     "dojo/domReady!"  // Needed to locate "conEdit"
-], function(declare,andes,on,dom,api){
+    // pre-AMD version had no requires
+], function(declare,on,dom){
     return declare(null,{
 
     // Summary:
@@ -40,7 +39,7 @@ define([
 	    console.log("andes.WordTip.textMonitor this=",this);
             var tx = dojo.trim(this.conEdit.innerHTML);//this.statement.cleanText(conEdit.innerHTML);
             tx = this.removeBreaks(tx);
-            var symbol = andes.variablename.parse(tx);
+            var symbol = window.andes.variablename.parse(tx);
 	    console.log("---Text for word-suggest----> ", tx,symbol);
 	    this.sendToServer(tx,symbol);
         };
@@ -50,7 +49,7 @@ define([
         var cn = on(document,"mouseup",this, function(evt){
             cn.remove();
             dijit.hideTooltip(this.conEdit);
-		    });
+        });
     },
     
     removeBreaks: function(txt){
@@ -63,7 +62,7 @@ define([
     sendToServer: function(text,symbol){
 	console.assert(this.theDrawing,"WordTip needs drawing initialized");
         var current;
-        var andesTypes = andes.convert.andesTypes;
+        var andesTypes = window.andes.convert.andesTypes;
 
         // The most recent stencil will either be the last selected or the last
         // tool.  Thus find out the id, if it matches the last selected that's
@@ -88,7 +87,7 @@ define([
         };
         // console.log("current: ",current);
 	if(current && this.hasTip[current]){
-	    api.suggestWord({type: current, text: text, symbol:symbol});
+	    window.andes.api.suggestWord({type: current, text: text, symbol:symbol});
 	}
     },
     

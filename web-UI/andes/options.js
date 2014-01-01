@@ -1,10 +1,9 @@
 define([
-    "andes/startup",
     "dojo/on",
     "dojo/_base/declare",
-    "andes/PreferenceRegistry",
+    // pre-AMD require:
     "dijit/ColorPalette"
-],function(andes,on,declare,preferenceRegistry){
+],function(on,declare){
 // pre-AMD version used myDrawing.defaults for defaults.
 
 return declare(null,{
@@ -53,15 +52,15 @@ return declare(null,{
         }
         
         // Register preferences
-        for(nm in this._prefs){
-            preferenceRegistry.registerPref(nm, this[this._prefs[nm]], this);
+        for(var nm2 in this._prefs){
+            window.andes.preferenceRegistry.registerPref(nm2, this[this._prefs[nm2]], this);
         }
-        
-        this.angleSnap.set('value', andes.defaults.angleSnap);
-        this.clickMode.set('label', andes.defaults.clickMode ? "enabled" : "disabled");
-        this.showTimer.set('label', andes.timer.display ? "enabled" : "disabled");
-        dojo.style(this.correct, "background", andes.defaults.correct.color);
-        dojo.style(this.incorrect, "background", andes.defaults.incorrect.color);
+
+        this.angleSnap.set('value', window.myDrawing.defaults.angleSnap);
+        this.clickMode.set('label', window.myDrawing.defaults.clickMode ? "enabled" : "disabled");
+        this.showTimer.set('label', window.andes.timer.display ? "enabled" : "disabled");
+        dojo.style(this.correct, "background", window.myDrawing.defaults.correct.color);
+        dojo.style(this.incorrect, "background", window.myDrawing.defaults.incorrect.color);
         
         var ops = this;
         this.picker = new dijit.ColorPalette({
@@ -110,7 +109,7 @@ return declare(null,{
     setShowTimer: function(val){
         this.timer = val;
         this.showTimer.set('label', val ? "enabled" : "disabled");
-        this._setChange("timer", val, andes.timer.displayTimer, andes.timer);
+        this._setChange("timer", val, window.andes.timer.displayTimer, window.andes.timer);
     },
     
     // TODO:
@@ -175,14 +174,12 @@ return declare(null,{
         if(!f){
             var o = {};
             o[name] = value;
-	    // changeDefaults defined in dojox/drawing
-	    console.log("at call to changeDefaults, defaults=",andes.defaults);
-            andes.defaults.changeDefaults(o, true);
+            window.myDrawing.changeDefaults(o, true);
         }else{
             f.call(s, value);
         }
-        preferenceRegistry.savePref(name, value);
+        window.andes.preferenceRegistry.savePref(name, value);
     }
-    //This should be instantiated in menu
+   //This should be instantiated in menu
 });
 });

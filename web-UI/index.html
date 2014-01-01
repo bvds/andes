@@ -98,14 +98,6 @@ require([
 ]);
 };
 
-      // Add defaults to drawing
-      require([
-          "andes/startup"
-      ],function(andes){
-          // Used to define "drawing" below.
-          andesDefaults=andes.defaults;
-      });
-
 </script>
 </head>
 <body class="tundra">
@@ -147,7 +139,7 @@ require([
 	    <div data-dojo-type="dojox.drawing.ui.Toolbar" id="gfxToolbarNode" drawingId="drawing" class="gfxToolbar" orient="V" tools="line,rect,ellipse,textBlock,equation,vector,axes" plugs="all" selected=""></div>
 	</div>
 	<div id="drawingPane" data-dojo-type="dijit.layout.ContentPane" region="center" >
-	    <div data-dojo-type="dojox.drawing.Drawing" id="drawing" data-dojo-id="myDrawing" class="drawing" defaults="andesDefaults">
+	    <div data-dojo-type="dojox.drawing.Drawing" id="drawing" data-dojo-id="myDrawing" class="drawing" defaults="andes.defaults">
 	    </div>
 	</div>
 		

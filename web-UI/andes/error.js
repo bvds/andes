@@ -1,25 +1,25 @@
 // Pre-AMD version had provides for "andes.error" and "andes.error._Error"
 // Pre-AMD version had a function wrapper.
 define([
-    "andes/startup",
     "dojo/ready",
     "dojo/_base/declare",
-	"dijit/Dialog",
-	"dijit/form/Button"
-], function(andes,ready,declare,dialog){
+    // pre-AMD requires:
+    "dijit/Dialog",
+    "dijit/form/Button"
+], function(ready,declare,dialog){
 
 
-	andes.errorLog = function(spec){
+	window.andes.errorLog = function(spec){
 		dojo.xhrPost({
 			url: "client_log.php",
 			content: {
-				"Client-Id": andes.sessionId,
+				"Client-Id": window.andes.sessionId,
 				tag: spec.title,
 				text: spec.message
 			}});
 	};				
 
-	andes.error = function(spec){
+	window.andes.error = function(spec){
 		var message = spec.message || "An unknown error occurred.",
 		    title = spec.title || "Error",
 		    dialogType = spec.dialogType || 0;
@@ -30,7 +30,7 @@ define([
 		});
 		dialog.show();
 		if(!spec.noLog){
-			andes.errorLog({
+			window.andes.errorLog({
 				title: title,
 			        message: message
 			});
@@ -38,8 +38,8 @@ define([
 	};
 		
 	// dialogType constants
-	andes.error.FATAL = 0;
-	andes.error.OK = 1;
+	window.andes.error.FATAL = 0;
+	window.andes.error.OK = 1;
 
        // In pre-AMD version, nothing outside this file uses _Error.
 	var _Error = declare(dialog, {
@@ -60,7 +60,7 @@ define([
 		},
 
 		_onKey: function(evt){
-			if(this.dialogType == andes.error.FATAL){
+			if(this.dialogType == window.andes.error.FATAL){
 				if(evt.charOrCode == dojo.keys.ESC || evt.charOrCode == dojo.keys.TAB){
 					dojo.stopEvent(evt);
 				}
@@ -83,10 +83,10 @@ define([
 
 		_chooseButtonPageNode: function(){
 			switch(this.dialogType){
-				case andes.error.FATAL:
+				case window.andes.error.FATAL:
 					return null; // fatal errors won't have any dialog buttons
 					break;
-				case andes.error.OK:
+				case window.andes.error.OK:
 				default:
 					return "andesButtonPageDefault";
 			}
@@ -94,7 +94,7 @@ define([
 		}
 	});
 
-    if(false){
+    if(true){
 	ready(function(){
 		console.info("andes/error.js:  start logging errors");
 		dialog = new _Error({
@@ -105,13 +105,13 @@ define([
 
                 // This clobbers any existing onerror handler.
 		window.onerror = function(msg, url, line){
-			andes.errorLog({
+			window.andes.errorLog({
 				title:  "javascript-error",
 				message: url + ":" + line + " " + msg
 			});
 		    console.log("Window error: ",msg,"; url: ",url, "; line: ",line,".");
-		    // Returning 'false' triggers the execution of the built-in error handler.
-		    return !dojoConfig.isDebug;
+		    // Row later:  Returning 'false' triggers the execution of the built-in error handler.
+		    // return !dojoConfig.isDebug;
 		};
 	});
     };

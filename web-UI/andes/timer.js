@@ -27,10 +27,10 @@ define([
         var disp;
         if(t){
             disp = "block";
-            this.interval = setInterval(dojo.hitch(this, function(){ this.updateTime(); }), 500);
+            this.interval = window.setInterval(dojo.hitch(this, function(){ this.updateTime(); }), 500);
         }else{
             disp = "none";
-            if(this.interval) clearInterval(this.interval);
+            if(this.interval) window.clearInterval(this.interval);
         }
         dojo.style(this.node, {"display": disp });
     },

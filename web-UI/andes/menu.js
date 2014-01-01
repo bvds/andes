@@ -1,20 +1,21 @@
+/*global define*/
 define([
-	"dojo/dom",
+    "dojo/dom",
     "dijit/registry",
-        "andes/startup",
-    "andes/api",
     "dojo/ready",
     "dojo/on",
-	"andes/options",
-	"dijit/Menu",
+    "dojo/aspect",
+    // pre-AMD requires:
+    "andes/options",
+    "dijit/Menu",
     "dijit/MenuSeparator"
-],function(dom,registry,andes,api,ready,on,options){  
+],function(dom,registry,ready,on,aspect,options){  
 	// In the pre-AMD version, the body was wrapped
         // in "dojo.addOnLoad(function(){ ... })
     ready(function(){
 	    console.info("andes/menu.js: wire up menus");
         // Add problem name to menu
-	dom.byId("problemName").innerHTML = andes.projectId;
+	dom.byId("problemName").innerHTML = window.andes.projectId;
 	
 	// shortcut for adding an onClick handler to a dijit
 	function wireItem(item, fn){
@@ -23,7 +24,7 @@ define([
 			// Wrapper function which adds logging to server
 			// when menu item is selected.
           		var extendfn = function(){
-				api.recordAction({
+				window.andes.api.recordAction({
 					type: "menu-choice",
 					name: item
 				});
@@ -40,38 +41,38 @@ define([
 	// in calls to open-review-window-html.
 	var spec = {
 		"menuPrinciples":function(){
-			andes.principles.review('principles-tree.html','Principles');
+			window.andes.principles.review('principles-tree.html','Principles');
 		},
 
 		"menuQuantities":function(){
-			andes.principles.review('quantities.html','Quantities');
+			window.andes.principles.review('quantities.html','Quantities');
 		},
 		
 		"menuUnits":function(){
-			andes.principles.review('units.html','Units');
+			window.andes.principles.review('units.html','Units');
 		},
 		
 		"menuConstants":function(){
-			andes.principles.review('constants.html','Constants');
+			window.andes.principles.review('constants.html','Constants');
 		},
 		
 		"menuIntroText":function(){
-			andes.principles.review('introduction.html','IntroText');
+			window.andes.principles.review('introduction.html','IntroText');
 		},
 
 		"menuIntroVideo":function(){
 			// add 10px padding.
 			// should match call in drawing.js
-			andes.principles.review('vec1a-video.html','IntroVideo',null,"width=650,height=395");
+			window.andes.principles.review('vec1a-video.html','IntroVideo',null,"width=650,height=395");
 		},		
 		
 	        "menuIntroSlides":function(){
-			andes.principles.review('try11/andes.intro.try11_controller.swf',
+			window.andes.principles.review('try11/andes.intro.try11_controller.swf',
 						'IntroSlides',null,"width=640,height=385");
 		},
 		
 		"menuManual":function(){
-			andes.principles.review('manual.html','Manual');
+			window.andes.principles.review('manual.html','Manual');
 		},
 		
 		"menuOptions":function(){
@@ -85,7 +86,7 @@ define([
 	};
 	
 	// Setup contextMenu and children
-	andes.contextMenu = new dijit.Menu();
+	window.andes.contextMenu = new dijit.Menu();
 	var contextOptions = {};
 	for(var i in spec){
 		wireItem(i, spec[i]);
@@ -96,31 +97,33 @@ define([
 		var label = registry.byId(desc).get("label");
 		// Hack I'll fix later
 		if(label=="Options" || label=="Introduction"){
-			andes.contextMenu.addChild(new dijit.MenuSeparator());
+			window.andes.contextMenu.addChild(new dijit.MenuSeparator());
 		};
 		contextOptions[label] = new dijit.MenuItem({
 			label:label,
 			onClick:fn
 		});
-		andes.contextMenu.addChild(contextOptions[label]);
+		window.andes.contextMenu.addChild(contextOptions[label]);
 	};
 	
 	// Set up option menu and right click menu
-	andes.options = new options();
-	var _drawing = dom.byId("drawing");
+	window.andes.options = new options();
 	
+       console.assert(window._drawing,"global _drawing not defined yet.");
+
 	// Setup the menu onScreen
-	var cn = on(_drawing, "onSurfaceReady", function(){
+	console.log("menu.js: about to connect to onSurfaceReady");
+	var cn = aspect.after(window._drawing, "onSurfaceReady", function(){
 		cn.remove();
 		
 		var node = null;
-		on(_drawing.mouse, "onDown", function(evt){
+		aspect.after(window._drawing.mouse, "onDown", function(evt){
 			// console.log("On down evt: ", evt);
 			// Dynamically prepare menu depending on the target
 			// if it's a stencil, allow delete
-			andes.contextMenu.unBindDomNode(node);
+			window.andes.contextMenu.unBindDomNode(node);
 			node = evt.id=="canvasNode" ? dojo.byId("drawing") : dojo.byId(evt.id);
-			andes.contextMenu.bindDomNode(node);
+			window.andes.contextMenu.bindDomNode(node);
 		});
 		
 	});

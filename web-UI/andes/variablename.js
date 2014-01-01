@@ -1,8 +1,8 @@
-define(["andes/startup"], function(andes){
+define([], function(){
 
     // It would be better that this module returns an object called "variablename."
     // This is just to get things working with minimal changes to the pre-AMD version.
-    andes.variablename={};
+    window.andes.variablename={};
 
 // pick out variable name from definition string
 // The forms that are matched:
@@ -28,7 +28,7 @@ define(["andes/startup"], function(andes){
 //    "H(green house) is the height of the house on Green St."
 //    "A_{t=0} is the initial area"
 
-andes.variablename.parse = function(intext){
+window.andes.variablename.parse = function(intext){
 	if(intext){
 		// canonicalize whitespace
 		var cantext = intext.replace(/\s+/g," ");

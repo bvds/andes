@@ -1,11 +1,9 @@
 define([
-    "andes/startup",
-    "andes/api"
-],function(andes,api){
+],function(){
 
     var self = this;
     // From pre-AMD version.  Not sure why this form was used?
-    // var andes = window.opener.andes;
+    var andes = window.opener.andes;
     this.onfocus = function(){
         //console.log("Window focus, title: ",self.name);
         andes.drawing.onWindowFocus.call(self);
@@ -23,6 +21,6 @@ define([
     this.onunload = function(){
         //console.log("Window unload, title: ",self.name);
         andes.drawing.onWindowBlur.call(self);
-        //api.recordAction({type:"window", name: "IntroVideo", value: "blur"});
+        // andes.api.recordAction({type:"window", name: "IntroVideo", value: "blur"});
     };
 });

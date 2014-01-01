@@ -1,8 +1,7 @@
 // Pre-AMD version had a function wrapper.
+// pre-AMD version had no requires.
 define([
-   "andes/startup",
-    "andes/api"
-],function(andes,api){
+],function(){
 
     // Summary:
     //      User preferences that can be saved are registered here.
@@ -10,10 +9,10 @@ define([
     //      via the api, while the opposite direction allows the
     //      server to update values that register here.
     //      Example api:
-    //          api.recordAction({type:"set-preference", name: "display-timer", value: true});
-    _prefs = {};
+    //          andes.api.recordAction({type:"set-preference", name: "display-timer", value: true});
+    var _prefs = {};
 
-    return {
+    window.andes.preferenceRegistry = {
         // Prefs are name value pairs with scope so that the server
         // can update them.
         registerPref: function(/*String*/pref, /*function*/setter, scope){
@@ -31,7 +30,7 @@ define([
             }else{
                 if(_prefs[pref].value != value){
                     // This is user changed
-                    api.recordAction({type:"set-preference", name:pref, value:value });
+                    window.andes.api.recordAction({type:"set-preference", name:pref, value:value });
                 }
                 return true;
             }

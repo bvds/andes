@@ -4,14 +4,12 @@
 
 -->
 <script type="text/javascript">
-    require(["andes/api"],function(api){
-        consentResponse=function(reply){
-            console.log("Dialog button response: ",reply);
-            api.recordAction({type:"set-preference", name: "informed-consent", 
-                          value: reply + ":default-consent-asu"});
-            dijit.byId("consentDialog").hide();
-        };
-    });
+    consentResponse=function(reply){
+        console.log("Dialog button response: ",reply);
+        window.andes.api.recordAction({type:"set-preference", name: "informed-consent", 
+                      value: reply + ":default-consent-asu"});
+        dijit.byId("consentDialog").hide();
+    };
 </script>
 
 <h2 class="tall">Consent Form</h2>

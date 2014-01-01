@@ -8,7 +8,7 @@ define([], function(){
 	//		mechanism.
 	
 	
-	return {
+	window.andes.messages = {
 		// get message based on error type
 		server: function(){
 			return {

@@ -1,84 +1,17 @@
 define([
-    "andes/startup",
-    "andes/api",
     "dojo/on",
     "dojox/drawing/util/typeset",
     "dojo/ready",
-	"andes/api"
-],function(andes,api,on,typeset,ready){ // Pre-AMD version had a function wrapper.
+    // pre-AMD require:
+    "andes/api"
+],function(on,typeset,ready){ // Pre-AMD version had a function wrapper.
 
-    var help={
-
-	echo: function(value){
-		// summary:
-		//	Echo any input text in the Tutor pane.
-		//
-		if(value == '!'){
-			value = "Ha! A rotten easter egg!";
-		}
-		if(value.length>0){
-		        var hlp = dijit.byId("helpContentPane");
-			var c = hlp.get("content");
-			// note:
-	                //	setting to the node and not with attr
-	                // 	because ContentPane is throwing errors that way
-      			hlp.containerNode.innerHTML = c + "\n<p><span class=\"comment\">" + value + "</span></p>";
-			hlp.domNode.scrollTop = hlp.domNode.scrollHeight;
-		}
-	},
-	
-	processStep: function(result){
-		// summary:
-		// look for any help coming back from the server (such as in
-		// the results from api.step()
-		handleHelp(result);
-	},
-	
-	explain: function(s){
-		api.help({action:"get-help", value:s}).addCallback(handleHelp);
-	},
-	
-   	principles: function(s){
-		api.help({action:"principles-menu", value:s}).addCallback(handleHelp);
-	},
-	
-	link: function(href){
-		// summary:
-		//	Calls api after a link in Tutor pane has been clicked.
-		dojo.xhrGet({
-			url: href,
-			handleAs: "text",
-			load: function(result){
-				// FIXME: This is untested. Should we stuff the content directly into the pane like this?
-				dijit.byId("helpContentPane").attr("content", result);
-			}
-		});
-	},
-	
-	score: function(value){
-		// summary:
-		// updates score
-		return dijit.byId("helpPane").score(value);
-	},
-
-	link: function(name,value){
-		var s={type: "tutor-link",name: name};
-		if(value){
-			s.value=value; // value is optional
-		}
-		api.recordAction(s);
-	}
-    };
-
-    // handleHelp creates reference to a global variable
-    window.andesHelp = help;
-	
 	function handleHelp(result){
 		// summary:
 		//	Handles text returned from server
 		//
 		if(!dijit.byId("helpPane")){
-			setTimeout(function(){
+			window.setTimeout(function(){
 				handleHelp(result);
 			}, 500);
 			return;
@@ -97,7 +30,7 @@ define([
 				dijit.byId("helpPane").open();
 				var fn = r.href ? "link" : "explain",
 				val = r.href || r.value;
-				hlp.containerNode.innerHTML = c + "\n<p><a href=\"#\" onclick=\"andesHelp." + fn + "('" + val + "'); return false\">" + r.text + "</a></p>";
+				hlp.containerNode.innerHTML = c + "\n<p><a href=\"#\" onclick=\"andes.help." + fn + "('" + val + "'); return false\">" + r.text + "</a></p>";
 				break;
 			    case "show-hint":
 				dijit.byId("helpPane").open();
@@ -110,7 +43,7 @@ define([
 		  		// Escape any html codes on input text echo.
                		        // Should use future function dojo.string.escape
                                 // See http://trac.dojotoolkit.org/ticket/8995
-				help.echo(r.text.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
+				window.andes.help.echo(r.text.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
 				break;
 			    case "focus-hint-text-box":
 				dijit.byId("helpPane").open();
@@ -142,11 +75,73 @@ define([
 			// Escape any html codes on input text echo.
 		        // Should use future function dojo.string.escape
                         // See http://trac.dojotoolkit.org/ticket/8995
-			help.echo(q.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
+			window.andes.help.echo(q.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
 			dijit.byId("helpInput").set("value", "");
-			api.help(h).addCallback(handleHelp);
+			window.andes.api.help(h).addCallback(handleHelp);
 		});
-	});
+	});	
 
-        return help;
+	// AMD conversion addition:
+	window.andes.help={};
+
+	window.andes.help.echo = function(value){
+		// summary:
+		//	Echo any input text in the Tutor pane.
+		//
+		if(value == '!'){
+			value = "Ha! A rotten easter egg!";
+		}
+		if(value.length>0){
+		        var hlp = dijit.byId("helpContentPane");
+			var c = hlp.get("content");
+			// note:
+	                //	setting to the node and not with attr
+	                // 	because ContentPane is throwing errors that way
+      			hlp.containerNode.innerHTML = c + "\n<p><span class=\"comment\">" + value + "</span></p>";
+			hlp.domNode.scrollTop = hlp.domNode.scrollHeight;
+		}
+	};
+	
+	window.andes.help.processStep = function(result){
+		// summary:
+		// look for any help coming back from the server (such as in
+		// the results from andes.api.step()
+		handleHelp(result);
+	};
+	
+	window.andes.help.explain = function(s){
+		window.andes.api.help({action:"get-help", value:s}).addCallback(handleHelp);
+	};
+	
+   	window.andes.help.principles = function(s){
+		window.andes.api.help({action:"principles-menu", value:s}).addCallback(handleHelp);
+	};
+	
+	window.andes.help.link = function(href){
+		// summary:
+		//	Calls api after a link in Tutor pane has been clicked.
+		dojo.xhrGet({
+			url: href,
+			handleAs: "text",
+			load: function(result){
+				// FIXME: This is untested. Should we stuff the content directly into the pane like this?
+				dijit.byId("helpContentPane").attr("content", result);
+			}
+		});
+	};
+	
+	window.andes.help.score = function(value){
+		// summary:
+		// updates score
+		return dijit.byId("helpPane").score(value);
+	};
+
+	window.andes.help.link = function(name,value){
+		var s={type: "tutor-link",name: name};
+		if(value){
+			s.value=value; // value is optional
+		}
+		window.andes.api.recordAction(s);
+	};
+
 });

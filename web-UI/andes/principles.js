@@ -1,11 +1,10 @@
 define([
     "dojo/on",
     "dojo/ready",
-    "andes/startup",
-    "andes/help", 
+    // pre-AMD requires:
     "dijit/Tree",
     "dojo/data/ItemFileReadStore"
-],function(on,ready,andes,help){
+],function(on,ready){
     
 // See review/principles-tree.html
   ready(function(){  // wait until dom is loaded
@@ -24,7 +23,7 @@ define([
 
 // The principles and other review pages can be opened either 
 // via the menus or via the help system (links in the Tutor pane).
-andes.principles={
+window.andes.principles={
 	reviewp: [],	
 	review: function(file,title,section,dimensionString){
 		if(!this.reviewp[file] || this.reviewp[file].closed){
@@ -44,18 +43,18 @@ andes.principles={
 				if(dojo.isIE){
 					// console.log("==========================>>>We've got IE here");
 					var body, win = this.reviewp[file];
-					function childLoaded(){
-						body = win.document.getElementsByTagName("body");
+					var childLoaded = function (){
+						body = window.document.getElementsByTagName("body");
 						if(body[0]==null){
 							// Not loaded yet, try again
-							setTimeout(childLoaded, 20);
+							window.setTimeout(childLoaded, 20);
 						}else{
 							var n = win.document.createElement("script");
 							n.src = "../web-UI/andes/recordIE.js";
 							body[0].appendChild(n);
 							// console.log("Completed operation inserting: ",n);
 						}
-					}
+					};
 					childLoaded();
 				} else {
 					if(section){
@@ -66,8 +65,8 @@ andes.principles={
 							obj.scrollIntoView();
 						};
 					}
-					on(this.reviewp[file], "onblur", drawing.onWindowBlur);
-					on(this.reviewp[file], "onfocus", drawing.onWindowFocus);
+					on(this.reviewp[file], "onblur", window.andes.drawing.onWindowBlur);
+					on(this.reviewp[file], "onfocus", window.andes.drawing.onWindowFocus);
 				}
 					
 			}else if(title=="Principles"){
@@ -114,8 +113,8 @@ ready(function() {
 			var psm=principlesStore.getValue(item,"psm");
 			// if student clicks on a group, there is no psm.
 			if(psm){
-				help.echo(principlesStore.getValue(item,"label"));
-				help.principles(psm);
+				window.andes.help.echo(principlesStore.getValue(item,"label"));
+				window.andes.help.principles(psm);
 				dijit.byId("majorPrinciples").hide();
 			}
 		}
@@ -128,8 +127,8 @@ ready(function() {
 			var psm=principlesStore.getValue(item,"psm");
 			// if student clicks on a group, there is no psm.
 			if(psm){
-			        help.echo(principlesStore.getValue(item,"label"));
-				help.principles(psm);
+			        window.andes.help.echo(principlesStore.getValue(item,"label"));
+				window.andes.help.principles(psm);
 				// This is a bit ugly, but close both possible windows:
 				dijit.byId("allPrinciples").hide();
 			}

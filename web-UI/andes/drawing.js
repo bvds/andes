@@ -1,25 +1,23 @@
 /* global define */
 // Pre-AMD version had a function wrapper.
 define([
-    "dojo/_base/declare",
-    "dojo/Evented",
     "dojo/cookie",
-    "andes/startup",
     "dojo/on",
     "dijit/registry",
-    "andes/PreferenceRegistry",
-    "andes/convert",
-    "andes/api",
-    "andes/help",
+    "dojo/ready",
+    "dojo/aspect",
     "dojox/drawing/util/common",
     "dojox/drawing/manager/_registry",
     "dojox/drawing/tools/custom/Axes",
     "dojox/drawing/tools/custom/Vector",
     "dojox/drawing/tools/TextBlock"
-],function(declare,Evented,cookie,andes,on,registry,preferenceRegistry,convert,api,help,common,managerRegistry){
+    // pre-AMD version had no reqire statements.
+],function(cookie,on,registry,ready,aspect,common,managerRegistry){
 	
 	cookie("mikeDev", null, { expires: -1 });
 	
+	// the html ID in index for the drawing app
+	var drawingId = "drawing";
 	var _surfaceLoaded = false;
 	
 	
@@ -75,7 +73,48 @@ define([
 	var items = {};
 	var masterMap = {};
 	
-    return {
+    ready(function(){
+        console.log("andes/tracking.js: connect to \"drawing,\" wire up logging.");
+	window._drawing = registry.byId(drawingId);
+	console.log("got drawing widget:  ",window._drawing);
+	// This was dojo.connect in pre-AMD version
+		var cn = aspect.after(window._drawing, "onSurfaceReady", function(){
+		        cn.remove();
+			window.andes.WordTip.add(window._drawing);
+		    // This was in the pre-AMD version
+		    // This seems to lead to a recursion?
+		    console.log("tracking.js:  about to call onSurfaceReady from ",window.andes.drawing);
+		    window.andes.drawing.onSurfaceReady();
+			if(window._drawing.stencils){
+				console.warn("Label double click connected");
+				aspect.after(window._drawing.stencils, "onLabelDoubleClick", window.andes.drawing, "onLabelDoubleClick");
+			}
+		});
+		// This was dojo.connect in pre-AMD version
+		aspect.after(window._drawing, "onRenderStencil", window.andes.drawing, "onRenderStencil");
+		
+		// Track user's focus on Andes.  So far only whether they are using the window/tab
+		// or have left to use another program
+		if(dojo.isIE){
+			on(dojo.global, "onfocus", window.andes.drawing, "onWindowFocus");
+			// on(dojo.global, "onfocusin", drawing, "onWindowFocus");
+			on(dojo.doc, "onfocusout", this, function() {
+				if (this._activeElement != document.activeElement){
+					this._activeElement = document.activeElement;
+				}else{
+					window.andes.drawing.onWindowBlur();
+				}
+			});
+		}else if(dojo.isSafari){
+			on(window, "onblur", window.andes.drawing, "onWindowBlur");
+			on(window, "onfocus", window.andes.drawing, "onWindowFocus");
+		}else{
+			on(dojo.doc, "onblur", window.andes.drawing, "onWindowBlur");
+			on(dojo.doc, "onfocus", window.andes.drawing, "onWindowFocus");
+		}
+    });
+
+	window.andes.drawing = {
 		// summary:
 		//	The master object that controls behavior of Drawing items
 		//	and handles transfer of data between server and client
@@ -101,7 +140,6 @@ define([
 			//	Called on drag-create. This method should call add()
 			//	then save info to the server.
 			//
-		    var _drawing = registry.byId(this.name);
 			if(items[item.id]){
 				console.warn("BLOCKED on render: ", item.id);
 				return;
@@ -113,11 +151,11 @@ define([
 				if(hasLabel[item.type]){
 					// axes
 					// default labels for an axes
-					props.data.text = andes.defaults.zAxisEnabled?
+					props.data.text = window.andes.defaults.zAxisEnabled?
 						"x and y and z":"x and y";
 				}
 				// create statement for vector, rect, ellipse, or axes
-				var statement = _drawing.addStencil("textBlock", props);
+				var statement = window._drawing.addStencil("textBlock", props);
 				if(hasLabel[item.type]){
 					// axes
 					var s = statement;
@@ -126,24 +164,24 @@ define([
 						item.setLabel(value);
 						console.log("-------> onChangeText calling setLabel for ", item.id,": ",value);
 						this.add(item, true);
-						_drawing.removeStencil(s);
+						window._drawing.removeStencil(s);
 					});
 					
 
 				}else if(hasStatement[item.type]){
 					// vector, rect, ellipse
-					var c = new andes.Combo({master:item, statement:statement, onCreate: dojo.hitch(this, function(){
+					var c = new window.andes.Combo({master:item, statement:statement, onCreate: dojo.hitch(this, function(){
 						this.add(c, true);
 					})});
 					
 				}
 			}else{
 				// statement or equation
-				if(item.isText && andes.defaults.text.deleteEmptyCreate && !item.getText()){
+				if(item.isText && window.andes.defaults.text.deleteEmptyCreate && !item.getText()){
 					// no text. will be deleted.
 					return;
 				}
-			  console.log("ADD EQU OR STT>>>", item.customType);
+				console.log("ADD EQU OR STT>>>", item.customType);
 				this.add(item, true);
 			}
 		},
@@ -167,7 +205,7 @@ define([
 						}
 					}else if(item.buttonType == "radio"){
 						item.group.checked=[item.value];
-					  var myId=item.id;
+						var myId=item.id;
 						dojo.forEach(item.buttons,function(button){
 							if(button.id == myId){
 								if(!button.selected){button.select();}
@@ -181,11 +219,10 @@ define([
 					// Checkboxes only make local modifications
 					if(item.buttonType != "checkbox"){
 						// Send result to server
-						var data = andes.convert.drawingToAndes(group, "modify-object");
+						var data = window.andes.convert.drawingToAndes(group, "modify-object");
 						// BvdS:  Why doesn't this.save() work?
-						// andes.drawing.save(data);
 					    console.log("save drawing data, this=",this);
-					    this.save(data);
+						window.andes.drawing.save(data);
 					}
 				});
 			});
@@ -201,7 +238,7 @@ define([
 			//  if so increment the id and the count in dojox util.
 			var i = 0;
 			while(items[item.id]){
-				dojox.drawing.util.common.uid(item.type);
+				common.uid(item.type);
 				item.id = item.type + i++;
 			}
 			items[item.id] = item;
@@ -228,16 +265,16 @@ define([
 				console.log("----------------> onChangeData andes.drawing", item.id, item.type);
 				// Until we know server diagnosis, set to unknown.
 				item.mod = true; // disable save to server, else we get a recursive call
-				item.attr(andes.defaults["unknown"]);
+				item.attr(window.andes.defaults["unknown"]);
 				item.mod = false; // restore save to sever
-				       var data = andes.convert.drawingToAndes(item, "modify-object");
+				var data = window.andes.convert.drawingToAndes(item, "modify-object");
 				console.info("Save mod to server", data);
 				this.save(data);
 			});
 			
 			if(saveToServer){
 				// we need to save it to the server
-			  var data = andes.convert.drawingToAndes(item, "new-object");
+				var data = window.andes.convert.drawingToAndes(item, "new-object");
 				console.info("Save new to server:", data);
 				this.save(data);
 			}
@@ -261,8 +298,6 @@ define([
 			//
 			console.log("handleServerActions starting", data.length);
 			
-		    var _drawing = registry.byId(this.name);
-
 			// check for highest numerical ID
 			// start from there
 			var getNum = function(m){
@@ -295,7 +330,7 @@ define([
 				}*/
 				
 				if(obj.action =="new-object"){
-					var o = convert.andesToDrawing(obj);
+					var o = window.andes.convert.andesToDrawing(obj);
 					
 					var t = o.stencilType;
 					// o.stencilType includes:  text, image, line, rect, ellipse, vector
@@ -304,17 +339,17 @@ define([
 						
 						// prevent adding items via onRenderStencil
 						// by adding the ids first:
-						var statement = _drawing.addStencil("textBlock", o.statement);
-						var master = _drawing.addStencil(o.stencilType, o.master);
+						var statement = window._drawing.addStencil("textBlock", o.statement);
+						var master = window._drawing.addStencil(o.stencilType, o.master);
 						items[statement.id] = statement; //statement;
 						items[master.id] = master; //master;
-						var combo = new andes.Combo({master:master, statement:statement, id:o.id});
+						var combo = new window.andes.Combo({master:master, statement:statement, id:o.id});
 						this.add(combo);
 						
 					}else if(o.type=="button" && o.items){ // button groups don't have stencilType
 						var butt = dojo.map(o.items,function(item){
-							var statement = _drawing.addStencil("text", item.statement);
-							var master = _drawing.addUI(item.stencilType, item);
+							var statement = window._drawing.addStencil("text", item.statement);
+							var master = window._drawing.addUI(item.stencilType, item);
 							master.group=o;
 							items[statement.id] = statement; //statement;
 							items[master.id] = master; //master;
@@ -325,12 +360,12 @@ define([
 						var buttOnly = dojo.map(butt,function(x){return x.master;});
 						dojo.forEach(butt,function(x){x.master.buttons=buttOnly;});
 						
-						var buttonCombo=new andes.buttonCombo(butt,o.id);
+						var buttonCombo=new window.andes.buttonCombo(butt,o.id);
 						buttonCombo.group=o;
 						this.addGroup(buttonCombo);
 					}else{
 						// including:  textBlock, axes ...
-						var item = _drawing.addStencil(o.stencilType, o);
+						var item = window._drawing.addStencil(o.stencilType, o);
 						var ID = item.id;
 						ID = ID.indexOf("TextBlock");
 						if(item.stencilType=='textBlock' && ID!=-1) item.util.uid(item.type);
@@ -340,7 +375,7 @@ define([
 
 					// Add any color
 					if(obj.mode){
-						items[o.id].attr(andes.defaults[obj.mode]);
+						items[o.id].attr(window.andes.defaults[obj.mode]);
 					}					
 
 				}else if(obj.action=="modify-object"){
@@ -359,24 +394,24 @@ define([
 					}
 					
 				}else if(obj.action=="set-score"){
-					help.score(obj.score);
+					window.andes.help.score(obj.score);
 					
 				}else if(obj.action=="new-user-dialog" && obj.text){
-					andes.error({
+					window.andes.error({
 						title: "Welcome to Andes!",
 						message: obj.text,
-						dialogType: andes.error.OK,
+						dialogType: window.andes.error.OK,
 						noLog: true
 					});
 					// Add event to Error box default OK button.
 					// This opens the general introduction.
 					// It should be disconnected when the
 					// dialog box is closed!  See bug #1628
-					on(dojo.byId("andesButtonPageDefault"), 
+					on(registry.byId("andesButtonPageDefault"), 
 						     "click", 
 						     function(){
 							     // add 10 px padding
-							     andes.principles.review('vec1a-video.html','IntroVideo',null,"width=650,height=395");
+							     window.andes.principles.review('vec1a-video.html','IntroVideo',null,"width=650,height=395");
 						     });
 					
 				}else if(obj.action=="new-user-dialog" && obj.url){
@@ -395,7 +430,7 @@ define([
 				}else if(obj.action=="set-preference"){
 					// Try to set in the preferenceRegistry.  All
 					// values that can be saved should be available there
-					preferenceRegistry.setPref(obj["name"],obj["value"]);
+					window.andes.preferenceRegistry.setPref(obj["name"],obj["value"]);
 					
 				}else if(obj.action=="log"){
 					// Log actions are ignored by client.
@@ -416,7 +451,7 @@ define([
 				if(items[obj.id]){
 					items[obj.id].mod = true;  // don't echo back to server
 				        // style
-					items[obj.id].attr(andes.defaults[obj.mode]);
+					items[obj.id].attr(window.andes.defaults[obj.mode]);
 					// x, y
 					if(obj.x!==undefined){
 						items[obj.id].attr({
@@ -493,38 +528,37 @@ define([
 			// summary:
 			//	Save an object to the server.
 			
-			var dfd = api.step(data);
+			var dfd = window.andes.api.step(data);
 			dfd.addCallback(this, function(data){
-				setTimeout(dojo.hitch(this, function(){
+				window.setTimeout(dojo.hitch(this, function(){
 					this.handleServerActions(data);
 				}),0);
 			});
 			dfd.addErrback(this, "onError");
 		},
 		
-		load: function(name){
+		load: function(){
 			// summary:
 			//	loads project data
 			//
 			// called from the very bottom of main.js
 			//
-		    console.info("andes/drawing.js:  loading drawing ",name);
-		    this.name=name;
+		    console.info("andes/drawing.js:  loading drawing ");
 
 			// setting 'this'
 			this.loadProject = function(){
-			  console.info("load server data", andes.userId, andes.projectId, andes.sectionId);
-				api.open({user:andes.userId, problem:andes.projectId,section:andes.sectionId,extra:andes.extra})
+				console.info("load server data", window.andes.userId, window.andes.projectId, window.andes.sectionId);
+				window.andes.api.open({user:window.andes.userId, problem:window.andes.projectId,section:window.andes.sectionId,extra:window.andes.extra})
 					.addCallback(this, function(data){
-						setTimeout(dojo.hitch(this, function(){
+						window.setTimeout(dojo.hitch(this, function(){
 							this.onLoad(data);
 						}),0);
 					})
 					.addErrback(this, "onError");
 			};
-			if(andes.closeFirst){
+			if(window.andes.closeFirst){
 				// a previous project session is open. close it.
-				api.close({}).addCallback(this, "loadProject").addErrback(this, "onError");
+				window.andes.api.close({}).addCallback(this, "loadProject").addErrback(this, "onError");
 			}else{
 				this.loadProject();
 			}
@@ -543,8 +577,8 @@ define([
 			console.error("There was an error in the project data:", err);
 			if(!this._initialData){
 				// apparently an error on open-problem. Try closing session.
-				api.close({});
-				dojo.cookie("andes", null, { expires: -1 });
+				window.andes.api.close({});
+				cookie("andes", null, { expires: -1 });
 			}
 		},
 		
@@ -553,7 +587,7 @@ define([
 			//	Event for when the user leaves this window
 			//	say to open another tab.
 			console.log("Lost window focus for ",this.name || "canvas","; ",this);
-			api.recordAction({type:"window", name: this.name || "canvas", value: "blur"});
+			window.andes.api.recordAction({type:"window", name: this.name || "canvas", value: "blur"});
 		},
 		
 		onWindowFocus: function(){
@@ -561,7 +595,7 @@ define([
 			// 	Event for when this window is focused, such as
 			// 	switching back to this tab from another browser tab
 			console.log("Gained window focus for ",this.name || "canvas","; ",this);
-			api.recordAction({type:"window", name: this.name || "canvas", value: "focus"});
+			window.andes.api.recordAction({type:"window", name: this.name || "canvas", value: "focus"});
 		}
     };
 
