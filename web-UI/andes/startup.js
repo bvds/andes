@@ -141,12 +141,14 @@ define([
 		});
 		
 		// Splash animation
-		var splashNode = dom.byId("splashOverlay"),
-		anim = fx.fadeOut({node:splashNode}).play();
-		var _h = on(anim, "onEnd", function(){
-         		_h.remove();
-			domStyle.set(splashNode, "display", "none");
-			console.log("andes.main loaded");
+		var splashNode = dom.byId("splashOverlay");
+	        console.assert(splashNode,"splashOverlay element missing in html");
+		var anim = fx.fadeOut({
+		    node:splashNode,
+		    onEnd: function(node){
+			domStyle.set(node, "display", "none");
+			console.log("andes.main loaded, splash removed");
+		    }
 		});
 		anim.play();
 	});

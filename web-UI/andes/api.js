@@ -1,10 +1,11 @@
 define([
+    "dojo/_base/lang",
     // pre-AMD version requires:
     "andes/timer",
     "andes/rpc",
     "andes/error",
     "andes/messages"
-],function(timer){  // Pre-AMD version had a function wrapper.
+],function(lang,timer){  // Pre-AMD version had a function wrapper.
 	
 	var startTime = null,
 	    requestInFlight = false,
@@ -29,7 +30,7 @@ define([
 	function prepRequest(req){
 		// add common elements to our requests
 		var tm = ((new Date()).getTime() - (startTime || (new Date()).getTime()))/1000.0;
-		return dojo.mixin({ time:tm }, req || {});
+		return lang.mixin({ time:tm }, req || {});
 	}
 
 	function sendRequest(req){

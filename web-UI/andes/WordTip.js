@@ -2,9 +2,11 @@ define([
     'dojo/_base/declare',
     'dojo/on',
     "dojo/dom",
+    "dojo/keys",
+    "dojo/_base/lang",
     "dojo/domReady!"  // Needed to locate "conEdit"
     // pre-AMD version had no requires
-], function(declare,on,dom){
+], function(declare,on,dom,keys,lang){
     return declare(null,{
 
     // Summary:
@@ -35,18 +37,19 @@ define([
     },
     
     textMonitor: function(evt){
-        if(evt.keyCode == dojo.keys.SPACE || evt.keyCode == dojo.keys.TAB || evt.keyCode == 188){
+        if(evt.keyCode == keys.SPACE || evt.keyCode == keys.TAB || evt.keyCode == 188){
 	    console.log("andes.WordTip.textMonitor this=",this);
-            var tx = dojo.trim(this.conEdit.innerHTML);//this.statement.cleanText(conEdit.innerHTML);
+            var tx = lang.trim(this.conEdit.innerHTML);//this.statement.cleanText(conEdit.innerHTML);
             tx = this.removeBreaks(tx);
             var symbol = window.andes.variablename.parse(tx);
 	    console.log("---Text for word-suggest----> ", tx,symbol);
 	    this.sendToServer(tx,symbol);
         };
-        if(evt.keyCode == dojo.keys.ENTER || evt.keyCode == dojo.keys.ESCAPE){
+        if(evt.keyCode == keys.ENTER || evt.keyCode == keys.ESCAPE){
             dijit.hideTooltip(this.conEdit);
         }
         var cn = on(document,"mouseup",this, function(evt){
+	    console.log("WordTip.js:  responding to mouseup event");
             cn.remove();
             dijit.hideTooltip(this.conEdit);
         });

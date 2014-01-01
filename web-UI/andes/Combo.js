@@ -1,8 +1,9 @@
 define([
     "dojox/drawing/util/oo",
     "dojo/on",
-    "dojo/_base/array"
-],function(oo,on,array){
+    "dojo/_base/array",
+    "dojo/_base/lang"
+],function(oo,on,array,lang){
 
 window.andes.Combo = oo.declare(
 	// summary:
@@ -21,7 +22,7 @@ window.andes.Combo = oo.declare(
 		this.master.combo = this.statement.combo = this;
 
 		this._props = {style:this.master.style, util:this.master.util, parent:this.master.parent, mouse:this.master.mouse};
-		dojo.mixin(this, this._props);
+		lang.mixin(this, this._props);
 		this.id = options.id || this.util.uid(this.type);
 		this.linked = [];
 		this._cons = [];
@@ -186,7 +187,7 @@ window.andes.Combo = oo.declare(
 			}else if (once){
 				// ** object function object function Boolean **
 				c = on(o, e, function(evt){
-					dojo.hitch(s, m)(evt);
+					lang.hitch(s, m)(evt);
 				    c.remove();
 				});
 				this._cons.push(c);
@@ -201,8 +202,9 @@ window.andes.Combo = oo.declare(
 
 		disconnect: function(handles){
 		  if(!handles) { return; }
-			if(!dojo.isArray(handles)){ handles=[handles]; }
-		    array.forEach(handles, function(handle){handle.remove();},dojo);
+			if(!(handles instanceof Array)){ handles=[handles]; }
+		    // pre-AMD version had dojo as environment
+		    array.forEach(handles, function(handle){handle.remove();});
 		}
 	}
 );
@@ -232,7 +234,7 @@ window.andes.buttonCombo = oo.declare(
 
 		attr: function(a1, a2){
 			// see Drawing.stencil._Base
-			dojo.forEach(this.items,function(item){
+			array.forEach(this.items,function(item){
 				item.master.attr.call(item.master, a1, a2);
 				if(item.statement){  // associated text is optional
 					item.statement.attr.call(item.statement, a1, a2);

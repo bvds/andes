@@ -118,7 +118,7 @@ define([
 		
 		var node = null;
 		aspect.after(window._drawing.mouse, "onDown", function(evt){
-			// console.log("On down evt: ", evt);
+			console.log("menu.js:  mouse onDown event ", evt);
 			// Dynamically prepare menu depending on the target
 			// if it's a stencil, allow delete
 			window.andes.contextMenu.unBindDomNode(node);
