@@ -6,8 +6,9 @@ define([
     // pre-AMD requires:
     "dijit/Dialog",
     "dijit/form/Button"
-], function(ready,declare,dialog){
+], function(ready,declare,dijitDialog){
 
+    var dialog = null;
 
 	window.andes.errorLog = function(spec){
 		dojo.xhrPost({
@@ -42,7 +43,7 @@ define([
 	window.andes.error.OK = 1;
 
        // In pre-AMD version, nothing outside this file uses _Error.
-	var _Error = declare(dialog, {
+	var _Error = declare(dijitDialog, {
 		postCreate: function(){
 			this.inherited(arguments);
 			var container = dojo.create("div", {className:"dijitDialogPaneContent", style:"border-top:none;"});
