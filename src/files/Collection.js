@@ -11,7 +11,7 @@ Ext.define('Ext.space.files.Collection', {
         //add code to normalize name to sql table name limits
         this.name = name;
         this.loaded = loaded;
-        this.baseDir = this.createDir();
+        this.createDir();
     },
 
      /**
@@ -20,6 +20,8 @@ Ext.define('Ext.space.files.Collection', {
     createDir: function() {
         var result = new Ext.Promise();
         var me = this;
+
+        this.baseDir = result;
 
         this.loaded.then(function(fileSystem){
             fileSystem.getRoot().getDirectory({
@@ -43,12 +45,12 @@ Ext.define('Ext.space.files.Collection', {
 
 
     /**
-    * Get the value for a key
+    * Get the file contents for a key
 
-        var secrets = Ext.space.SecureLocalStore.get('secrets');
+        var files = Ext.space.SecureFile.get('secrets');
 
-        secrets.get('myKey').then(function(object){
-            var a = object.field;
+        files.get('myKey').then(function(contents){
+            //do something with the content of the file.
         });
 
     * @param {String} key  The key to get a value for. 
@@ -87,6 +89,7 @@ Ext.define('Ext.space.files.Collection', {
     set: function(key, value){
         var me = this;
 
+        //Chain the promise returned by getFile to the promise returned by write file.
         var result = this._getFile(key, true).then(function(file) {
             console.log("my file", file);
             return me._writeFile(file, value);
@@ -156,6 +159,29 @@ Ext.define('Ext.space.files.Collection', {
         return result;
     },
 
+
+    /**
+    * @private
+    * list all of the files in a directory 
+    */
+    _listFiles: function(){
+        var result = new Ext.Promise();
+        var me = this;
+        this.baseDir.then(function(dir){
+            dir.readEntries({
+                success: function(files) {
+                    console.log("collection files", files);
+                    result.fulfill(files);
+                },
+                failure: function(err) {
+                    console.log("errr", err);
+                    result.reject(err);
+                }
+            })
+        });     
+        return result;
+    },
+
     /**
     * Checks to see if key is present in collection without fetching and de-serializing the value.
 
@@ -170,20 +196,13 @@ Ext.define('Ext.space.files.Collection', {
     *
     */
     has: function(key){
-
         var result = new Ext.Promise();
-
-        this.query("select count(*) from item where collection = ? and name = ?", [this.name, key]).then(function(rs){
-            console.log("value ",rs.rows.rows.length );
-            if(rs.rows.rows[0][0] > 0){
-                result.fulfill(true);
-            } else {
-                result.fulfill(false);
-            }
+        this._getFile(key, false).then(function(file) {
+            result.fulfill(true);
+        }, function(err) {
+            result.fulfill(false);
         });
-
         return result;
-
     },
 
     /**
@@ -201,14 +220,24 @@ Ext.define('Ext.space.files.Collection', {
     */
     delete: function(key){
         var result = new Ext.Promise();
-        this.query("delete from item where collection = ? and name = ?", [this.name, key]).then(function(rs){
-            console.log("value ", rs.rowsAffected);
-            if(rs.rowsAffected > 0){
-                result.fulfill(true);
-            } else {
-                result.fulfill(false);
+        
+
+        this._getFile(key, false).then(function(file) {
+            if(!file){
+                result.reject("could not remove file, invalid file object returned.");
             }
+            file.remove({
+                success: function() {
+                    result.fulfill(true);
+                },
+                failure: function(err) {
+                    result.reject(err);
+                }
+            });
+        }, function(err) {
+            result.fulfill(true);
         });
+
         return result;
     },
 
@@ -226,13 +255,12 @@ Ext.define('Ext.space.files.Collection', {
     *
     */
     keys: function() {
-        var result = new Ext.Promise();
-        this.query("select name from item where collection = ?", [this.name]).then(function(rs){
-            var results = [];
-            for(var i =0, l = rs.rows.rows.length; i < l; i++ ){
-                results.push(rs.rows.rows[i][0]);
+        var result = this._listFiles().then(function(files) {
+            var fileNames = [];
+            for(var i =0, l = files.length; i < l; i++){
+                fileNames.push(files[i].getName());
             }
-            result.fulfill(results);
+            return fileNames;
         });
         return result;
     },
@@ -252,12 +280,13 @@ Ext.define('Ext.space.files.Collection', {
     *
     */
     forEach: function(callback) {
-        var result = new Ext.Promise();
-        this.query("select name, value from item where collection = ?", [this.name]).then(function(rs){
-            for(var i =0, l = rs.rows.rows.length; i < l; i++ ){
-                callback(rs.rows.rows[i][0], JSON.parse(rs.rows.rows[i][1]));
+        var result = this._listFiles().then(function(files) {
+            if(callback){
+               for(var i =0, l = files.length; i < l; i++){
+                    callback(files[i].getName());
+                }  
             }
-            result.fulfill();
+            return files;
         });
         return result;
     },
@@ -275,10 +304,11 @@ Ext.define('Ext.space.files.Collection', {
     *
     */
     count: function() {
-        var result = new Ext.Promise();
-        this.query("select count(*) from item where collection = ?", [this.name]).then(function(rs){
-            console.log("value ", rs.rows.rows[0][0]);
-            result.fulfill(rs.rows.rows[0][0]);
+        var result = this._listFiles().then(function(files) {
+            if(!files) {
+                return 0;
+            }
+            return files.length;
         });
         return result;
     },
@@ -297,7 +327,25 @@ Ext.define('Ext.space.files.Collection', {
     *
     */
     clear: function(){
-        return this.query("DELETE FROM item where collection = ?", [this.name]);
+        var result = new Ext.Promise();
+        var me = this;
+        this.baseDir.then(function(dir){
+            dir.removeRecursively({
+                success: function(files) {
+                    me.createDir().then(function(){
+                        result.fulfill(true);
+                    },function(err){
+                        console.log("errr", err);
+                        result.reject(err);
+                    });
+                },
+                failure: function(err) {
+                    console.log("errr", err);
+                    result.reject(err);
+                }
+            })
+        });     
+        return result;
     }
 
 });
