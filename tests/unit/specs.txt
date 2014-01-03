@@ -1,3 +1,4 @@
+securefiles.js
 connection.js
 securelocalstorage.js
 sqlite.js
