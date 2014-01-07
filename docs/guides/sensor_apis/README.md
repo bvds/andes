@@ -8,16 +8,18 @@ organization's security policy.
 The following sensors are supported for use on the Space Client:
 
 <ul>
-	<li>Camera</li>
-	<li>Connection</li>
+	<li><a href="#Camera">Camera</a></li>
+	<li><a href="#Connection">Connection</a></li>
 </ul>
 
+<a name="Camera"></a>
+## Camera
 
-#Camera
+The <code>Ext.space.Camera</code> API lets your application capture a photo from either the device's camera or 
+to use the user's photo library.
 
-Ext.space.Camera allows your application capture a photo from either the devices camera or the users photo library
-
-To capture a photo call Ext.space.Camera.capture. This method will return an Ext.Promise that will resolve after the user selects a photo
+To capture a photo, call <code>Ext.space.Camera.capture</code>. 
+This method returns an <code>Ext.Promise</code> that will resolve after the user selects a photo.
 
 Capture takes a number of options that allow you to specify how you would like the selected photo returned to you:
 
@@ -29,30 +31,28 @@ Capture takes a number of options that allow you to specify how you would like t
       });
  
       promise.then(function(imageData){ 
-            //either URI to the image or data URI of the selected image.
-       })
+            // Either a URI to the image or a data URI of the selected image.
+       });
 
-Please note that specifying a destination of 'data' will return a raw base64 encoded string. This string can be updated to the server for storage and processing. It can also be assigned to an image tag but you will need to first prepend the appropriate data uri scheme: 
+<b>Note</b>: Specifying a destination of 'data' will return a raw base64-encoded string. This string can be uploaded to a server for storage and processing. It can also be assigned to an image tag, but you will need to first prepend the appropriate data URI scheme: 
 
-		var img = document.getElementById("resultImage");
-		img.src = "data:image/jpeg;base64," + imageData; 
+	var img = document.getElementById("resultImage");
+	img.src = "data:image/jpeg;base64," + imageData; 
 
-To see a complete example of capturing a photo see our example on github:
+To see a complete example of capturing a photo see the 
+<a href="https://github.com/sencha/SpaceExamples/blob/master/Sensors/index.html">Sensors Example</a> in GitHub.
 
-https://github.com/sencha/SpaceExamples/blob/master/Sensors/index.html
+<a name="Connection"></a>
+## Connection
 
+The <code>Ext.space.Connection</code> API lets your application check what kind of connection the device currently has to the network:
 
-#Connection
+ 	Ext.space.Connection.getStatus().then(function(status){
+        	log("is online" + status.online + " " + status.type)
+	});
 
-Ext.space.Connection allows your application to check what kind of connection the device currently has to the network:
-
-	 	Ext.space.Connection.getStatus().then(function(status){
-	        log("is online" + status.online + " " + status.type)
-	    });
-
-To see a complete example checking connection status see our example on github:
-
-https://github.com/sencha/SpaceExamples/blob/master/Sensors/index.html
+To see a complete example checking connection status see the 
+<a href="https://github.com/sencha/SpaceExamples/blob/master/Sensors/index.html">Sensors Example</a> in GitHub.
 
 
 
