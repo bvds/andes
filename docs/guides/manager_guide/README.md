@@ -88,7 +88,7 @@ or log out of Sencha Space</td></tr>
 actions.</td></tr>
 </table>
 
-<b>Buttons</b>:
+<p><b>Buttons</b>:</p>
 
 These buttons provide additional controls on tabs:
 
@@ -96,10 +96,10 @@ These buttons provide additional controls on tabs:
 <tr><th>Icon</th><th>Description</th></tr>
 <tr><td>{@img Space_Ad_PlusIcon.png}</td>
 <td>Plus Icon - Add an entry</td></tr>
-<tr><td>{@img Space_Ad_CircleArrowIcon.png} and {@img ButtonRefreshReport.png}</td>
+<tr><td valign="top">{@img Space_Ad_CircleArrowIcon.png}<br>Or:<br>{@img ButtonRefreshReport.png}</td>
 <td>Refresh - Refreshes the current screen</td></tr>
 <tr><td>{@img Space_Ad_TrashCanIcon.png}</td>
-<td>Trash Can - Click the checkbox for an item and click the trash can
+<td valign="top">Trash Can - Click the checkbox for an item and click the trash can
 button. The result differs by the Space Manager tab:
 <ul>
 <li>Applications tab - Removes an application from use by all users.</li>
@@ -134,7 +134,7 @@ This tab lists:
  - Apps - Number of web apps available for use on Sencha Space Clients
  - Users - Number of created users
  - Groups - Number of enterprise groups
- - Active Devices - Lists:
+ - Active Devices<br>Lists:
    - Device. The device running Sencha Space Client and whether the device 
      is simulated or actual. 
    - User. User's email address and the Sencha Space Client version.
@@ -150,10 +150,17 @@ by clicking the red X icon:
 You are prompted to be sure you want to immediately terminate the user's 
 session.
 
-Blocking a user's device sends this message to the Space Client:<br>
-<code><b>Error</b> This device has been blocked indefinitely by an administrator.</code>
+Blocking a user's device sends this message to the Space Client:
 
-To reactivate the device, click the <a href="#UsersTab">Users tab</a> (1) and 
+<pre><b>Error</b> This device has been blocked indefinitely by an administrator.</pre>
+
+To reactivate the device:
+<ol>
+<li>text</li>
+<li>text</li>
+<li>text</li>
+</ol>
+ (1) and 
 click the <b>Devices</b> tab (2). Click the blue check icon (3):
 
 {@img SpaceMgrAddBackDevice.png}
@@ -235,7 +242,7 @@ from a device.
 Tasks:
 
  - Click the Refresh arrow to update the devices list.
- - Click a checkbox and the trashcan icon to wipe out all Space Client data on a device.
+ - Click a checkbox and the trash can icon to wipe out all Space Client data on a device.
  - Search for a device.
 
 Lists:
@@ -336,21 +343,6 @@ To invite a user:
 3. Click **Invite**.
 
 You can invite a user more than once if needed. 
-
-### User Signup Process
-
-Sencha Space uses the following process to sign up users you invite:
-
-{@img SignUpProcess.png}
-
-The process is:
-
-<ol>
-<li>Users receive email with an invitation link. The link goes to the
-Sencha Space registration page</li>
-<li>text</li>
-<li>text</li>
-</ol>
 
 ### Remove a User
 
