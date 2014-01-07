@@ -429,7 +429,7 @@ add users who are already in Space Manager.</p></li>
 </ol>
 </li>
 <li><p>If you choose to add existing users, check one or more users to add to the group:</p>
-{@img GroupSelectUsers.png}</li>
+{@img GroupsSelectUsers.png}</li>
 <li><p>When done, click <b>CANCEL</b>.</p></li>
 </ol>
 
