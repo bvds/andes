@@ -81,14 +81,14 @@ The top menu contains these buttons:
 <table border="1" style="width: 600px">
 <tr><th>Icon</th><th>Description</th></tr>
 <tr><td>{@img Space_Ad_AdminMenu.png}</td>
-  <td><a href="#AdminMenu">Admin Menu</a> - Edit the admin profile, 
-  switch organizations, or log out of Sencha Space</td></tr>
+<td><a href="#AdminMenu">Admin Menu</a> - Edit the admin profile 
+or log out of Sencha Space</td></tr>
 <tr><td>{@img Space_Ad_SenchaIcon.png}</td>
-  <td><a href="#SenchaMenu">Sencha Menu</a> - View a log of your recent
+<td><a href="#SenchaLogMenu">Sencha Log Menu</a> - View a log of your recent
 actions.</td></tr>
 </table>
 
-**Icons**:
+<b>Icons</b>:
 
 These icons provide additional controls on tabs:
 
@@ -170,6 +170,7 @@ with ways for users to get help or learn how to use their client.
 
 The Applications tab lists:
 
+ - Controls - Add an application, refresh the list, delete an application, and search applications.
  - Name - Application name
  - Members - Number of users who are permitted to use the application
  - Modified - Last modification date of the application
@@ -221,6 +222,14 @@ from a device.
 
 {@img DevicesTab.png}
 
+Tasks:
+
+ - Click the Refresh arrow to update the devices list.
+ - Click a checkbox and the trashcan icon to wipe out all Space Client data on a device.
+ - Search for a device.
+
+Lists:
+
  - Device - Device name
  - User - Device's owner - This name is set on the <a href="#UsersTab">Users tab</a>
  - Last Access - Last use of Space Client by the device
@@ -261,9 +270,14 @@ and remove a user.
 
 {@img SpaceMgrUsers.png}
  
-Click a user name to view more information about the user. 
-Click the plus icon to invite a user. 
-Click a checkbox and the trash icon to delete a user.
+Tasks:
+
+ - Click a user name to view more information about the user. 
+ - Click the plus icon to invite a user. 
+ - Click a checkbox and the trash icon to delete a user.
+ - Search for a user or user information.
+
+Lists:
 
  - Name - User name
  - Last Active - When the user last used the Space Client
@@ -312,6 +326,21 @@ To invite a user:
 3. Click **Invite**.
 
 You can invite a user more than once if needed. 
+
+### User Signup Process
+
+Sencha Space uses the following process to sign up users you invite:
+
+{@img SignUpProcess.png}
+
+The process is:
+
+<ol>
+<li>Users receive email with an invitation link. The link goes to the
+Sencha Space registration page</li>
+<li>text</li>
+<li>text</li>
+</ol>
 
 ### Remove a User
 
@@ -419,11 +448,11 @@ contact and billing information.
 
 Settings sections:
 <ul>
-<li><a href="#GeneralSettings">General Settings</a></li>
-<li><a href="#SecuritySettings">Security Settings</a></li>
-<li><a href="#AuthenticationSettings">Authentication Settings</a></li>
-<li><a href="#SubscriptionSettings">Subscription Settings</a></li>
-<li><a href="#BillingSettings">Billing Settings</a></li>
+<li><a href="#GeneralSettings">General</a></li>
+<li><a href="#SecuritySettings">Security Policy</a></li>
+<li><a href="#AuthenticationSettings">Authentication</a></li>
+<li><a href="#SubscriptionSettings">Subscription</a></li>
+<li><a href="#BillingSettings">Billing</a></li>
 </ul>
 
 <a name="GeneralSettings"></a>
@@ -445,7 +474,7 @@ or <code>ggmailto</code> value.</li>
 {@img GeneralSettings.png}
 
 <a name="SecuritySettings"></a>
-### Security Settings
+### Security Policy
 
 <b>Important</b>: When you change any of the 
 options in the Security Policy, all users are sent 
@@ -465,32 +494,57 @@ be lost or stolen, but the duration gives users more time
 to perform other activities before being reprompted 
 when returning to the Space Client. The duration can be set to minutes,
 hours, days, weeks, or months.</li>
-<li>PIN Type (slider) - Slide to <b>None</b> to not require a PIN or password 
-when users access the Space client on their mobile device - only use this 
-setting during debugging, 
-slide to <b>Number</b> to require users to supply a PIN for authentication, 
-slide to <b>Secure</b> to require a secure password that has a combination
-of letters, numbers, and special characters. A password must consist of at
+<li>PIN Type (slider) - Slide to:
+<table style="width: 80%" border="1">
+<tr><th>Value</th><th>Description</th><th>Example</th></tr>
+<tr><td><b>None</b></td><td>Users don't use a PIN to access the Space client. 
+Only use this setting during debugging.</td><td>1234</td></tr>
+<tr><td><b>Numeric</b></td><td>Require users to enter a numeric
+PIN. The numeric keypad appears and only permits values 
+of 0 1 2 3 4 5 6 7 8 9.</td><td>1234</td></tr>
+<tr><td><b>Alphabetic</b></td><td>Require users to specify a PIN consisting
+of at least 4 letters. Users see the device's default keyboard.</td>
+<td>abcdef</td></tr>
+<tr><td><b>Alphanumeric</b></td><td>Require users to enter a PIN consisting
+of at least 4 letters and numbers.  Users see the device's default keyboard.</td>
+<td>a1b2c3d4</td></tr>
+<tr><td><b>Complex</b></td><td>Require a secure PIN that has a combination
+of letters, numbers, and special characters. A PIN must consist of at
 least 4 characters, have at least one number, letter, and special character, 
-and can be any length.</li>
+and can be any length. Users see the device's default keyboard.</td>
+<td>!MyP1n</td></tr>
+<table></li>
 <li>PIN Minimum Length - The least number of numbers a user can enter
 to be authenticated in the Space client. The default is 6 digits.</li>
 <li>Lock Out After Failed PIN Attempts - The number of tries a user gets to supply
 the correct PIN value before being locked out. The default is 10 attempts.
 If a user is locked out, the user must re-enter their username and password
-to gain access to the Space client.</li>
+to gain access to the Space client. The minimum is 2 tries.</li>
 <li>Max Time Working Offline Before Automatic Log Out - Maximum 
-duration that a user can 
-perform other activities outside the Space Client before being 
-automatically logged off. The duration
+duration that a user can perform other activities outside the Space Client 
+before being automatically logged off. The duration
 can be set to an amount of minutes, hours, days, weeks, or months.</li>
 <li>Save - Save settings.</li>
 </ul>
 
+<b>Notes</b>: 
+<ol>
+<li>A PIN requiring letters can be any character on the device's
+keyboard including international characters.</li>
+<li>If you change a value in the security policy, a message may display
+indicating that a value changed. However, the value is not changed in the
+security policy until you click the <b>Save</b> button.</li>
+<li>Changes to the security policy appear in the 
+<a href="#SenchaLogMenu">Sencha Log Menu</a> - however, some messages
+may indicate changes prior to clicking the <b>Save</b> button.</li>
+</ol>
+
+
+
 {@img SecurityPolicySettings.png}
 
 <a name="AuthenticationSettings"></a>
-### Authentication Settings
+### Authentication
 
 Lets you set:
 <ul>
@@ -519,7 +573,7 @@ to Sencha Space.</li>
 {@img AuthenticationSettings.png}
 
 <a name="SubscriptionSettings"></a>
-### Subscription Settings
+### Subscription
 
 Lets you change your Space subscription, which depends on how many users,
 users per device, and apps your organization requires.
@@ -530,7 +584,7 @@ To upgrade or downgrade, click <b>Change</b> for the subscription option
 you require.
 
 <a name="BillingSettings"></a>
-### Billing Settings
+### Billing
 
 Information about your Space Manager subscription:
 <ul>
@@ -574,23 +628,11 @@ Add or change:
  - Confirm New Password
 
 You can also click <b>X Block</b> to block the administrator, or click
-**Remove User** to remove your access to Sencha Space.
+<b>Remove User</b> to remove your access to Sencha Space.
 
 
-#### Add or Change an Organization
-
-Add an organization by clicking **Add** in the Organizations menu. 
-
-Fields:
-
- - Name - Organization name
- - Code - A keyword to describe the organization
- - Users - Total number of users in the organization
- - Groups - Total number of groups in the organization
- - Apps - Total number of apps available to Space Client users
-
-<a name="SenchaMenu"></a>
-## Sencha Menu
+<a name="SenchaLogMenu"></a>
+## Sencha Log Menu
 
 Lists your recent activities. Each time the browser refreshes, 
 the previous entries no longer display.
