@@ -88,18 +88,28 @@ or log out of Sencha Space</td></tr>
 actions.</td></tr>
 </table>
 
-<b>Icons</b>:
+<b>Buttons</b>:
 
-These icons provide additional controls on tabs:
+These buttons provide additional controls on tabs:
 
 <table border="1" style="width: 600px">
 <tr><th>Icon</th><th>Description</th></tr>
 <tr><td>{@img Space_Ad_PlusIcon.png}</td>
-   <td>Plus Icon - Add an entry</td></tr>
-<tr><td>{@img Space_Ad_CircleArrowIcon.png}</td>
-   <td>Refresh - Refreshes the current list</td></tr>
+<td>Plus Icon - Add an entry</td></tr>
+<tr><td>{@img Space_Ad_CircleArrowIcon.png} and {@img ButtonRefreshReport.png}</td>
+<td>Refresh - Refreshes the current screen</td></tr>
 <tr><td>{@img Space_Ad_TrashCanIcon.png}</td>
-   <td>Trash Can - Remove the entry</td></tr>
+<td>Trash Can - Click the checkbox for an item and click the trash can
+button. The result differs by the Space Manager tab:
+<ul>
+<li>Applications tab - Removes an application from use by all users.</li>
+<li>Devices tab - Wipes the device, which removes all Sencha
+Space information from the mobile device.</li>
+<li>Users tab - Removes a user from Sencha Space.</li>
+<li>Groups tab - Removes a group (does not delete the users in a group).</li>
+<li>VPN Services tab - Removes a VPN service.</li>
+</ul></td></tr>
+<tr><td>{@img ButtonSearch.png}</td><td>Search current tab.</td></tr>
 </table>
 
 
@@ -130,7 +140,7 @@ This tab lists:
    - User. User's email address and the Sencha Space Client version.
    - Last Access. When the user last accessed the Sencha Space Client and the user's location. 
 
-<b>Lost Device</b>
+## Disable Access to a Lost Device
 
 If a user loses a mobile device, you can disable Space access to the device
 by clicking the red X icon: 
@@ -254,12 +264,12 @@ by removing the organizational data from the Space Client on the device.
 
 {@img DeviceInfoEdit.png}
 
- - Device - Device type taken from the device's data provided in the connection
- - Client - Space Client version number
- - Ownership - Set as needed to Employee or Corporate
- - Block - Removes the ability of the device to access the Space Client - the user is sent a message stating that the device is blocked by an administrator
- - Wipe Device - Removes all Sencha Client organizational data from the device - the user is logged out of the Space Client
- - Done - If you make a change, click **Done** to complete the change
+ - Device - Device type taken from the device's data provided in the connection.
+ - Client - Space Client version number.
+ - Ownership - Set as needed to Employee or Corporate.
+ - Block - Removes the ability of the device of a user to access the Space Client. The user is sent a message stating that the device is blocked by an administrator.
+ - Wipe Device - Removes all Sencha Client organizational data from the device - the user is logged out of the Space Client.
+ - Done - If you make a change, click **Done** to complete the change.
 
 <a name="UsersTab"></a>
 ## Users Tab
@@ -539,8 +549,6 @@ security policy until you click the <b>Save</b> button.</li>
 may indicate changes prior to clicking the <b>Save</b> button.</li>
 </ol>
 
-
-
 {@img SecurityPolicySettings.png}
 
 <a name="AuthenticationSettings"></a>
@@ -590,7 +598,7 @@ Information about your Space Manager subscription:
 <ul>
 <li>Status of Your Current Subscription - Whether you are using Space
 on a trial or are active.</li>
-<li>Subscription Period End - The date your Space subscriptiption ends.</li>
+<li>Subscription Period End - The date your Space subscription ends.</li>
 <li>Billing Tier - Indicates whether your subscription applies to your
 team, workforce, or enterprise.</li>
 <li>Contact Information - Who to contact who is responsible for maintaining
