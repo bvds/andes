@@ -96,11 +96,12 @@ These buttons provide additional controls on tabs:
 <tr><th>Icon</th><th>Description</th></tr>
 <tr><td>{@img Space_Ad_PlusIcon.png}</td>
 <td>Plus Icon - Add an entry</td></tr>
-<tr><td valign="top">{@img Space_Ad_CircleArrowIcon.png}<br>Or:<br>{@img ButtonRefreshReport.png}</td>
-<td>Refresh - Refreshes the current screen</td></tr>
+<tr><td style="vertical-align: top">{@img Space_Ad_CircleArrowIcon.png}Or:
+<br>{@img ButtonRefreshReport.png}</td>
+<td style="vertical-align: top">Refresh - Refreshes the current screen</td></tr>
 <tr><td>{@img Space_Ad_TrashCanIcon.png}</td>
-<td valign="top">Trash Can - Click the checkbox for an item and click the trash can
-button. The result differs by the Space Manager tab:
+<td style="vertical-align: top">Trash Can - Click the checkbox for an item 
+and click the trash can button. The result differs by the Space Manager tab:
 <ul>
 <li>Applications tab - Removes an application from use by all users.</li>
 <li>Devices tab - Wipes the device, which removes all Sencha

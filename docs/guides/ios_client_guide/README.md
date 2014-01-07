@@ -152,7 +152,7 @@ To access apps (your list of apps may differ) or options:
 <li>Choose an app.</li>
 <li>Click the Sencha icon to view <a href="#Settings">Settings</a>.</li>
 <li>Click the previous app's window to return to that app.</li>
-<li>Click <b>Switch Organizations</b> to log in with a new organization name.</li>
+<li>Click <b>Switch Organization</b> to log in with a new organization name.</li>
 </ol>
 
 ## Refreshing Apps
