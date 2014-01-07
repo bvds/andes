@@ -156,12 +156,10 @@ Blocking a user's device sends this message to the Space Client:
 
 To reactivate the device:
 <ol>
-<li>text</li>
-<li>text</li>
-<li>text</li>
+<li>Click the <a href="#UsersTab">Users tab</a>.</li>
+<li>Click the <b>Devices</b> tab.</li>
+<li>Click the blue check icon.</li>
 </ol>
- (1) and 
-click the <b>Devices</b> tab (2). Click the blue check icon (3):
 
 {@img SpaceMgrAddBackDevice.png}
 
