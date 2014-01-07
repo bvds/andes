@@ -523,7 +523,7 @@ of letters, numbers, and special characters. A PIN must consist of at
 least 4 characters, have at least one number, letter, and special character, 
 and can be any length. Users see the device's default keyboard.</td>
 <td>!MyP1n</td></tr>
-<table></li>
+</table></li>
 <li>PIN Minimum Length - The least number of numbers a user can enter
 to be authenticated in the Space client. The default is 6 digits.</li>
 <li>Lock Out After Failed PIN Attempts - The number of tries a user gets to supply
