@@ -214,6 +214,7 @@ Lists group information about the application:
  - Members - Members in the group who use the application
  - Modified - When the application was last modified
 
+<a name="AddAnApp"></a>
 #### Add an App
 
 The Add an App menu lets you bring a web app into the Space environment
@@ -229,6 +230,10 @@ so that the app can be accessed by Space Clients.
  This field is case sensitive.
  - Description - Description of the app. This description appears on the Applications 
    tab and in the Space Client.
+
+<b>Note</b>: To give users access to an app, see 
+<a href="#AddAppToGroup">Add an App to a Group</a> (you need to add an app to a group,
+and then add the user to the group).
 
 <a name="DevicesTab"></a>
 ## Devices Tab
@@ -284,6 +289,10 @@ Lists which users can log into the Space Client and run applications.
 You can also use this tab to add users, block users, change a login password, 
 and remove a user. 
 
+<b>Note</b>: To give users access to an app, see 
+<a href="#AddAppToGroup">Add an App to a Group</a> (you need to add an app to a group,
+and then add the user to the group).
+
 {@img SpaceMgrUsers.png}
  
 Tasks:
@@ -306,7 +315,7 @@ Click a user in the Users tab to view information.
 
 Info tab:
 
- - Title - User's title in the enterprise
+ - Title - User's title in the organization
  - Email - User's email address
  - Apps Assigned - Which web apps the user can view on the Space Client
 
@@ -388,6 +397,41 @@ The Groups tab displays:
  2. Specify a group name
  3. Specify a description of the group
 
+
+<a name="AddAppToGroup"></a>
+### Add an App to a Group
+
+To give users access to an app, you first add an app to a group, and then 
+add the user to the group.
+
+To add an app to a group:
+
+<ol>
+<li><p>Click the <b>Groups</b> tab.</p></li>
+<li><p>Click the group to which you want the user to belong.</p></li>
+<li><p>Click the <b>APPS</b> tab and click <b>ADD</b>:</p>
+{@img GroupAddApps.png}
+</li>
+<li><p>Click <b>Add New</b> or <b>Choose Existing</b> for the app. If you click 
+<b>Add New</b>, see <a href="#AddAnApp">Add an App</a>.</p></li>
+<li><p>For <b>Choose Existing</b>, check the apps you want for the group and 
+click <b>DONE</b>:</p>
+{@img SelectApps.png}
+</li>
+<li><p>If you are done, click <b>CANCEL</b>. However if you want to add users
+to the group:</p>
+{@img GroupAddUsers.png}
+<ol>
+<li><p>Click the <b>Users</b> tab.</p></li>
+<li><p>Click the <b>Add</b> button.</p></li>
+<li><p>Click <b>Invite</b> to invite new users, or <b>Choose Existing</b> to 
+add users who are already in Space Manager.</p></li>
+</ol>
+</li>
+<li><p>If you choose to add existing users, check one or more users to add to the group:</p>
+{@img GroupSelectUsers.png}</li>
+<li><p>When done, click <b>CANCEL</b>.</p></li>
+</ol>
 
 <a name="VPNServicesTab"></a>
 ## VPN Services Tab
