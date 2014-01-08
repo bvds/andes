@@ -58,11 +58,6 @@
                 "description": "Secure Local Storage of key and value pairs."
             },
             {
-                "name": "secure_file_api",
-                "title": "Secure File API",
-                "description": "Secure File API."
-            },
-            {
                 "name": "examples",
                 "title": "Examples",
                 "description": "Sencha Space Examples."
@@ -76,11 +71,6 @@
                 "name": "invoke",
                 "title": "Invoke API",
                 "description": "Communication between Sencha Space apps."
-            },
-            {
-                "name": "saml_integration",
-                "title": "SAML Integration",
-                "description": "Sencha Space SAML Integration."   
             },
             {
                 "name": "sensor_apis",

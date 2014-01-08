@@ -574,8 +574,11 @@ can be set to an amount of minutes, hours, days, weeks, or months.</li>
 
 <b>Notes</b>: 
 <ol>
-<li>A PIN requiring letters can be any character on the device's
+<li>A PIN requiring letters can consist of any character on a device's
 keyboard including international characters.</li>
+<li>Security policy settings on the PIN Type slider are minimum
+requirements. Other characters can be set as needed, for example, a
+number or special character can be set in an alphabetic PIN.</li>
 <li>If you change a value in the security policy, a message may display
 indicating that a value changed. However, the value is not changed in the
 security policy until you click the <b>Save</b> button.</li>
