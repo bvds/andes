@@ -15,14 +15,14 @@ Enterprise 5.4, CentOS 5.4) and OS X (10.4 and 10.6).
 ========================== System Configuration ===============================
 
 # The following packages need to be installed:  
-#    gnu make, git, subversion, gnu c++, mysql, mysql-server, apache, 
+#    gnu make, git, gnu c++, mysql, mysql-server, apache, patch,
 #    wget, java, and php with mysql
 # For RedHat systems, http://fedoraproject.org/wiki/EPEL may be helpful.  
 # In Linux, test packages using:
-rpm -q make git subversion gcc-c++ mysql mysql-server httpd wget php php-mysql
+rpm -q make git gcc-c++ mysql mysql-server httpd patch wget php php-mysql
 # For Ubuntu (debian systems) you can use the following (as root):
-apt-get install git make subversion g++ libmysqlclient-dev mysql-server \
-                apache2 libapache2-mod-proxy-html wget php5 php5-mysql
+apt-get install git make g++ libmysqlclient-dev mysql-server \
+                apache2 libapache2-mod-proxy-html patch wget php5 php5-mysql
 # Finally, make sure java is installed:
 java -version
 # If you are missing java, you will have to install it using your package manager
@@ -84,7 +84,8 @@ make install-solver
 
 cd lisp-site-install
   make get-binary     # download a binary release
-  make get-source     # download and compile source code
+  make get-source     # download and compile source code 
+                      # (do as supersuer because of quicklisp ???)
   make source-install # install in /usr/local (do as superuser) 
                       #      or in INSTALL_ROOT 
   make sbclrc         # Install the sbcl initialization file ~/.sbclrc
@@ -108,6 +109,9 @@ cd ../                # return to Andes root directory
 # execute "sudo /Library/StartupItems/MySQLCOM/MySQLCOM start", and
 # set the root mysql password using the above command.) 
 
+# I had to monkey around to get this to work:
+#   defined db_user_password and had to set db name in AndesDatabaseCreationSQL.sql
+#   Also, need some instructions about user "open"
 # Set up tables in database:
 make install-database
 

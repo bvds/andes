@@ -43,12 +43,12 @@ ifeq ($(shell uname -p),pentium4) # Andrew linux at CMU
   binary-dir = sbcl-1.0.58-x86-linux
 endif 
 ifeq ($(shell uname -p),x86_64)
-  binary-release = sbcl-1.1.14-x86-64-linux-binary.tar.bz2
-  binary-dir = sbcl-1.1.14-x86-64-linux
+  binary-release = sbcl-1.2.13-x86-64-linux-binary.tar.bz2
+  binary-dir = sbcl-1.2.13-x86-64-linux
 endif 
 ifeq ($(shell uname -m),x86_64)
-  binary-release = sbcl-1.1.14-x86-64-linux-binary.tar.bz2
-  binary-dir = sbcl-1.1.14-x86-64-linux
+  binary-release = sbcl-1.2.13-x86-64-linux-binary.tar.bz2
+  binary-dir = sbcl-1.2.13-x86-64-linux
 endif
 endif
 ifndef binary-release
@@ -74,7 +74,7 @@ binary-install:
 thread-test:
 	cd $(binary-dir); echo '(format t "Threading is~:[ not~;~] supported on binary release.~%" (find :sb-thread *features*)) (quit)' | ./run-sbcl.sh --noinform --noprint
 
-source-dir = sbcl-1.1.14
+source-dir = sbcl-1.2.13
 source-release = $(source-dir)-source.tar.bz2
 get-source:
 ifeq ($(shell uname),Darwin)
@@ -88,7 +88,7 @@ endif
 	#  Use "diff -u old-file new-file" to create patch
 	patch -p 1 -d $(source-dir) < backend-parms.lisp-x86-1.0.55-patch 
 	patch -p 1 -d $(source-dir) < backend-parms.lisp-x86_64-1.1.14-patch
-	patch -p 1 -d $(source-dir) < parms.lisp-1.0.55-patch
+	patch -p 1 -d $(source-dir) < parms.lisp-1.2.13-patch
 ifdef INSTALL_ROOT 
 	$(platform) cd $(source-dir); sh make.sh --prefix ${INSTALL_ROOT} $(shell echo "../$(binary-dir)/run-sbcl.sh")
 	@echo "Install directory ${INSTALL_ROOT}"
