@@ -1,13 +1,14 @@
 # Invoke API
 
-Sencha Space is a new way to manage, deploy and secure HTML5 applications 
+Sencha Space is a new way to manage, deploy, and secure HTML5 applications 
 on mobile devices. 
-Invoke is a JavaScript API that lets one app securely run and communicate 
-with another app. 
-You can add the Invoke API to apps that you deploy in Sencha Space.
+Invoke is a JavaScript API that lets one application securely run and communicate 
+with another application. 
+You can add the Invoke API to applications that you deploy in Sencha Space.
 Invoke represents a new way of building HTML5 applications. 
-Your applications no longer have to be islands connected only 
-by a round trip to a server. Using Invoke, you can build simpler, 
+Your applications no longer have to be like islands connected only 
+by a round trip to a server. Using Invoke, applications communicate directly,
+which lets you build simpler, 
 single purpose applications that expose a simple API.
 
 You can see Invoke in action at: 
@@ -26,22 +27,23 @@ The video shows:
 
 Applications can communicate using Invoke:
 <ul>
-<li><b>Foreground</b> - Invoke calls enable a user to switch from one application 
+<li><p><b>Foreground</b> - Invoke calls enable a user to switch from one application 
 to another. The user can then do work in the second application and when done, 
 Sencha Space returns the user to the application they started from. A simple example 
 of this is photos. In Sencha Space, you can have an application that knows where 
 all of your organization's photos are. When another application needs a photo, 
 it redirects the user to the Photos application. The user can select the photos 
 they want, and then the user is returned to the application they started with,
-and the application has the list of photos the user selected.</li>
-<li><b>Background</b> - Invoke calls open up the possibility of a new class 
+and the application has the list of photos the user selected.</p></li>
+
+<li><p><b>Background</b> - Invoke calls open up the possibility of a new class 
 of application communication. Applications can exchange data in the background 
 asynchronously without the user needing to leave the application they are 
 currently in. For example, a Contacts application can communicate with a chat 
 application to get the online/offline status of the current contact and update 
 the contact record. The Contacts application need not integrate a chat library 
-or maintain a connection with a chat/presence server. It only needs to make 
-a simple API call to the chat application running in Sencha Space.</li>
+or maintain a connection with a chat/presence server. The application only needs to make 
+a simple API call to the chat application running in Sencha Space.</p></li>
 </ul>
 
 ## Include the Sencha Space APIs
@@ -86,7 +88,7 @@ a callback:
 }
 </pre>
 
-See the  
+See the 
 <a href="https://github.com/sencha/SpaceExamples/tree/master/Photos">full source code for the Photos application</a>.
 
 ## Invoke Application in the Background
@@ -94,7 +96,7 @@ See the
 In the next example, an app calls the chat application in the background 
 to get the presence of a user. The API calls are nearly identical to the 
 previous example, except that second parameter of the <code>send</code> function
-is set to <code>false</code>.
+is set to <code>false</code> to indicate that the application runs in the background.
 
 <pre>Ext.space.Invoke.get('chat').then(send, failure);
 var send = function(connection) {
@@ -116,8 +118,8 @@ var success = function(message) {
 ## Handling Incoming Messages From Another Application
 
 Handling messages from other applications is accomplished with the 
-<code>onMessage</code> API. The <code>onMessage</code> function receives the JSON message
-and creates and returns an <code>Ext.Promise</code>. The <code>Promise</code> must be 
+<code>onMessage</code> API. The <code>onMessage</code> function receives the JSON message,
+and creates and returns an <code>Ext.Promise</code> request. The <code>Promise</code> must be 
 resolved to return data to the calling application.
 
 <pre>Ext.space.Invoke.onMessage(function(senderId, message) {
@@ -129,7 +131,7 @@ resolved to return data to the calling application.
 
 In <code>handleMessage</code>, the user info is fetched asynchronously and 
 the response returns to fulfill the promise, else a rejection message
-is sent back to the calling app indicating an error.
+is sent back to the calling application indicating an error.
 
 <pre>function handleMessage(message, promise) {
     if(message.type == "presence") {
