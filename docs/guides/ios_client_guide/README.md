@@ -64,12 +64,11 @@ receive instructions.</p>
 
 {@img iOS_2.png}
 </li>
-<li><p>If prompted, specify a personal identification number (PIN), which you enter
-when you return to the Space Client after exiting.
+<li><p>If prompted, specify a personal identification number (PIN). 
+If a numeric keypad appears, enter a PIN consisting of at least 4 numbers. 
 If a QWERTY keyboard displays, enter text consisting of at least 4 characters,
-one of which must be a number, a letter, and a special character.</p>
-
-<p>The minimum length of the PIN is set by your Space Manager administrator:</p>
+or a mix of characters, numbers, and special characters. The minimum length 
+and allowable characters for a PIN are set by your Space Manager administrator.</p>
 
 {@img iOS_3.png}</li>
 </ol>
