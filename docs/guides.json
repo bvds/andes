@@ -74,7 +74,7 @@
         "items": [
             {
                 "name": "invoke",
-                "title": "Invoke",
+                "title": "Invoke API",
                 "description": "Communication between Sencha Space apps."
             },
             {
