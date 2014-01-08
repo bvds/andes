@@ -543,7 +543,7 @@ hours, days, weeks, or months.</li>
 <table style="width: 80%" border="1">
 <tr><th>Value</th><th>Description</th><th>Example</th></tr>
 <tr><td><b>None</b></td><td>Users don't use a PIN to access the Space client. 
-Only use this setting during debugging.</td><td>1234</td></tr>
+Only use this setting during debugging.</td><td>-</td></tr>
 <tr><td><b>Numeric</b></td><td>Require users to enter a numeric
 PIN. The numeric keypad appears and only permits values 
 of 0 1 2 3 4 5 6 7 8 9.</td><td>1234</td></tr>
