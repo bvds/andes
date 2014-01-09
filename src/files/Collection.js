@@ -1,6 +1,11 @@
 /**
-*  A Key/Value store where the data is persisted to an encrypted store inside of Sencha Space instead of plain text.
-  This class should not be created directly but instead should be obtained via Ext.space.SecureLocalStorage
+*  Simplified Key/Value store for files. 
+*  Each collection represents a top-level directory in the applications file system.
+*
+*  This class should only be created by Ext.space.SecureFiles and should not be created manually.
+*
+*  Files can be created or updated with Ext.space.files.Collection.set
+*  Files contents can be retrieved with Ext.space.files.Collection.get
 *
 */
 Ext.define('Ext.space.files.Collection', {
@@ -8,7 +13,6 @@ Ext.define('Ext.space.files.Collection', {
     * @private
     */
     constructor: function(name, loaded) {
-        //add code to normalize name to sql table name limits
         this.name = name;
         this.loaded = loaded;
         this.createDir();
@@ -61,7 +65,6 @@ Ext.define('Ext.space.files.Collection', {
         var me = this;
 
         var result = this._getFile(key, false).then(function(file) {
-            console.log("my file", file);
             return me._getFileContent(file);
         });
 
@@ -73,13 +76,11 @@ Ext.define('Ext.space.files.Collection', {
     /**
     * Get the value for a key
 
-        var secrets = Ext.space.SecureLocalStore.get('secrets');
+        var secrets = Ext.space.SecureFiles.get('secrets');
 
         secrets.set('myKey',object).then(function(){
             //do something when done.
         });
-
-
 
     * @param {String} key  The key to store the value at.
     * @param {Object} value The JSON object to store. 
@@ -91,7 +92,6 @@ Ext.define('Ext.space.files.Collection', {
 
         //Chain the promise returned by getFile to the promise returned by write file.
         var result = this._getFile(key, true).then(function(file) {
-            console.log("my file", file);
             return me._writeFile(file, value);
         });
 
@@ -170,11 +170,9 @@ Ext.define('Ext.space.files.Collection', {
         this.baseDir.then(function(dir){
             dir.readEntries({
                 success: function(files) {
-                    console.log("collection files", files);
                     result.fulfill(files);
                 },
                 failure: function(err) {
-                    console.log("errr", err);
                     result.reject(err);
                 }
             })
@@ -183,9 +181,9 @@ Ext.define('Ext.space.files.Collection', {
     },
 
     /**
-    * Checks to see if key is present in collection without fetching and de-serializing the value.
+    * Checks to see if key is present in collection without fetching the content
 
-        var secrets = Ext.space.SecureLocalStore.get('secrets');
+        var secrets = Ext.space.SecureFiles.get('secrets');
 
         secrets.has('myKey').then(function(hasKey){
            
@@ -208,7 +206,7 @@ Ext.define('Ext.space.files.Collection', {
     /**
     * Deletes the key if present in collection.
 
-        var secrets = Ext.space.SecureLocalStore.get('secrets');
+        var secrets = Ext.space.SecureFiles.get('secrets');
 
         secrets.delete('myKey').then(function(done){
            
@@ -243,9 +241,9 @@ Ext.define('Ext.space.files.Collection', {
 
 
     /**
-    * Gets an array of all the keys in a collection
+    * Gets an array of all the names of the files in a collection
 
-        var secrets = Ext.space.SecureLocalStore.get('secrets');
+        var secrets = Ext.space.SecureFiles.get('secrets');
 
         secrets.keys().then(function(keys){
            console.log(keys.length);
@@ -266,24 +264,26 @@ Ext.define('Ext.space.files.Collection', {
     },
 
     /**
-    * Iterates over all the items in a collection
+    * Iterates over all the files in a collection
 
-        var secrets = Ext.space.SecureLocalStore.get('secrets');
+        var secrets = Ext.space.SecureFiles.get('secrets');
 
-         secrets.forEach(function(key, value){}).then(function(){
+         secrets.forEach(function(key){}).then(function(){
             // done.
         });
 
 
-    * @param {function}  callback this function will be called once for each item in the collection. 
-    * @return {Ext.Promise} the promise that will resolve when all of the itmes have been iterated.
+    * @param {function}  callback this function will be called once for each file in the collection. 
+    * @return {Ext.Promise} the promise that will resolve when all of the file have been iterated.
     *
     */
     forEach: function(callback) {
         var result = this._listFiles().then(function(files) {
             if(callback){
                for(var i =0, l = files.length; i < l; i++){
-                    callback(files[i].getName());
+                    var name = files[i].getName();
+                    var file = new Ext.space.files.File(name, this);
+                    callback(file);
                 }  
             }
             return files;
@@ -292,15 +292,15 @@ Ext.define('Ext.space.files.Collection', {
     },
 
     /**
-    * Returns a count of the total number of items in the collection
+    * Returns a count of the total number of files in the collection
 
-        var secrets = Ext.space.SecureLocalStore.get('secrets');
+        var secrets = Ext.space.SecureFiles.get('secrets');
 
-         secrets.count().then(function(count){
+        secrets.count().then(function(count){
             // done.
         });
 
-    * @return {Ext.Promise} the promise that will resolve with a the number of items in the collection. 
+    * @return {Ext.Promise} the promise that will resolve with a the number of files in the collection. 
     *
     */
     count: function() {
@@ -315,15 +315,15 @@ Ext.define('Ext.space.files.Collection', {
 
 
     /**
-    * Deletes all of the items in a collection. 
+    * Deletes all of the files in a collection. 
 
-        var secrets = Ext.space.SecureLocalStore.get('secrets');
+        var secrets = Ext.space.SecureFiles.get('secrets');
 
          secrets.clear().then(function(){
             // done.
         });
 
-    * @return {Ext.Promise} the promise that will resolve with a the number of items in the collection. 
+    * @return {Ext.Promise} the promise that will the resolve when the deletion is complete.
     *
     */
     clear: function(){
@@ -335,12 +335,10 @@ Ext.define('Ext.space.files.Collection', {
                     me.createDir().then(function(){
                         result.fulfill(true);
                     },function(err){
-                        console.log("errr", err);
                         result.reject(err);
                     });
                 },
                 failure: function(err) {
-                    console.log("errr", err);
                     result.reject(err);
                 }
             })

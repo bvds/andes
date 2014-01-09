@@ -20,6 +20,7 @@ var fs = require('fs'),
         'SecureLocalStorage',
         'SecureFiles',
         'files/Collection',
+        'files/File',
         'extra'
     ],
     content = [];
