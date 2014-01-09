@@ -1,7 +1,18 @@
-
 /**
+*  Key/Value store for files. Files stored using this api will be encrypted automatically using Sencha Spaces security infrastructure. 
 
-    
+
+        var files = Ext.space.SecureFile.get('secrets');
+
+        files.get('myKey').then(function(contents){
+            //do something with the content of the file.
+        });
+
+        files is an instance of Ext.space.files.Collection Please see Ext.space.files.Collection for a complete list of file operations.
+
+@aside guide secure_file_api
+        
+*  
 */
 Ext.define('Ext.space.SecureFiles', {
     singleton: true,
@@ -17,7 +28,7 @@ Ext.define('Ext.space.SecureFiles', {
 
 
     /**
-    * Get a collection of name. Collections are automatically created if they do not exist.
+    * Get a collection by name. Collections are automatically created if they do not exist.
     *
     * @param {String} collectionName The name of the collection to get.
     * @return {Ext.space.localstorage.Collection} the secure collection.

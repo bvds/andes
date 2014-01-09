@@ -1,5 +1,5 @@
 /**
-*  Simplified Key/Value store for files. 
+*  Key/Value store for files. 
 *  Each collection represents a top-level directory in the applications file system.
 *
 *  This class should only be created by Ext.space.SecureFiles and should not be created manually.
