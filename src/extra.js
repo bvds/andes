@@ -17,8 +17,6 @@
                 }
             }
         }, 1);
-
-        return 'ok';
     };
 
     if (Ext.isSpace) {
