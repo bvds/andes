@@ -1,12 +1,12 @@
 // Pre-AMD version had provides for "andes.error" and "andes.error._Error"
 // Pre-AMD version had a function wrapper.
 define([
-    "dojo/ready",
     "dojo/_base/declare",
     // pre-AMD requires:
     "dijit/Dialog",
-    "dijit/form/Button"
-], function(ready,declare,dijitDialog){
+    "dijit/form/Button",
+    "dojo/domReady!"
+], function(declare,dijitDialog){
 
     var dialog = null;
 
@@ -24,6 +24,16 @@ define([
 		var message = spec.message || "An unknown error occurred.",
 		    title = spec.title || "Error",
 		    dialogType = spec.dialogType || 0;
+	    // In pre-AMD version, dialog was set using addOnLoad
+	    // Instead, we will use dojo/domReady! above
+	    if(!dialog){
+		dialog = new _Error({
+			id: "andesErrorDialog",
+			title: "Error",
+			style: "width:400px"
+		});
+	    }
+	        console.log("dialog defined");
 		dialog.set({
 			content: message,
 			title: title,
@@ -36,6 +46,7 @@ define([
 			        message: message
 			});
 		}
+	    return dialog.buttonsNode;
 	};
 		
 	// dialogType constants
@@ -95,15 +106,8 @@ define([
 		}
 	});
 
-    if(true){
-	ready(function(){
+	    if(true){
 		console.info("andes/error.js:  start logging errors");
-		dialog = new _Error({
-			id: "andesErrorDialog",
-			title: "Error",
-			style: "width:400px"
-		});
-
                 // This clobbers any existing onerror handler.
 		window.onerror = function(msg, url, line){
 			window.andes.errorLog({
@@ -114,6 +118,5 @@ define([
 		    // Row later:  Returning 'false' triggers the execution of the built-in error handler.
 		    // return !dojoConfig.isDebug;
 		};
-	});
-    };
+	    };
 });

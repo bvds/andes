@@ -1,23 +1,27 @@
 /* global define */
 // Pre-AMD version had a function wrapper.
 define([
+    "dojo/dom",
     "dojo/cookie",
-    "dojo/on",
+    "dojo/_base/connect",  // This needs to be replaced by dojo/on or dojo/aspect
+    "dojo/_base/lang",
     "dijit/registry",
     "dojo/ready",
-    "dojo/aspect",
     "dojox/drawing/util/common",
     "dojox/drawing/manager/_registry",
     "dojox/drawing/tools/custom/Axes",
     "dojox/drawing/tools/custom/Vector",
-    "dojox/drawing/tools/TextBlock"
+    "dojox/drawing/tools/TextBlock",
+    "andes/Combo", // to make new andes.Combo
+    "andes/principles" // for andes.principles.review
     // pre-AMD version had no reqire statements.
-],function(cookie,on,registry,ready,aspect,common,managerRegistry){
+],function(dom, cookie, connect, lang, registry, ready, common, managerRegistry){
 	
 	cookie("mikeDev", null, { expires: -1 });
 	
 	// the html ID in index for the drawing app
 	var drawingId = "drawing";
+        var _drawing;
 	var _surfaceLoaded = false;
 	
 	
@@ -75,30 +79,29 @@ define([
 	
     ready(function(){
         console.log("andes/tracking.js: connect to \"drawing,\" wire up logging.");
-	window._drawing = registry.byId(drawingId);
-	console.log("got drawing widget:  ",window._drawing);
+	_drawing = registry.byId(drawingId);
+	console.log("got drawing widget:  ",_drawing);
 	// This was dojo.connect in pre-AMD version
-		var cn = aspect.after(window._drawing, "onSurfaceReady", function(){
-		        cn.remove();
-			window.andes.WordTip.add(window._drawing);
+		var cn = connect.connect(_drawing, "onSurfaceReady", function(){
+		        connect.disconnect(cn);
+			window.andes.WordTip.add(_drawing);
 		    // This was in the pre-AMD version
 		    // This seems to lead to a recursion?
 		    console.log("tracking.js:  about to call onSurfaceReady from ",window.andes.drawing);
 		    window.andes.drawing.onSurfaceReady();
-			if(window._drawing.stencils){
+			if(_drawing.stencils){
 				console.warn("Label double click connected");
-				aspect.after(window._drawing.stencils, "onLabelDoubleClick", window.andes.drawing, "onLabelDoubleClick");
+				connect.connect(_drawing.stencils, "onLabelDoubleClick", lang.hitch(window.andes.drawing,"onLabelDoubleClick"),true);
 			}
 		});
-		// This was dojo.connect in pre-AMD version
-		aspect.after(window._drawing, "onRenderStencil", window.andes.drawing, "onRenderStencil");
+		connect.connect(_drawing, "onRenderStencil", window.andes.drawing, "onRenderStencil");
 		
 		// Track user's focus on Andes.  So far only whether they are using the window/tab
 		// or have left to use another program
 		if(dojo.isIE){
-			on(dojo.global, "onfocus", window.andes.drawing, "onWindowFocus");
-			// on(dojo.global, "onfocusin", drawing, "onWindowFocus");
-			on(dojo.doc, "onfocusout", this, function() {
+			connect.connect(dojo.global, "onfocus", window.andes.drawing, "onWindowFocus");
+			// connect.connect(dojo.global, "onfocusin", drawing, "onWindowFocus");
+			connect.connect(dojo.doc, "onfocusout", this, function() {
 				if (this._activeElement != document.activeElement){
 					this._activeElement = document.activeElement;
 				}else{
@@ -106,11 +109,11 @@ define([
 				}
 			});
 		}else if(dojo.isSafari){
-			on(window, "onblur", window.andes.drawing, "onWindowBlur");
-			on(window, "onfocus", window.andes.drawing, "onWindowFocus");
+			connect.connect(window, "onblur", window.andes.drawing, "onWindowBlur");
+			connect.connect(window, "onfocus", window.andes.drawing, "onWindowFocus");
 		}else{
-			on(dojo.doc, "onblur", window.andes.drawing, "onWindowBlur");
-			on(dojo.doc, "onfocus", window.andes.drawing, "onWindowFocus");
+			connect.connect(dojo.doc, "onblur", window.andes.drawing, "onWindowBlur");
+			connect.connect(dojo.doc, "onfocus", window.andes.drawing, "onWindowFocus");
 		}
     });
 
@@ -155,7 +158,7 @@ define([
 						"x and y and z":"x and y";
 				}
 				// create statement for vector, rect, ellipse, or axes
-				var statement = window._drawing.addStencil("textBlock", props);
+				var statement = _drawing.addStencil("textBlock", props);
 				if(hasLabel[item.type]){
 					// axes
 					var s = statement;
@@ -164,13 +167,13 @@ define([
 						item.setLabel(value);
 						console.log("-------> onChangeText calling setLabel for ", item.id,": ",value);
 						this.add(item, true);
-						window._drawing.removeStencil(s);
+						_drawing.removeStencil(s);
 					});
 					
 
 				}else if(hasStatement[item.type]){
 					// vector, rect, ellipse
-					var c = new window.andes.Combo({master:item, statement:statement, onCreate: dojo.hitch(this, function(){
+					var c = new window.andes.Combo({master:item, statement:statement, onCreate: lang.hitch(this, function(){
 						this.add(c, true);
 					})});
 					
@@ -191,7 +194,7 @@ define([
 			items[group.id] = group;
 
 			dojo.forEach(group.items,function(item){
-				on(item.master,"onClick",this,function(item){
+				connect.connect(item.master,"onClick",this,function(item){
 
 					// Handle button clicks; don't do anything for done button.
 					if(item.buttonType == "checkbox"){
@@ -339,8 +342,8 @@ define([
 						
 						// prevent adding items via onRenderStencil
 						// by adding the ids first:
-						var statement = window._drawing.addStencil("textBlock", o.statement);
-						var master = window._drawing.addStencil(o.stencilType, o.master);
+						var statement = _drawing.addStencil("textBlock", o.statement);
+						var master = _drawing.addStencil(o.stencilType, o.master);
 						items[statement.id] = statement; //statement;
 						items[master.id] = master; //master;
 						var combo = new window.andes.Combo({master:master, statement:statement, id:o.id});
@@ -348,8 +351,8 @@ define([
 						
 					}else if(o.type=="button" && o.items){ // button groups don't have stencilType
 						var butt = dojo.map(o.items,function(item){
-							var statement = window._drawing.addStencil("text", item.statement);
-							var master = window._drawing.addUI(item.stencilType, item);
+							var statement = _drawing.addStencil("text", item.statement);
+							var master = _drawing.addUI(item.stencilType, item);
 							master.group=o;
 							items[statement.id] = statement; //statement;
 							items[master.id] = master; //master;
@@ -365,7 +368,7 @@ define([
 						this.addGroup(buttonCombo);
 					}else{
 						// including:  textBlock, axes ...
-						var item = window._drawing.addStencil(o.stencilType, o);
+						var item = _drawing.addStencil(o.stencilType, o);
 						var ID = item.id;
 						ID = ID.indexOf("TextBlock");
 						if(item.stencilType=='textBlock' && ID!=-1) item.util.uid(item.type);
@@ -403,17 +406,18 @@ define([
 						dialogType: window.andes.error.OK,
 						noLog: true
 					});
+					var button=dom.byId("andesButtonPageDefault");
+					console.assert(button,"buttonsNode object not found");
 					// Add event to Error box default OK button.
 					// This opens the general introduction.
 					// It should be disconnected when the
 					// dialog box is closed!  See bug #1628
-					on(registry.byId("andesButtonPageDefault"), 
+					connect.connect(button, 
 						     "click", 
 						     function(){
 							     // add 10 px padding
 							     window.andes.principles.review('vec1a-video.html','IntroVideo',null,"width=650,height=395");
-						     });
-					
+						     });					
 				}else if(obj.action=="new-user-dialog" && obj.url){
 					var x=registry.byId("consentDialog");
 					x.set("href",obj.url);

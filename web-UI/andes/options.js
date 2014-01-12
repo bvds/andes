@@ -1,9 +1,9 @@
 define([
-    "dojo/on",
+    "dojo/_base/connect",  // This needs to be replaced by dojo/on or dojo/aspect
     "dojo/_base/declare",
     // pre-AMD require:
     "dijit/ColorPalette"
-],function(on,declare){
+],function(connect, declare){
 // pre-AMD version used myDrawing.defaults for defaults.
 
 return declare(null,{
@@ -78,7 +78,7 @@ return declare(null,{
                 dijit.popup.close(this);
             }}, dojo.doc.createElement("div"));
         dijit.popup.moveOffScreen(this.picker);
-        
+
         // Set up connections
         this.connectMult([
             [this.angleSnap, "onChange", this, "setAngleSnap"],
@@ -91,8 +91,8 @@ return declare(null,{
     },
     
     connectMult: function(c){
-        dojo.forEach(c, function(o){
-            on.apply(this, o);
+        dojo.forEach(c, function(o){	    
+            connect.connect.apply(this, o);
         });
     },
     
@@ -154,8 +154,8 @@ return declare(null,{
     // Connected to the color picker this allows the user to change
     // both correct and incorrect color schemes
     colorChange: function(evt){
-        var c = on(this.picker, "onChange", this, function(value){
-            c.remove();
+        var c = connect.connect(this.picker, "onChange", this, function(value){
+            connect.disconnect(c);
             if(evt.target == this.correct){
                 this.setCorrectColor(value);
             }else{

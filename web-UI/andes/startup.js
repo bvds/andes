@@ -9,19 +9,19 @@ define([
     "dojo/io-query",
     "dojo/json",
     'dojo/_base/unload',
-	 "dojo/on",
+    "dojo/_base/connect",  // This needs to be replaced by dojo/on or dojo/aspect
     "dojo/require",
     // pre-AMD version had the following require:
     "andes/WordTip"
-],function(dom,domStyle,fx,array,cookie,ready,ioQuery,json,baseUnload,on,require,wordTip){ // Pre-AMD version had a function wrapper.
+],function(dom, domStyle, fx, array, cookie, ready, ioQuery, json, baseUnload, connect, require, wordTip){ // Pre-AMD version had a function wrapper.
 
 	// summary:
 	//	Handles loading of app and the timing of how items load.
 
-    // AMD conversion: this appears to be first module where
-    // andes global variable is accessed.
-        window.andes={};
-        console.assert(window.andes,"startup.js:  window.andes not defined.");
+    // If this is first place where andes global is used, define it
+        if(!window.andes){
+	    window.andes={};
+	};
 	
 	var devMode = true, query;
 	if(!window.location.search){
@@ -113,7 +113,7 @@ define([
 		// Problem close actions set
 	        var submitButton=dom.byId("submitButton");
 	        console.log("About to connect submit button ",submitButton);
-		on(submitButton, "click", function(){
+		connect.connect(submitButton, "click", function(){
 			// Needs to be non-blocking
 			var closer = window.andes.api.close({});
 			closer.then(function(result){

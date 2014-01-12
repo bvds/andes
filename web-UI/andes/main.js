@@ -1,7 +1,8 @@
 define([
     "andes/startup",
     // In the pre-AMD version, these were all after the body of main.js:
-    "andes/defaults",
+    // separate from rest of andes load.
+    // "andes/defaults", 
     "andes/PreferenceRegistry",
     "andes/convert",
     "andes/drawing",

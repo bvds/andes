@@ -1,12 +1,12 @@
 define([
     'dojo/_base/declare',
-    'dojo/on',
+    "dojo/_base/connect",  // This needs to be replaced by dojo/on or dojo/aspect
     "dojo/dom",
     "dojo/keys",
     "dojo/_base/lang",
     "dojo/domReady!"  // Needed to locate "conEdit"
     // pre-AMD version had no requires
-], function(declare,on,dom,keys,lang){
+], function(declare,connect,dom,keys,lang){
     return declare(null,{
 
     // Summary:
@@ -21,7 +21,7 @@ define([
       console.info("Constructing WordTip, this=",this);
       this.conEdit = dom.byId("conEdit");
       console.assert(this.conEdit,"conEdit is missing (already removed by drawing?).");
-        on(this.conEdit, "keydown", this, "textMonitor");
+        connect.connect(this.conEdit, "keydown", this, "textMonitor");
         console.log("I've got conedit now", this.conEdit);
     },
     
@@ -48,9 +48,9 @@ define([
         if(evt.keyCode == keys.ENTER || evt.keyCode == keys.ESCAPE){
             dijit.hideTooltip(this.conEdit);
         }
-        var cn = on(document,"mouseup",this, function(evt){
+        var cn = connect.connect(document,"mouseup",this, function(evt){
 	    console.log("WordTip.js:  responding to mouseup event");
-            cn.remove();
+            connect.disconnect(cn);
             dijit.hideTooltip(this.conEdit);
         });
     },
@@ -111,7 +111,8 @@ define([
 			wrd += ", &#8230;";
 		    }
                     console.log("Successfully retrieved tips: ", line.words.join(), " \nminimized to: ", wrd);
-                    dijit.showTooltip(wrd, this.conEdit, "above");   
+		    // At some point, place.around() started taking a list of positions instead of a string
+                    dijit.showTooltip(wrd, this.conEdit, ["above"]);   
                 };
             };
         },this);

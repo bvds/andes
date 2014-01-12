@@ -1,9 +1,9 @@
 define([
     "dojox/drawing/util/oo",
-    "dojo/on",
+    "dojo/_base/connect",  // This needs to be replaced by dojo/on or dojo/aspect
     "dojo/_base/array",
     "dojo/_base/lang"
-],function(oo,on,array,lang){
+],function(oo,connect,array,lang){
 
 window.andes.Combo = oo.declare(
 	// summary:
@@ -40,7 +40,7 @@ window.andes.Combo = oo.declare(
 		var s = this.statement;
 		var m = this.master;
 		
-		console.warn("combo statement:", this.statement);
+		console.log("combo statement:", this.statement);
 
 		this.statement.connectMult([
 			[this.statement, "onChangeData", this, "textPositionEdit"],
@@ -186,16 +186,16 @@ window.andes.Combo = oo.declare(
 				m = s; s = this;
 			}else if (once){
 				// ** object function object function Boolean **
-				c = on(o, e, function(evt){
+				c = connect.connect(o, e, function(evt){
 					lang.hitch(s, m)(evt);
-				    c.remove();
+				    connect.disconnect(c);
 				});
 				this._cons.push(c);
 				return c;
 			}else{
 				// ** object function object function **
 			}
-			c = on(o, e, s, m);
+			c = connect.connect(o, e, s, m);
 			this._cons.push(c);
 			return c;
 		},
@@ -204,7 +204,7 @@ window.andes.Combo = oo.declare(
 		  if(!handles) { return; }
 			if(!(handles instanceof Array)){ handles=[handles]; }
 		    // pre-AMD version had dojo as environment
-		    array.forEach(handles, function(handle){handle.remove();});
+		    array.forEach(handles, connect.disconnect);
 		}
 	}
 );

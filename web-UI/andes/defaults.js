@@ -1,10 +1,12 @@
 // Pre-AMD version had a function wrapper.
 // pre-AMD version had no requires
 define([
-],function(){
+    "dojo/_base/lang"
+],function(lang){
 
     console.info("andes/defaults.js:  defining andes default object.");
-	window.andes.defaults = {
+    // This allows defaults to be set on its own, without Andes.
+	lang.setObject("window.andes.defaults",{
 		// summary:
 		//	The style used for Andes3.
 		// description:
@@ -293,7 +295,7 @@ define([
 			return o;
 		}
 		
-	};
+	});
 	
 	// change Drawing defaults to andes defaults
 	var a = window.andes.defaults;

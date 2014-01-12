@@ -49,7 +49,7 @@ define([
                 f.call(s, value);
                 return true;
             }else{
-                console.warn("Attempted to set a preference not registered");
+                console.warn("Attempted to set a preference not registered: ",pref);
                 return false;
             }
         }

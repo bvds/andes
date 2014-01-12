@@ -45,7 +45,7 @@ if(true){
                 dojo.require("dojox.drawing.tools.Ellipse");
                 dojo.require("dojox.drawing.tools.Line");
                 
-                dojo.require("dojox.drawing.annotations.Label");
+                // dojo.require("dojox.drawing.annotations.Label");
                 dojo.require("dojox.drawing.annotations.Angle");
                 dojo.require("dojox.drawing.annotations.Arrow");
                 dojo.require("dojox.drawing.annotations.BoxShadow");
@@ -82,19 +82,24 @@ if(false){
 
 if(true){
 require([
-                         "dojo/parser","andes",
+                         "dojo/parser",
                          "dijit/MenuBar","dijit/PopupMenuBarItem",
-                         "dijit/layout/BorderContainer",
+                         "dijit/layout/ContentPane",
+                         "dojox/drawing/tools/custom/Equation", // equation is in list of tools
+                         "dojox/drawing/tools/custom/Vector", // vector is in list of tools
+                         "dojox/drawing/tools/custom/Axes", // axes is in list of tools
+                         "dijit/layout/BorderContainer",  //This includes the splitter
+                         "andes/defaults",  // needed for drawing to load, separate from rest of Andes load
                          "dojox/drawing/Drawing",
                          "dojox/drawing/ui/Toolbar",
-                         "andes/widget/ExpandoPane",
+                         "andes/widget/ExpandoPane", // Separate from rest of Andes load
                          "dijit/form/TextBox",
                          "dojox/widget/UpgradeBar",
                          "dojox/drawing/plugins/drawing/GreekPalette",
                          "dojox/widget/DialogSimple",
                          "dijit/form/NumberSpinner",
                          "dijit/form/ToggleButton",
-                         "dijit/layout/ContentPane" 
+                         "andes"
 ]);
 };
 
@@ -103,7 +108,7 @@ require([
 <body class="tundra">
     <div id="splashOverlay"></div>
     <div id="conEdit" contenteditable="true"></div>
-    <div id="main" data-dojo-type="dijit/layout/BorderContainer" gutters="false">
+    <div id="main" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="gutters:false">
 	<div data-dojo-type="dijit/MenuBar" id="navMenu" region="top" splitter="false">
 	    <span id="problemName" class="dijitMenuItem dijitMenuItemLabel">Problem</span>
 	    <div data-dojo-type="dijit/PopupMenuBarItem">
@@ -143,8 +148,10 @@ require([
 	    </div>
 	</div>
 		
-	<div id="helpPane" data-dojo-type="andes/widget/ExpandoPane" region="right" splitter="true" title="Tutor" startExpanded="false">
-	    <div id="helpWrapPane" data-dojo-type="dijit/layout/BorderContainer" gutters="false">
+        <!-- AMD conversion:  removed startExpanded:false property
+	     from andes/widget/ExpandoPane. -->
+	<div id="helpPane" data-dojo-type="andes/widget/ExpandoPane" data-dojo-props="region:'right', splitter:true, title:'Tutor'">
+	<div id="helpWrapPane" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="gutters:false">
 		<div id="helpContentPane" data-dojo-type="dijit/layout/ContentPane" region="center"></div>
 
 		<div id="helpInputPane" data-dojo-type="dijit/layout/ContentPane" region="bottom">
