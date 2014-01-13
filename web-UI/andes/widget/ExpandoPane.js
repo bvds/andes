@@ -1,3 +1,4 @@
+/* global define */
 // AMD conversion follows example in
 // https://dojotoolkit.org/reference-guide/1.9/releasenotes/migration-17.html#dojo-provide
 define([

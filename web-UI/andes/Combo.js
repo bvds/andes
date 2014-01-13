@@ -1,3 +1,4 @@
+/* global define */
 define([
     "dojox/drawing/util/oo",
     "dojo/_base/connect",  // This needs to be replaced by dojo/on or dojo/aspect

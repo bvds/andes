@@ -1,3 +1,4 @@
+/* global define */
 define([
     "dojo/_base/lang",
     // pre-AMD version requires:

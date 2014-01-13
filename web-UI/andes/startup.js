@@ -1,3 +1,4 @@
+/* global define */
 // This is the body of the pre-AMD version of main.js
 define([
     "dojo/dom",

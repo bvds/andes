@@ -1,3 +1,4 @@
+/* global define */
 define([], function(){
 
 	//		This files contains general message strings

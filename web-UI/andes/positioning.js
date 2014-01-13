@@ -1,3 +1,4 @@
+/* global define */
 // Pre-AMD version had a function wrapper.
 define([
     "dojox/drawing/util/positioning"

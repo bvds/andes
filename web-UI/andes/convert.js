@@ -1,3 +1,4 @@
+/* global define */
 // Pre-AMD version had a function wrapper.
 // pre-AMD version had no requires.
 define([

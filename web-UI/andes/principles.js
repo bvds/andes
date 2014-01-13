@@ -1,3 +1,4 @@
+/* global define */
 define([
     "dojo/on",
     "dojo/ready",

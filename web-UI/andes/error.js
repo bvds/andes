@@ -1,3 +1,4 @@
+/* global define */
 // Pre-AMD version had provides for "andes.error" and "andes.error._Error"
 // Pre-AMD version had a function wrapper.
 define([

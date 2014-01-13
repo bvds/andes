@@ -1,3 +1,4 @@
+/* global define */
 define([
     "dojo/_base/connect",  // This needs to be replaced by dojo/on or dojo/aspect
     "dojo/_base/declare",

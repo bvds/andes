@@ -1,3 +1,4 @@
+/* global define */
 define([
     "andes/startup",
     // In the pre-AMD version, these were all after the body of main.js:
