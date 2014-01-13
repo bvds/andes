@@ -154,7 +154,8 @@ define([
 				if(hasLabel[item.type]){
 					// axes
 					// default labels for an axes
-					props.data.text = window.andes.defaults.zAxisEnabled?
+				        // This is the switch used in dojox/drawing/tools/custom/Axes.js:
+					props.data.text = item.style.zAxisEnabled?
 						"x and y and z":"x and y";
 				}
 				// create statement for vector, rect, ellipse, or axes

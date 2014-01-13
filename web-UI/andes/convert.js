@@ -192,7 +192,7 @@ define([
 				obj.data.text = o.text;
 			}else if(o.type=="axes"){
 				obj.label = o['x-label']+" and "+o['y-label'];
-				if(window.andes.defaults.zAxisEnabled){
+				if(o['z-label']){
 					obj.label += " and "+o['z-label'];
 				}
 			}
