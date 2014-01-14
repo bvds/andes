@@ -56,7 +56,7 @@
                 "name": "secure_file_api",
                 "title": "Secure File API",
                 "description": "Secure File API."
-            }
+            },
             {
                 "name": "sec_lcl_strg",
                 "title": "Secure Local Storage",
