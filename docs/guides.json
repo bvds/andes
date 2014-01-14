@@ -53,6 +53,11 @@
                 "description": "Developing an app for Sencha Space."
             },
             {
+                "name": "secure_file_api",
+                "title": "Secure File API",
+                "description": "Secure File API."
+            }
+            {
                 "name": "sec_lcl_strg",
                 "title": "Secure Local Storage",
                 "description": "Secure Local Storage of key and value pairs."
