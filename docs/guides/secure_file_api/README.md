@@ -1,18 +1,18 @@
 # Secure File API
 
-Sencha Space provides an encrypted file system where applications can store files. These files are isolated from all other applications in the user's organization. Files stored in one application can not be read by or written to from another application. 
+Sencha Space provides an encrypted file system where applications can store files. These files are isolated from all other applications in the user's organization. Files stored in one application cannot be read by or written to from another application. 
 
 SecureFiles
 ---
 
-To make reading a write files easy, Sencha Space exposes a simple key value store for files. This api is optimized for the common file operations of read, write and list. 
+To make reading and writing files easy, Sencha Space exposes a simple key value store for files. This API is optimized for the common file operations of read, write, and list. 
 
-See Ext.space.SecureFiles for details on the api.  We also have a simple example application in our github repository: https://github.com/sencha/SpaceExamples/tree/master/SecureFiles
+See Ext.space.SecureFiles for details on the API.  We also provide the SecureFiles example application in our github repository: 
+<a href="https://github.com/sencha/SpaceExamples/tree/master/SecureFiles">https://github.com/sencha/SpaceExamples/tree/master/SecureFiles</a>.
 
-In this example we use our camera api to fetch files from the phone's library and then store them in the application's encrypted filesystem. The images are then retrieved displayed in a list. 
+In the SecureFiles example we use our camera API to fetch files from the phone's library and store them in the application's encrypted filesystem. The images are then retrieved and displayed in a list. 
 
-First we need to create a collection where we want to store all of the photos.  Think of collections as folders, an application can have as many folders as it needs. If a collection does not exist it will automatically be created:
-
+First, we need to create a collection where we want to store all of the photos. Think of collections as folders, an application can have as many folders as it needs. If a collection does not exist it's automatically created:
 
 	Ext.onSpaceReady(function(){
 	   
@@ -21,7 +21,7 @@ First we need to create a collection where we want to store all of the photos.  
 	});
 
 
-Next to fetch a photo from the user's library we use the Ext.space.Camera api
+Next, to fetch a photo from the user's library, we use the Ext.space.Camera API:
 
 
 	var result = Ext.space.Camera.capture({
@@ -33,9 +33,11 @@ Next to fetch a photo from the user's library we use the Ext.space.Camera api
             destination: 'data'
     });
 
-In the above code we are creating a thumbnail of the selected image before storing it. By Using destination 'data' we are instructing the capture call to return the image data as a base 64 encoded string. 
+In the above code we create a 200x200 pixel thumbnail of the selected image before storing it. 
+By specifying the destination as 'data', we instruct the capture call to return the image data 
+as a base-64 encoded string. 
 
-When the promise returns we can store the image by calling set on the photos collection:
+When the promise returns, we can store the image by calling a set on the photos collection:
 
     result.then(function(image){
         log("user chose image");
@@ -46,8 +48,7 @@ When the promise returns we can store the image by calling set on the photos col
     })
 
 
-Next to display all of the photos in the collection we will use Ext.space.files.Collection.keys:
-
+Next, to display all of the photos in the collection, we use Ext.space.files.Collection.keys:
 
 	photos.keys().then(function(fileNames){
         log("image count: " + fileNames.length);
@@ -64,7 +65,8 @@ Next to display all of the photos in the collection we will use Ext.space.files.
     });
 
 
-In this code we loop over each of the image file names and then fetch the contents of each photo. Once we have the contents of the photo we create a data uri and assign it to the source of an image.
+In this code, we loop over each of the image file names and fetch the contents of each photo. Once we have the contents of the photo we create a data URI and assign it to the source of an image.
 
-For complete source code please see https://github.com/sencha/SpaceExamples/tree/master/SecureFiles
+For complete source code, see 
+<a href="https://github.com/sencha/SpaceExamples/tree/master/SecureFiles">https://github.com/sencha/SpaceExamples/tree/master/SecureFiles</a>.
 
