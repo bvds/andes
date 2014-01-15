@@ -10,7 +10,7 @@ For more information on SAML, see
 To enable SAML authentication support in Sencha Space, select SAML 2.0 in 
 Space Manager > Settings > Authentication. 
  
-When a user enters an organization, the Space client sends the user to the 
+When a user enters an organization, the Space Client sends the user to the 
 appropriate identity provider (IdP). Space uses an HTTP redirect for SAML requests 
 and an HTTP post for SAML responses.
 
@@ -23,7 +23,7 @@ See also <a href="#!/guide/manager_guide-section-AuthenticationSettings">Authent
 ### Endpoint URL
 
 The URL to send the SAML authentication request. You can usually find this URL in your 
-IdP’s <code>federationmetadata.xml</code> file in the SingleSignOnService node.
+IdP’s <code>federationmetadata.xml</code> file in the <code>SingleSignOnService</code> node.
 
 ### Certificate
 
@@ -36,7 +36,7 @@ An <a href="http://en.wikipedia.org/wiki/X.509">X.509 certificate</a> in
 
 Commonly used attribute names for certain IdPs.
 
-Note: An invalid or missing attribute will not prevent a user from being added.
+**Note**: An invalid or missing attribute will not prevent a user from being added.
 
 ### Email Attribute
 
@@ -46,5 +46,6 @@ The attribute name used to denote the user’s email address.
 
 The attribute name used to denote the user’s first name.
 
-Last Name Attribute
+### Last Name Attribute
+
 The attribute name used to denote the user’s last name.
