@@ -7,15 +7,15 @@ and the Sencha Space service provider.
 For more information on SAML, see 
 <a href="http://en.wikipedia.org/wiki/SAML_2.0">http://en.wikipedia.org/wiki/SAML_2.0</a>.
 
-To enable SAML authentication support in Sencha Space, select SAML 2.0 in 
-Space Manager > Settings > Authentication. 
- 
 When a user enters an organization, the Space Client sends the user to the 
 appropriate identity provider (IdP). Space uses an HTTP redirect for SAML requests 
 and an HTTP post for SAML responses.
 
 
 ## SAML Settings
+
+To enable SAML authentication support in Sencha Space, select <b>SAML 2.0</b> in 
+Space Manager &gt; <b>Settings</b> &gt; <b>Authentication</b>. 
 
 The following provide information on the Space Manager Authentication Settings.
 See also <a href="#!/guide/manager_guide-section-AuthenticationSettings">Authentication Settings</a>.
@@ -36,7 +36,7 @@ An <a href="http://en.wikipedia.org/wiki/X.509">X.509 certificate</a> in
 
 Commonly used attribute names for certain IdPs.
 
-**Note**: An invalid or missing attribute will not prevent a user from being added.
+**Note**: An invalid or missing attribute won't prevent a user from being added.
 
 ### Email Attribute
 
