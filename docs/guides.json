@@ -26,6 +26,11 @@
                 "name": "manager_guide",
                 "title": "Space Manager Guide",
                 "description": "Using the Sencha Space Manager administrative tool."
+            },
+            {
+                "name": "saml_integration",
+                "title": "SAML Integration Guide",
+                "description": "Security Assertion Markup Language (SAML) in Space Manager."
             }
         ]
     },
