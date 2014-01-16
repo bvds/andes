@@ -1,4 +1,4 @@
-/*
+/**
  * Key/Value store for files. Files stored using this API are encrypted automatically 
  * using Sencha Space's security infrastructure. 
  *
