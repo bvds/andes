@@ -6,11 +6,6 @@
                 "name": "intro",
                 "title": "Introduction",
                 "description": "Introduction to Sencha Space."
-            },
-            {
-                "name": "security_architecture",
-                "title": "Security Architecture Guide",
-                "description": "Sencha Space Security."
             }
         ]
     },
@@ -86,6 +81,11 @@
                 "name": "sensor_apis",
                 "title": "Sensor APIs Guide",
                 "description": "Sencha Space Sensor APIs."   
+            },
+            {
+                "name": "security_architecture",
+                "title": "Security Architecture Guide",
+                "description": "Sencha Space Security."
             }
         ]
     }
