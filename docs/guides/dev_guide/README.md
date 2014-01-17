@@ -7,7 +7,7 @@ When designing your applications make sure your applications will degrade gracef
 To start using Sencha Space's APIs you simply need to include this script tag in the head of the HTML page of your application.
 
 	<script 
-	    src="http://cdn.sencha.com/space.js">
+	    src="http://space.sencha.io/space.js">
 	</script>
 
 If your application is a Sencha Touch application using Sencha Cmd and the Micro loader, make sure to include Sencha Space after the microloader:
