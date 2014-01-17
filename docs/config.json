@@ -1,6 +1,6 @@
 {
     "--": [
-        "../src"
+        "../src", "../resources/images"
     ],
 	"--welcome": "welcome.html",
     "--title": "SpaceSDK 1.0.0 - Sencha Docs",
