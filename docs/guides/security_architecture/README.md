@@ -3,7 +3,7 @@
 Sencha Space’s primary focus is its rigorous attention to security.  
 Sencha Space serves enterprises and their employees, IT administrators, 
 and application engineers. These environments have very strict 
-information security policies and practices.  This document 
+information security policies and practices. This document 
 details Space’s security model.
 
 
@@ -65,7 +65,7 @@ Encrypted File System: All persistant data within space is automatically encrypt
 
 Encrypted Database: Each application can be granted access to an encrypted database. An application can access this database via Space's <a href="#!/guide/sec_lcl_strg">Secure Local Storage API</a>.
 
-{@img databases-orgs.png}
+{@img databases.png}
 
 
 # Key Management
