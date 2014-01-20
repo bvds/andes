@@ -83,6 +83,7 @@ The top menu contains these buttons:
 <tr><td>{@img Space_Ad_AdminMenu.png}</td>
 <td><a href="#AdminMenu">Admin Menu</a> - Edit the admin profile 
 or log out of Sencha Space</td></tr>
+<tr>{@img IconHelp.png}<td></td><td>Space documentation link</td></tr>
 <tr><td>{@img Space_Ad_SenchaIcon.png}</td>
 <td><a href="#SenchaLogMenu">Sencha Log Menu</a> - View a log of your recent
 actions.</td></tr>
@@ -246,7 +247,7 @@ from a device.
 Tasks:
 
  - Click the Refresh arrow to update the devices list.
- - Click a checkbox and the trash can icon to wipe out all Space Client data on a device.
+ - Wipe out Space Client data from a device.
  - Search for a device.
 
 Lists:
@@ -263,10 +264,19 @@ wipe the Space Client organization data from a device.
 
 {@img DeviceInfo.png}
 
- - Device - Device type taken from the device's data provided in the connection
- - Client - Space Client version number
- - Ownership - How you classify the device - set this value by clicking **Edit**
- - Blocked - Whether or not this device is currently blocked
+Device Information:
+
+ - Device - Device type taken from the device's data provided in the connection.
+ - Client - Space Client version number.
+ - Ownership - How you classify the device - set this value by clicking **Edit**.
+ - Blocked - Whether or not this device is currently blocked.
+ - Authorized - Whether or not this device can be logged in.
+
+Device Actions:
+
+ - Block Device - Removes the ability of the device of a user to access the Space Client. The user is sent a message stating that the device is blocked by an administrator.
+ - Wipe Device - Removes all Sencha Client organizational data from the device - the user is logged out of the Space Client.
+ - Deauthorize Device - Removes the ability for the device to be logged into a Space Client. The user is sent a message stating that the device can no longer access Space.
 
 ### Edit Device Info
 
@@ -277,10 +287,9 @@ by removing the organizational data from the Space Client on the device.
 
  - Device - Device type taken from the device's data provided in the connection.
  - Client - Space Client version number.
- - Ownership - Set as needed to Employee or Corporate.
- - Block - Removes the ability of the device of a user to access the Space Client. The user is sent a message stating that the device is blocked by an administrator.
- - Wipe Device - Removes all Sencha Client organizational data from the device - the user is logged out of the Space Client.
+ - Ownership - Set as needed to Unknown, Employee, or Corporate.
  - Done - If you make a change, click **Done** to complete the change.
+ - Cancel - Exit back to Devices tab.
 
 <a name="UsersTab"></a>
 ## Users Tab
@@ -444,7 +453,6 @@ Click a checkbox and the trash icon to delete access to a service.
 This tab lists:
 
  - Name - VPN service name
- - Type - SSL VPN type
  - Modified - When the VPN service was last configured
  - Plus Icon - Add or change a VPN Service
 
@@ -457,9 +465,7 @@ To configure a VPN service:
  1. Click the Plus icon
  2. Specify a Service Name for the display on the VPN Services tab
  3. Specify the URL of the server that authenticates your VPN service access
- 4. Click the SSL VPN type from the list
- 5. Click Yes or No for whether public-key cryptography is enforced on the VPN
-    using the [RSA](http://en.wikipedia.org/wiki/RSA_\(algorithm)) algorithm
+ 4. Click the apps you want to served by the VPN Service
 
 <a name="ReportsTab"></a>
 ## Reports Tab
@@ -634,15 +640,14 @@ you require.
 
 Information about your Space Manager subscription:
 <ul>
-<li>Status of Your Current Subscription - Whether you are using Space
-on a trial or are active.</li>
-<li>Subscription Period End - The date your Space subscription ends.</li>
-<li>Billing Tier - Indicates whether your subscription applies to your
-team, workforce, or enterprise.</li>
+<li>Credit Card Number - The number of the credit card to use to bill for your Sencha
+Space subscription.</li>
+<li>Security Code - The 3-digit security code on the back of your credit card.</li>
+<li>Expires - When your credit card expires.</li>
+<li>Billing Contact - The name, address, country, and state of the person who 
+handles billing for your organization.</li>
 <li>Contact Information - Who to contact who is responsible for maintaining
 the Sencha Space subscription.</li>
-<li>Credit Card - Which credit card to use to bill for your Sencha
-Space subscription.</li>
 <li>Update - Click to save changed information in this form.</li>
 </ul>
 
