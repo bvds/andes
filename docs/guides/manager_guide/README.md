@@ -83,7 +83,7 @@ The top menu contains these buttons:
 <tr><td>{@img Space_Ad_AdminMenu.png}</td>
 <td><a href="#AdminMenu">Admin Menu</a> - Edit the admin profile 
 or log out of Sencha Space</td></tr>
-<tr>{@img IconHelp.png}<td></td><td>Space documentation link</td></tr>
+<tr><td>{@img IconHelp.png}</td><td>Space documentation link</td></tr>
 <tr><td>{@img Space_Ad_SenchaIcon.png}</td>
 <td><a href="#SenchaLogMenu">Sencha Log Menu</a> - View a log of your recent
 actions.</td></tr>
@@ -169,6 +169,10 @@ Space Manager prompts to be sure you want to unblock the device.
 
 <b>Note</b> Blocking the device only affects the one device. The user
 can access the Space Client from another device.
+
+You can also deauthorize a device so that it can never be reactivated under Space
+by using the <b>Deauthorize Device</b> option on the 
+<a href="#DeviceInfo">Device Information</a> menu.
 
 
 <a name="AppsTab"></a>
@@ -257,7 +261,8 @@ Lists:
  - Last Access - Last use of Space Client by the device
  - Ownership - How you designate the device - can by Unknown, Employee, or Corporate
 
-### Device Info
+<a name="DeviceInfo"></a>
+### Device Information
 
 Click a device to view and edit device information. This menu also lets you
 wipe the Space Client organization data from a device.
@@ -277,6 +282,8 @@ Device Actions:
  - Block Device - Removes the ability of the device of a user to access the Space Client. The user is sent a message stating that the device is blocked by an administrator.
  - Wipe Device - Removes all Sencha Client organizational data from the device - the user is logged out of the Space Client.
  - Deauthorize Device - Removes the ability for the device to be logged into a Space Client. The user is sent a message stating that the device can no longer access Space.
+
+<b>Note</b>: Deauthorizing a device cannot be undone, whereas blocking a device can.
 
 ### Edit Device Info
 
@@ -473,15 +480,15 @@ To configure a VPN service:
 Provides interactive reports for:
 <ul>
 <li><b>Last Seen</b> - Number of users logging in. Lets you filter by duration, 
-date range, platform OS, platform version, and whether the device is 
+date range, platform OS, and whether the device is 
 owned by the user or the organization. Also lists recent logins.<br><br>
 {@img ManagerReportsLastSeen.png}<br></li>
 <li><b>Platform Distribution</b> - Pie chart by device platform with filters for 
-date range, platform OS, platform version, and whether the device is owned 
+date range, platform OS, and whether the device is owned 
 by the user or the organization. Also lists current devices.<br><br>
 {@img ManagerReportsPlatDist.png}<br></li>
 <li><b>App Launches</b> - Number of app launches with filters for 
-date range, platform OS, platform version, and whether the device is owned 
+date range, platform OS, and whether the device is owned 
 by the user or the organization. Also lists the available apps by usage,
 with columns for when the app was created (made available to 
 your organization).<br><br>
