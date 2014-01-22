@@ -27,7 +27,7 @@ Google Play, or BlackBerry World Apps market.
 
 ## Sencha Space Features
 
-The Manager Application side menu contains these buttons:
+The Manager application side menu contains these buttons:
 
 <table border="1" style="width: 600px">
 <tr><th>Icon</th><th>Description</th></tr>
@@ -38,14 +38,16 @@ The Manager Application side menu contains these buttons:
   <td><a href="#AppsTab">Applications</a> - Lists, adds, and
 removes applications</td></tr>
 <tr><td>{@img IconDevices.png}</td><td><a href="#DevicesTab">Devices</a> - Lists,
-assigns device ownership, blocks a device, and wipes Space Client info 
-from a device</td></tr>
+assigns device ownership, blocks or deauthorizes a device, 
+and wipes Space Client info from a device</td></tr>
 <tr><td>{@img IconUsers.png}</td>
-  <td><a href="#UsersTab">Users</a> - Lists, adds, and removes user access to Space</td></tr>
+<td><a href="#UsersTab">Users</a> - Lists, adds, and removes 
+user access to Space</td></tr>
 <tr><td>{@img IconGroups.png}</td>
-  <td><a href="#GroupsTab">Groups</a> - Lists, adds, and removes group access to Space</td></tr>
+<td><a href="#GroupsTab">Groups</a> - Lists, adds, and removes 
+group access to Space</td></tr>
 <tr><td>{@img IconVPN.png}</td>
-  <td><a href="#VPNServicesTab">VPN Services</a> - Manages VPN services</td></tr>
+<td><a href="#VPNServicesTab">VPN Services</a> - Manages VPN services</td></tr>
 <tr><td style="vertical-align: top">{@img IconReports.png}</td>
 <td><a href="#ReportsTab">Reports</a> - Provides interactive reports for:
 <ul>
@@ -58,20 +60,31 @@ by the user or the organization. Also lists current devices.</li>
 <li>App Launches - Number of app launches with filters for 
 date range, platform OS, platform version, and whether the device is owned 
 by the user or the organization. Also lists the available apps by usage,
-with columns for when the app was created (made available to your organization).</li>
+with columns for when the app was created 
+(made available to your organization).</li>
 </ul>
 </td></tr>
 <tr><td style="vertical-align: top">{@img IconSettings.png}</td>
-  <td><a href="#SettingsTab">Settings</a> - Provides settings for:
+<td><a href="#SettingsTab">Settings</a> - Provides settings for:
 <ul>
-<li>General - Specify organization name, organization code, email method, and billing address.</li>
-<li>Security Policy - Specify user session duration, PIN length, 
-and maximum attempts before lock out.</li>
-<li>Authentication - Specify authentication method, Security Assertion Markup Language (SAML) 
+<li><a href="#GeneralSettings">General</a> - Specify organization name,
+organization code, email method, and billing address.</li>
+<li><a href="#SecuritySettings">Security Policy</a> - Specify 
+the maximum idle time before PIN challenge, PIN type, PIN minimum
+length, lock out after failed PIN attempts, and the maximum time
+working offline before automatic log out.</li>
+<li><a href="#AuthenticationSettings">Authentication</a> - Specify 
+authentication method, Security Assertion Markup Language (SAML) 
 configuration, and Identity Provider (IDP) information.</li>
-<li>Subscription - Change your Space subscription when your organization 
-adds more users, devices per user, or apps.</li>
-<li>Billing - Specify your organization's contact and billing address.</li>
+<li><a href="#SubscriptionSettings">Subscription</a> - Change your 
+Space subscription when your organization 
+adds more users, devices per user, or apps. Paid subscriptions
+receive Premium forum access and advanced authentication, 
+and the Enterprise subscription comes with Support and Per
+App VPN.</li>
+<li><a href="#BillingSettings">Billing</a> - Specify your 
+organization's credit card, card expiration date, 
+and billing contact information.</li>
 </ul>
 </td></tr>
 </table>
@@ -152,9 +165,14 @@ by clicking the red X icon:
 You are prompted to be sure you want to immediately terminate the user's 
 session.
 
-Blocking a user's device sends this message to the Space Client:
+Blocking a user's device sends this message to the Space Client device:
 
-<pre><b>Error</b> This device has been blocked indefinitely by an administrator.</pre>
+<pre><b>Error</b>
+This user has had their access
+revoked indefinitely by an
+administrator
+
+OK</pre>
 
 To reactivate the device:
 <ol>
@@ -170,21 +188,24 @@ Space Manager prompts to be sure you want to unblock the device.
 <b>Note</b> Blocking the device only affects the one device. The user
 can access the Space Client from another device.
 
-You can also deauthorize a device so that it can never be reactivated under Space
-by using the <b>Deauthorize Device</b> option on the 
-<a href="#DeviceInfo">Device Information</a> menu.
+You can also remove all Space data from a device by Wiping the device,
+or you can also remove Space data and deauthorize the device. For 
+more information, see <a href="#DeviceInfo">Device Information</a> menu.
 
 
 <a name="AppsTab"></a>
 ## Applications Tab
 
-The Applications tab lists all apps that can run on a Sencha Space Client. Click an
+The Applications tab lists all apps that can run on a 
+Sencha Space Client. Click an
 application to [view more information](#appinfo) about the application. 
 You can give each user a different set of applications within your organization. 
 
 The first application you set for a user 
-becomes the first screen they see when they log into the Space Client. As administrator,
-you can use a web page as the starting application, for example, as a welcome screen
+becomes the first screen they see when they log into 
+the Space Client. As administrator,
+you can use a web page as the starting application, 
+for example, as a welcome screen
 with ways for users to get help or learn how to use their client.
 
 {@img SpaceMgrApplications.png}
@@ -227,17 +248,23 @@ so that the app can be accessed by Space Clients.
 
 {@img SpaceMgrAddApp.png}
 
- - App Name - Specify the name of the app as it will appear on the 
-   Applications tab and on the Space Client.
- - App URL - The URL of the app. This can be an HTTP or HTTPS address.
- - Icon URL - The URL of the icon for the app. This can be an HTTP or HTTPS address.
- - Invokes - List the apps that this app can invoke. Separate app names with commas. 
- This field is case sensitive.
- - Description - Description of the app. This description appears on the Applications 
-   tab and in the Space Client.
+<ul>
+<li>App Name - Specify the name of the app as it will appear on the 
+Applications tab and on the Space Client.</li>
+<li>App URL - The URL of the app. This can be an 
+HTTP or HTTPS address.</li>
+<li>Icon URL - The URL of the icon for the app. 
+This can be an HTTP or HTTPS address.</li>
+<li>Invokes - List the apps that this app can invoke. 
+Separate app names with commas. This field is case sensitive.</li>
+<li>Description - Description of the app. This 
+description appears on the Applications tab and 
+in the Space Client.</li>
+</ul>
 
 <b>Note</b>: To give users access to an app, see 
-<a href="#AddAppToGroup">Add an App to a Group</a> (you need to add an app to a group,
+<a href="#AddAppToGroup">Add an App to a Group</a> 
+(you need to add an app to a group,
 and then add the user to the group).
 
 <a name="DevicesTab"></a>
@@ -251,15 +278,21 @@ from a device.
 Tasks:
 
  - Click the Refresh arrow to update the devices list.
- - Wipe out Space Client data from a device.
  - Search for a device.
 
 Lists:
 
- - Device - Device name
- - User - Device's owner - This name is set on the <a href="#UsersTab">Users tab</a>
- - Last Access - Last use of Space Client by the device
- - Ownership - How you designate the device - can by Unknown, Employee, or Corporate
+<ul>
+<li>Device - Device name</li>
+<li>User - Device's owner - This name is set on the 
+<a href="#UsersTab">Users tab</a></li>
+<li>Last Access - Last use of Space Client by the device</li>
+<li>Ownership - How you designate the device - can 
+be Unknown, Employee, or Corporate</li>
+<li>Blocked - Whether a device is blocked from Space Client access</li>
+<li>Authorized - Whether a device is authorized to access the 
+Space Client</li>
+</ul>
 
 <a name="DeviceInfo"></a>
 ### Device Information
@@ -279,16 +312,64 @@ Device Information:
 
 Device Actions:
 
- - Block Device - Removes the ability of the device of a user to access the Space Client. The user is sent a message stating that the device is blocked by an administrator.
- - Wipe Device - Removes all Sencha Client organizational data from the device - the user is logged out of the Space Client.
- - Deauthorize Device - Removes the ability for the device to be logged into a Space Client. The user is sent a message stating that the device can no longer access Space.
+<ul>
+<li><p><b>Block Device</b> - Removes the ability of the 
+device of a user to access the Space Client. The user is logged out of Space. 
+You must unblock the device before the user
+can log in again on the same device. The user is sent this message:</p>
+<pre><b>Error</b>
+This user has had their access
+revoked indefinitely by an
+administrator
 
-<b>Note</b>: Deauthorizing a device cannot be undone, whereas blocking a device can.
+OK</pre></li>
+<li><p><b>Wipe Device</b> - Removes all Sencha Client organizational 
+data from the device - the user is logged out of the 
+Space Client, but the user can just log back in on this device.
+The user is sent this message:</p>
+<pre>
+<b>Device Remotely Wiped</b>
+Your device has been remotely
+wiped by an administrator. You have 
+been logged out.
+
+OK
+</pre></li>
+<li><p><b>Deauthorize Device</b> - Removes the ability for the device to be 
+logged into a Space Client, wipes its Space data, and logs the 
+user out of the current organization. You must reauthorize the user
+before the user can log in again on the same device.
+The user is sent this message:</p>
+<pre>
+<b>Device Remotely Wiped</b>
+Your device has been remotely
+wiped by an administrator. You have 
+been logged out.
+
+OK
+</pre>
+<p>The Deauthorize prompt changes to Authorize. <b>Note</b> The user
+continues to have the same group affiliation while unauthorized,
+and after being reauthorized, regains access to the same apps as
+previously accessed. </li>
+</ul>
+
+<b>Note</b>: Deauthorizing a device removes a device from a user's device 
+quota. If a user's quota is available, a device can be brought back to access
+Space. Without quota, a deauthorized device cannot be returned to service.
+
+Quota depends on the <a href="#SubscriptionSettings">Subscription</a> 
+setting. If your organization has a Team
+or Workforce subscription, users can have up to 5 devices each; therefore,
+with these subscriptions, if a user has 4 or fewer devices, 
+you can restore a deauthorized device. If your organization has an Enterprise
+subscription, users can have any number of devices, so you can always 
+restore a deauthorized device with an Enterprise subscription.
 
 ### Edit Device Info
 
-Edit device information to change the ownership, block a device, or wipe the device 
-by removing the organizational data from the Space Client on the device.
+Edit device information to change the ownership, block a device, 
+or wipe (remove) Space Client data from a device.
 
 {@img DeviceInfoEdit.png}
 
@@ -306,7 +387,8 @@ You can also use this tab to add users, block users, change a login password,
 and remove a user. 
 
 <b>Note</b>: To give users access to an app, see 
-<a href="#AddAppToGroup">Add an App to a Group</a> (you need to add an app to a group,
+<a href="#AddAppToGroup">Add an App to a Group</a> 
+(you need to add an app to a group,
 and then add the user to the group).
 
 {@img SpaceMgrUsers.png}
@@ -579,9 +661,12 @@ the correct PIN value before being locked out. The default is 10 attempts.
 If a user is locked out, the user must re-enter their username and password
 to gain access to the Space client. The minimum is 2 tries.</li>
 <li>Max Time Working Offline Before Automatic Log Out - Maximum 
-duration that a user can perform other activities outside the Space Client 
-before being automatically logged off. The duration
-can be set to an amount of minutes, hours, days, weeks, or months.</li>
+duration that an offline user can perform other 
+activities outside the Space Client 
+before being automatically logged off. A user is offline when there is 
+not data connection to a device either by a phone carrier or by wifi.
+The duration can be set to an amount of minutes, hours, days, 
+weeks, or months.</li>
 <li>Save - Save settings.</li>
 </ul>
 
@@ -611,9 +696,7 @@ Lets you set:
 you can only add user access to the Space client by an email
 invitation. <b>SAML 2.0</b> - Indicates that users are given access
 to the Space client by virtue of access through SAML.</li>
-<li>User Provisioning - Auto add user to Space - Add user automatically
-to Sencha Space.</li>
-<li>Identity Provider (IDP) Config:
+<li>SAML Configuration - Identity Provider (IDP) Config:
   <ul>
   <li>Endpoint URL - Indicate the URL for how to access the IDP.</li>
   <li>Certificate - List the IDP certificate. Use this syntax:
@@ -622,11 +705,12 @@ to Sencha Space.</li>
 </pre>
  </li>
   <li>Attribute Presets - Custom, OneLogin (single sign-on), 
-  or <a href="http://en.wikipedia.org/wiki/Active_Directory_Federation_Services">Active Directory Federation Services 2.0</a></li>
-  <li>Email Attribute - Specify the email address of your IDP</li>
-  <li>First Name Attribute - Specify the first name of the IDP</li>
-  <li>Last Name Attribute - Specify the last name of the IDP</li>
+  or <a href="http://en.wikipedia.org/wiki/Active_Directory_Federation_Services">Active Directory Federation Services 2.0</a>.</li>
+  <li>Email Attribute - Specify the email address of your IDP.</li>
+  <li>First Name Attribute - Specify the first name of the IDP.</li>
+  <li>Last Name Attribute - Specify the last name of the IDP.</li>
   </ul></li>
+<li>Save - Save changes and exit menu.</li>
 </ul>
 
 {@img AuthenticationSettings.png}
