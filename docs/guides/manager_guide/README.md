@@ -68,7 +68,7 @@ with columns for when the app was created
 <td><a href="#SettingsTab">Settings</a> - Provides settings for:
 <ul>
 <li><a href="#GeneralSettings">General</a> - Specify organization name,
-organization code, email method, and billing address.</li>
+organization code, email method, and email pattern.</li>
 <li><a href="#SecuritySettings">Security Policy</a> - Specify 
 the maximum idle time before PIN challenge, PIN type, PIN minimum
 length, lock out after failed PIN attempts, and the maximum time
@@ -83,7 +83,7 @@ receive Premium forum access and advanced authentication,
 and the Enterprise subscription comes with Support and Per
 App VPN.</li>
 <li><a href="#BillingSettings">Billing</a> - Specify your 
-organization's credit card, card expiration date, 
+organization's credit card number, card expiration date, 
 and billing contact information.</li>
 </ul>
 </td></tr>
@@ -672,6 +672,8 @@ weeks, or months.</li>
 
 <b>Notes</b>: 
 <ol>
+<li>Users receive an alert if they choose a PIN that doesn't 
+meet the requirements you set for PIN type or length.</li>
 <li>A PIN requiring letters can consist of any character on a device's
 keyboard including international characters.</li>
 <li>Security policy settings on the PIN Type slider are minimum
@@ -723,8 +725,8 @@ users per device, and apps your organization requires.
 
 {@img SubscriptionSettings.png}
 
-To upgrade or downgrade, click <b>Change</b> for the subscription option
-you require.
+To upgrade or downgrade, click <b>Downgrade</b> or <b>Upgrade</b> 
+for the subscription option you require.
 
 <a name="BillingSettings"></a>
 ### Billing
