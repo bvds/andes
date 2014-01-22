@@ -433,10 +433,12 @@ Devices tab:
 
 Click the plus icon on the Users tab to invite a user to participate
 in Sencha Space. You can add additional users from the Invite Users
-menu, specifying each address separately.
+menu, specifying each address separately and click the plus icon to 
+add the address to the list of invitees.
 
 The users you invite receive an email with information about 
 how to obtain the Client app and how to log into the Sencha Space Client.
+The emails are sent from Sencha Space as do not reply messages.
 
 {@img Space_Ad_Users_PlusIcon.png}
 
