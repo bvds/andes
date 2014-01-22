@@ -15,7 +15,7 @@ password from your Space Manager administrator.
 
 ## Requirements
 
-The Sencha Space Client supports Android version 2.3.3 or later.
+Sencha Space Client supports Android version 2.3.3 or later.
 
 Installing the user client requires 5 MB to download to the device,
 with the installed size requiring approximately 35 MB on the device. 
@@ -47,26 +47,35 @@ The prompts you see to log in depend on whether this is your
 ### First Log In
 
 <ol>
-<li>Click the Android <b>Apps</b> button and click <b>Space</b>:
+<li><p>Click the Android <b>Apps</b> button and click <b>Space</b>:</p>
 {@img AppsToSpace.png}</li>
-<li>Type your organization name and click <b>Next</b>:
+<li><p>Type your organization name and click <b>Next</b>:</p>
 {@img Android1.png}
 </li>
-<li>Type your email address and password, and click <b>Log In</b>.<br> 
-If you don't know your password, click <b>Forgot password?</b>:
+<li></p>Type your email address and password, and click <b>Log In</b>.<br> 
+If you don't know your password, click <b>Forgot password?</b>:</p>
 {@img Android2.png}
 </li>
-<li>If a personal identification number (PIN) prompt displays, type your PIN, confirm it, 
+<li><p>If a personal identification number (PIN) prompt displays, 
+type your PIN, confirm it, 
 and click <b>Continue</b>. The PIN type
-is set by the Space Manager Administrator:
+is set by the Space Manager Administrator:</p>
 	<ol>
-	<li>If you see a number keypad, your PIN must 
-	be at least 4 digits in length.</li>
-	<li>If you see a full QWERTY keyboard, your PIN must be at least 4 characters in length 
-	and must contain at least one number, a letter, and a special character.
+	<li><p>If you see a number keypad, your PIN must 
+	be at least 4 digits in length.</p></li>
+	<li><p>If you see a full QWERTY keyboard, your PIN 
+	must be at least 4 characters in length 
+	and can contain letters and possibly special characters. If 
+	you enter an incorrect PIN, a message indicates the allowed
+	characters.</p>
 	{@img Android3.png}
 	</li>
 	</ol></li>
+<li><p>If configured, Space opens with prompts to show how to view 
+apps and to use the Sencha menu.</p>
+{@img WelcomeInfoPrompts.png}</li>
+<li><p>If configured, the Welcome to Space screen appears:</p>
+{@img WelcomeToSpace.png}</li>
 </ol>
 
 <a name="returnlogin"></a>
@@ -133,13 +142,18 @@ Access the Settings menu by clicking the Sencha logo in the Apps list, for examp
 {@img SettingsMenuButton.png}
 
 Sencha Space provides the following settings:
+
 {@img AndroidSettingsScreen.png}
+
 <ol>
-<li><b>Sencha Logo</b> - Return to previous screen</li>
-<li><b>Reset PIN</b> - Specify your current PIN, a new PIN, and confirm the new PIN</li>
+<li><b>Sencha Logo</b> - Return to list of apps</li>
+<li><b>Reset PIN</b> - Specify your current PIN, 
+a new PIN, and confirm the new PIN</li>
+<li><b>Attributions</b> - Space Client copyright information</li>
+<li><b>Terms of Service</b> - Space Client service agreement</li>
 <li><b>Delete Organization</b> - Deletes all data you may have 
-stored while using the current 
-organization and prompts you to log in again with a new organization name. Use this
+stored while using the current organization and prompts you to 
+log in again with a new organization name. Use this
 option if you've borrowed a device and want to return it, or when you're changing
 organizations.
 </li>
@@ -148,7 +162,8 @@ organizations.
 
 ## Change PIN
 
-Specify your personal identification number (PIN) and new PIN, and click <b>Next</b>. 
+Specify your personal identification number (PIN) and new PIN, 
+and click <b>Next</b>. 
 Confirm the new PIN and click <b>Continue</b>.
 
 {@img AndroidResetPIN.png}
