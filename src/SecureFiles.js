@@ -55,7 +55,7 @@ Ext.define('Ext.space.SecureFiles', {
             return;
         }
 
-        Ext.onSpaceReady(function(){
+        Ext.onSpaceReady().then(function(){
             
             Ext.space.FileSystem.requestFileSystem({
                 success: function(filesystem) {
@@ -68,9 +68,9 @@ Ext.define('Ext.space.SecureFiles', {
                     loaded.reject(err);
                 }
             });
-        })
+        });
 
         return loaded;
-    },
+    }
 
 });
