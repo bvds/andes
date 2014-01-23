@@ -791,3 +791,49 @@ Icons from left to right:
  - Success - Lists successful actions, such as inviting a user or creating a group
  - Failure - Lists actions that failed
  - Information - Lists entries for review or that are informative
+
+## Known Issues
+
+The following issues affect use of Space Client apps and Space Manager:
+
+<ol>
+<li>Android Space Client: If a device is wiped and the user tries
+to log in again, instead of gaining access to the Space Client,
+the user may be sent to the list of organizations. After the user
+chooses the same account, the user can log in. However this process
+may repeat several times before login is successful. <!-- BROW-1607 -->
+</li>
+<li>Android Space Client: Users who set Airplane Mode on their
+Android 2.3.5 device after the offline time is exceeded 
+may continue to use Space, but Space displays the error,
+"Your Internet connection may not be active". Disabling 
+Airplane Mode allows further Space access. <!-- BROW-1568 -->
+</li>
+<li>iOS Space Client (iOS 6): Bookmarks may not be accessible
+after being created. <!-- BROW-1676 --> </li>
+<li>iOS Space Client (iOS 6 iPhone 4): History in a new tab may not persist
+between tabs. <!-- BROW-1577 --> </li>
+<li>iOS Space Client (iOS 7 iPad Air): Cannot add a favorite in a new 
+tab. <!-- BROW-1351 --> </li>
+<li>Space Manager: Ensure that you have a network connection
+before deleting a user who has an Android device. If the user
+is using a cached version of the Space Client
+app, the deletion may fail and allow the user to continue
+using the Space Client. <!-- BROW-1442 --> </li>
+<li>Space Manager: After filling in billing information, 
+wait approximately 15 minutes before upgrading or downgrading 
+the subscription setting. <!-- BROW-1633 --> </li>
+<li>Space Manager: Upgrading to Enterprise subscription 
+may not generate a payment request. Contact Sencha Support 
+for help. <!-- BROW-1631 --> </li>
+<li>Space Manager: Upgrading or Downgrading to the Workforce
+or Enterprise subscriptions may not indicate how many days
+remain in the current subscription. <!-- BROW-1629 --> </li>
+<li>Space Manager: After entering credit card information 
+and clicking Update, delete the information so 
+it is no longer visible. <!-- BROW-1608 --> </li>
+<li>Space Manager: Reports may not update after changing
+filter values. <!-- BROW-1595 --> </li>
+<li>Space Manager: Trial subscriptions may continue and 
+list negative days remaining. <!-- BROW-1527 --> </li>
+</ol>
