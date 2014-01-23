@@ -32,10 +32,10 @@ with your business applications.
 <li>Log into the Sencha Space management console at: 
 <a href="https://manage.space.sencha.com">https://manage.space.sencha.com</a></li>
 <li>Enter the name of your Sencha Space organization
-<b>Note</b>: You may use your organization’s domain name for this if you are using 
-email addresses with your organization’s domain name.  If your admin email address 
-is from a consumer email provider, such as Gmail, Yahoo, etc., the system may not 
-allow you to use your organization’s domain name for Sencha Space.</li>
+<b>Note</b>: Use your organization’s domain name for the new
+organization's email address. You 
+can't use an email address from: gmail.com, yahoo.com, 
+hotmail.com, qq.com, mail.ru, .cn, or outlook.com.</li>
 <li>Optional: Adjust the security settings for your organization.</li>
 </ol>
 
