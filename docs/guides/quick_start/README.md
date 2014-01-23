@@ -3,22 +3,6 @@
 This guide helps you get started with the Sencha Space Admin tool.
 It also lists the benefits of Sencha Space.
 
-## Create your Sencha Space Admin Account
-
-To manage users, groups, and applications in Sencha Space, 
-you need an administrator account:
-
-<ol>
-<li>An existing administrator creates an account for you.</li>
-<li>Open your email and retrieve the invitation to join 
-Sencha Space.</li>
-<li>Click the link and create a Sencha Space account using 
-your email address and your preferred password.</li>
-<li>Sencha sends you an email message containing a 
-link to validate your email address. 
-Click the link to validate your email and complete the sign-up process.</li>
-</ol>
-
 ## Create an Organization in Sencha Space
 
 An organization is the structure in Space that associates 
@@ -29,15 +13,22 @@ you can easily manage how users, groups, and their mobile devices interact
 with your business applications.
 
 <ol>
-<li>Log into the Sencha Space management console at: 
-<a href="https://manage.space.sencha.com">https://manage.space.sencha.com</a></li>
-<li>Enter the name of your Sencha Space organization
-<b>Note</b>: Use your organization’s domain name for the new
-organization's email address. You 
-can't use an email address from: gmail.com, yahoo.com, 
-hotmail.com, qq.com, mail.ru, .cn, or outlook.com.</li>
-<li>Optional: Adjust the security settings for your organization.</li>
+<li>Browse to <a href="https://manage.space.sencha.com">https://manage.space.sencha.com</a>
+and click <b>Sign Up</b>.</li>
+<li>Specify your email address, a password, and confirm your password.
+<b>Note</b>: Sencha does not permit creating an organization using an email address from: gmail.com, yahoo.com, 
+hotmail.com, qq.com, mail.ru, .cn, or outlook.com. </li>
+<li>Check this prompt:<br>
+<b>Please confirm you have read and accept Sencha's Terms of Service</b><br>
+The link takes you to the 
+<a href="http://www.sencha.com/legal/sencha-space-customer-agreement">Sencha Space Customer Agreement</a>.</li>
+<li>Click <b>Register</b>. Sencha sends you an invitation.</li>
+<li>Open your email from Sencha Space and click the validation link.</li>
+<li>Sencha Space prompts you for the name of your new organization.</li>
+<li>You can access your organization from 
+<a href="https://manage.space.sencha.com">https://manage.space.sencha.com</a>.</li>
 </ol>
+
 
 ## Provision Applications to your Sencha Space Organization’s Groups
 
@@ -73,6 +64,10 @@ relevant AppStore to access Space and your applications:
 Sencha Space helps to deliver applications to the user groups that 
 need them, based on business policy.</p></li>
 </ol>
+
+<b>Note:</b> To give new users access to specific apps, first add the users
+to a group, and give the group access to the apps. 
+For more information, see <a href="#url"></a>
  
 ## Getting Users Started
 
