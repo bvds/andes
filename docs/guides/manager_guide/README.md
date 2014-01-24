@@ -820,20 +820,6 @@ before deleting a user who has an Android device. If the user
 is using a cached version of the Space Client
 app, the deletion may fail and allow the user to continue
 using the Space Client. <!-- BROW-1442 --> </li>
-<li>Space Manager: After filling in billing information, 
-wait approximately 15 minutes before upgrading or downgrading 
-the subscription setting. <!-- BROW-1633 --> </li>
-<li>Space Manager: Upgrading to Enterprise subscription 
-may not generate a payment request. Contact Sencha Support 
-for help. <!-- BROW-1631 --> </li>
-<li>Space Manager: Upgrading or Downgrading to the Workforce
-or Enterprise subscriptions may not indicate how many days
-remain in the current subscription. <!-- BROW-1629 --> </li>
-<li>Space Manager: After entering credit card information 
-and clicking Update, delete the information so 
-it is no longer visible. <!-- BROW-1608 --> </li>
 <li>Space Manager: Reports may not update after changing
 filter values. <!-- BROW-1595 --> </li>
-<li>Space Manager: Trial subscriptions may continue and 
-list negative days remaining. <!-- BROW-1527 --> </li>
 </ol>
