@@ -37,7 +37,7 @@
 
 <script type="text/javascript">
 
-Ext.onSpaceReady(function(){
+Ext.onSpaceReady().then(function(){
     console.log("Space Ready fired!");
     Ext.space.Invoke.onMessage(function(senderId, message) {
             var promise = new Ext.Promise;

@@ -89,7 +89,7 @@ Ext.define('Ext.space.SecureLocalStorage', {
         }
 
 
-        Ext.onSpaceReady(function(){
+        Ext.onSpaceReady().then(function(){
             
             me.db = Ext.space.Sqlite.openDatabase({
                     name: 'sencha_secure_local_store',
@@ -145,7 +145,7 @@ Ext.define('Ext.space.SecureLocalStorage', {
             });
 
 
-        })
+        });
 
         return loaded;
     },

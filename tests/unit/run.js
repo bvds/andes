@@ -54,7 +54,7 @@ function expectSuccess(done, promise, callback) {
 }
 
 function run(url) {
-    Ext.onSpaceReady(function() {
+    Ext.onSpaceReady().then(function() {
         console.log("WAAAAAAAAA");
        // mocha.run();
     });

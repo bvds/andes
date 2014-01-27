@@ -1,3 +1,4 @@
+core.js
 securefiles.js
 connection.js
 securelocalstorage.js
@@ -8,4 +9,4 @@ communcator.js
 connection.js
 filesystem.js
 notification.js
-oritentation.js
+orientation.js

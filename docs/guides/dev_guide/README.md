@@ -31,15 +31,48 @@ To know if your application is currently running inside of Sencha Space, check:
 Ext.isSpace will be true only when inside of Sencha Space. 
 
 You must wait until Sencha Space has fully initialized the webview the application is running in before making any Space API calls.
-To do this, you can register a callback function to execute after initialization is complete.
+`Ext.onSpaceReady()` returns a promise that fulfills when Space is ready:
 
-	Ext.onSpaceReady(function(){
+	Ext.onSpaceReady().then(function(){
 
-		// Space APIS.
+		// Space APIs
 
 	});
 
-This method will not execute if the application is not running inside of Sencha Space.
+`onSpaceReady` also supports directly passing a callback:
+
+	Ext.onSpaceReady(function(){
+
+		// Space APIs.
+
+	});
+
+If you mix callback- and promise-style invocation, the callback becomes the first function in a promise
+handler chain, and any functions attached in promise style are added to the chain in sequence. If you
+pass another callback directly to `onSpaceReady` later, it creates a new promise chain that runs after
+any previous promise chains are finished:
+
+	function myCallback() {
+		console.log("chain 1, callback");
+	}
+
+	function myPromise() {
+		console.log("chain 1, promise");
+	}
+
+	function mySecondCallback() {
+		console.log("chain 2, callback");
+	}
+
+	var promise = Ext.onSpaceReady(myCallback); // creates one promise chain
+	Ext.onSpaceReady(mySecondCallback);         // creates another promise chain
+	promise.then(myPromise);                    // attaches to the first chain
+
+	// "chain 1, callback"
+	// "chain 1, promise"
+	// "chain 2, callback"
+
+In all cases, the callback(s) will not execute if the application is not running inside of Sencha Space.
 If Sencha Space is already ready when Ext.onSpaceReady is called, then the passed function calls immediately. 
 
 

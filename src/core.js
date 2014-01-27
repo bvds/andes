@@ -58,7 +58,8 @@
     }
 
     var match = typeof window != 'undefined' && window.navigator.userAgent.match(/SenchaSpace\/([0-9\.]+)/),
-        readyListeners = [];
+        readyListeners = [],
+        spaceReady = null; // lazy init because Ext.Promise isn't defined yet
 
     if (match) {
         Ext.isSpace = true;
@@ -80,30 +81,20 @@
 
     Ext.isSpaceReady = false;
     Ext.onSpaceReady = function(callback, scope) {
+        if (!spaceReady) {
+            spaceReady = new Ext.Promise();
+        }
         if (!Ext.isSpace) {
-            return;
+            return spaceReady.reject("Not in Space");
         }
-
-        if (!Ext.isSpaceReady) {
-            readyListeners.push(arguments);
-        }
-        else {
-            callback.call(scope);
-        }
+        return callback ? spaceReady.then(callback.bind(scope)) : spaceReady;
     };
     Ext.setSpaceReady = function() {
-        Ext.isSpaceReady = true;
-
-        var ln = readyListeners.length,
-            i = 0,
-            listener;
-
-        for (; i < ln; i++) {
-            listener = readyListeners[i];
-            listener[0].call(listener[1]);
+        if (!spaceReady) {
+            spaceReady = new Ext.Promise();
         }
-
-        readyListeners.length = 0;
+        Ext.isSpaceReady = true;
+        spaceReady.fulfill();
     };
 
     Ext.spaceIsIos = /(iPad|iPhone|iPod)/i.test(window.navigator.userAgent);
