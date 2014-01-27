@@ -43,6 +43,18 @@ describe("Core", function() {
             done();
         });
     });
+
+    it("Ext.onSpaceReady should call mixed callbacks and promises in sequence", function(done) {
+        var message;
+
+        Ext.onSpaceReady(function(){
+            message = "callback";
+
+        }).then(function(){
+            expect(message).to.equal("callback");
+            done();
+        });
+    });
 });
 
 })();

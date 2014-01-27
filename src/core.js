@@ -85,7 +85,7 @@
             spaceReady = new Ext.Promise();
         }
         if (!Ext.isSpace) {
-            return spaceReady; // which won't ever fulfill anyway...
+            return spaceReady.reject("Not in Space");
         }
         return callback ? spaceReady.then(callback.bind(scope)) : spaceReady;
     };
