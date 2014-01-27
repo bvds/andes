@@ -24,7 +24,7 @@ describe("Core", function() {
     });
 
     it("Ext.onSpaceReady should be able to take a callback", function(done) {
-        Ext.onSpaceReady(function(){
+        Ext.onSpaceReady(function() {
             done();
         });
     });
@@ -32,14 +32,14 @@ describe("Core", function() {
     it("Ext.onSpaceReady should be able to take a scope", function(done) {
         var scope = {};
 
-        Ext.onSpaceReady(function(){
+        Ext.onSpaceReady(function() {
             expect(this).to.equal(scope);
             done();
         }, scope);
     });
 
     it("Ext.onSpaceReady's returned promise should accept callbacks", function(done) {
-        Ext.onSpaceReady().then(function(){
+        Ext.onSpaceReady().then(function() {
             done();
         });
     });
@@ -47,10 +47,10 @@ describe("Core", function() {
     it("Ext.onSpaceReady should call mixed callbacks and promises in sequence", function(done) {
         var message;
 
-        Ext.onSpaceReady(function(){
+        Ext.onSpaceReady(function() {
             message = "callback";
 
-        }).then(function(){
+        }).then(function() {
             expect(message).to.equal("callback");
             done();
         });
