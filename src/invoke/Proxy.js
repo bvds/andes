@@ -7,7 +7,7 @@ Ext.define('Ext.space.invoke.Proxy', {
     	for (var i = methods.length - 1; i >= 0; i--) {
     		var method = methods[i];
     		this[method] = function(options, foreground){
-    			return self.connection.send({"$obj": this.remoteObjectName, options: options},foreground);
+    			return self.connection.send({"$control": {"type": 'callProxy','name' : this.remoteObjectName, options: options} },foreground);
     		}
     	}
 

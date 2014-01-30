@@ -33,8 +33,8 @@ describe("Invoke", function() {
             var connection = {send: function(message, foreground){
               console.log("send", message, foreground);
               expect(message).to.exist;
-              expect(message["$obj"]).to.exist;
-              expect(message["$obj"]).to.eql('Test');
+              expect(message["$control"]).to.exist;
+              expect(message["$control"]['name']).to.eql('Test');
               return new Ext.Promise()
 
             }};
@@ -56,7 +56,8 @@ describe("Invoke", function() {
         it("Should be able to get a proxy from an invoked app", function(done) {
             Ext.space.Invoke.get('apiTests').then(function(app){
               app.get('Test').then(function(test){
-                test.first({a:'b'}, false).then(function(){
+                test.first({a:'b'}, false).then(function(result){
+                  expect(result).to.eql({a:'b'});
                   done();
                 });
               });

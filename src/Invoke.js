@@ -227,8 +227,11 @@ Ext.define('Ext.space.Invoke', {
                     else {
                         response = this.onAppConnect(appId);
                     }
-                }
-                else {
+                } else if (message.$control){
+                    console.log("Got control object!", message);
+                    this.handleControlMethod(appId, message.$control, messageId, foreground);
+                    return;
+                } else {
                     if (!messageCallback) {
                         this.messageQueue.push(arguments);
                         return;
@@ -263,6 +266,28 @@ Ext.define('Ext.space.Invoke', {
             }
         }
 
+    },
+
+    /**
+    *@private
+    * 
+    Handle app to app control messages
+        Fetch an RPC proxy 
+        Call a proxy method
+        add or remove an event listener
+
+    control: {
+        action: "getProxy|callProxy|addListener|removeListener"
+        name: 'Test', Name of either proxy or event
+        method: 'foo'   name of proxy method
+    }
+
+
+    */
+    handleControlMethod: function(appId,control, messageId, foreground){
+        this.doSend(appId, messageId, {
+            success: {methods:["first", "second", "third"]}
+        }, foreground);
     },
 
     /**
