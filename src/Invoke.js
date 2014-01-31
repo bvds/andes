@@ -27,6 +27,7 @@ Ext.define('Ext.space.Invoke', {
         this.connections = {};
         this.connectQueue = [];
         this.messageQueue = [];
+        this.proxies = [];
     },
 
 
@@ -130,6 +131,41 @@ Ext.define('Ext.space.Invoke', {
     },
 
     /**
+    *
+    *
+    *
+    */
+    register: function(name, obj) {
+
+        var proxy = this.proxies[name];
+
+        //someone could be waiting for this proxy to be registered
+        //if not create a new promise. 
+        if(!proxy) {
+            proxy = new Ext.Promise();
+            this.proxies[name] =proxy;
+        }
+
+        var temp = {
+            name: name,
+            methods: []
+        };
+
+        /** 
+        * Extract all the functions from the passed object.
+        */
+        for(var property in obj) { 
+            if(obj.propertyIsEnumerable(property) && typeof obj[property] == "function"){
+                console.log(property, obj.propertyIsEnumerable(property)) 
+                temp.methods.push(property);      
+            }
+        }
+
+        proxy.fulfill(temp);
+
+    },
+
+    /**
      *   onMessage registers a function to be called each time another application 
      *   invokes this application. 
      *
@@ -229,8 +265,7 @@ Ext.define('Ext.space.Invoke', {
                     }
                 } else if (message.$control){
                     console.log("Got control object!", message);
-                    this.handleControlMethod(appId, message.$control, messageId, foreground);
-                    return;
+                    response = this.handleControlMethod(appId, message.$control, messageId, foreground);
                 } else {
                     if (!messageCallback) {
                         this.messageQueue.push(arguments);
@@ -285,9 +320,32 @@ Ext.define('Ext.space.Invoke', {
 
     */
     handleControlMethod: function(appId,control, messageId, foreground){
-        this.doSend(appId, messageId, {
-            success: {methods:["first", "second", "third"]}
-        }, foreground);
+        var result;
+        var self = this;
+        var handlers = {
+            getProxy: function(){
+                var proxy = self.proxies[control.name];
+                if(!proxy){
+                    proxy = new Ext.Promise();
+                    self.proxies[name] =proxy;
+                }
+                return proxy;//{methods:["first", "second", "third"]};
+            },
+            callProxy: function(){
+                return {"a" : "b"};
+            }
+        };
+
+        if(control.action && handlers[control.action]) {
+            result = handlers[control.action]();
+        } else {
+            throw 'Invalid control action';
+        }
+        return result;
+
+        /*this.doSend(appId, messageId, {
+            success: 
+        }, foreground);*/
     },
 
     /**

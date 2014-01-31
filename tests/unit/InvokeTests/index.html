@@ -33,12 +33,31 @@
         alert(a + ' ' + b + ' ' + c);
     };
 </script>
-<script type="text/javascript" src="http://space.sencha.io/space.js"></script>
-
+<script type="text/javascript" src="/out/space.js"></script>
+    
 <script type="text/javascript">
 
 Ext.onSpaceReady().then(function(){
     console.log("Space Ready fired!");
+
+    var invokeMethods = {
+        instant: function(options,forground) {
+            return options;
+        },
+
+        later: function(options,forground) {
+            var promise = new Ext.Promise;
+            setTimeout(function(){
+                promise.fulfill(options);
+            },100);
+            return promise;
+        }
+    };
+
+
+    Ext.space.Invoke.register('Test',invokeMethods);
+
+
     Ext.space.Invoke.onMessage(function(senderId, message) {
             var promise = new Ext.Promise;
             setTimeout(function(){
