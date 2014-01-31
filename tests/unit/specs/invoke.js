@@ -1,6 +1,12 @@
 (function() {
 
 describe("Invoke", function() {
+    describe("Ext.space.invoke Control", function() {
+        it("TODO control tests", function(done) {
+            done();
+        });         
+    });
+
     describe("Ext.space.invoke.Proxy", function() {
         it("Ext.space.invoke.Proxy should exist", function(done) {
             expect(Ext.space.invoke.Proxy).to.exist;
@@ -56,7 +62,7 @@ describe("Invoke", function() {
         it("Should be able to get a proxy from an invoked app", function(done) {
             Ext.space.Invoke.get('apiTests').then(function(app){
               app.get('Test').then(function(test){
-                test.first({a:'b'}, false).then(function(result){
+                test.instant({a:'b'}, false).then(function(result){
                   expect(result).to.eql({a:'b'});
                   done();
                 });
