@@ -1,4 +1,5 @@
 /**
+ * @private
  * The Entry class which is used to represent entries in a file system,
  * each of which may be a {@link Ext.space.filesystem.FileEntry} or a {@link Ext.space.filesystem.DirectoryEntry}.
  *
@@ -235,6 +236,7 @@ Ext.define('Ext.space.filesystem.Entry', {
 });
 
 /**
+ * @private
  * The DirectoryEntry class which is used to represent a directory on a file system.
  */
 Ext.define('Ext.space.filesystem.DirectoryEntry', {
@@ -390,6 +392,7 @@ Ext.define('Ext.space.filesystem.DirectoryEntry', {
 });
 
 /**
+ * @private
  * The FileEntry class which is used to represent a file on a file system.
  */
 Ext.define('Ext.space.filesystem.FileEntry', {
@@ -620,6 +623,9 @@ Ext.define('Ext.space.filesystem.FileEntry', {
     }
 });
 
+/**
+* @private
+*/
 Ext.define('Ext.space.filesystem.FileSystem', {
     id: 0,
     root: null,
@@ -640,6 +646,9 @@ Ext.define('Ext.space.filesystem.FileSystem', {
     }
 });
 
+/**
+* @private
+*/
 Ext.define('Ext.space.FileSystem', {
     singleton: true,
 
