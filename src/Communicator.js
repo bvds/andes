@@ -208,6 +208,11 @@ Ext.define('Ext.space.Communicator', {
     invoke: function(id, args) {
         var data = this.getCallbackData(id);
 
+        // If args is a string, assume it is a JSON encoded array and deserialize it.
+        if (Object.prototype.toString.call(args) === '[object String]') {
+            args = JSON.parse(args);
+        }
+
         data.callback.apply(data.scope, args);
     },
 
