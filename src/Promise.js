@@ -1,51 +1,49 @@
 /**
-*  Ext.Promise an Asynchronous api based on the Promises A+ spec http://promisesaplus.com
-
-
-    Promises are uses extensively by Space's apis. Most of Space's APIs return promises. 
-    In the case of Ext.space.Invoke the called application will need to create, return and resolve 
-    promises.
-    
-    To understand how promises work here is a simple promise based version of setTimeout:
-
-        function wait(time) {
-
-            var promise = new Ext.Promise();
-
-            setTimeout(function(){
-                 promise.fulfill({resolved: new Date().getTime()});
-            }, time);
-
-            return promise;
-
-        }
-
-    First create the promise then return the promise so that the caller can react to the result of the promise.
-    
-    The promise can later be resolved when the data is available:
-    
-        promise.fulfill(response);
-
-    If an error occurs then the should call reject on the promise:
-    
-        promise.reject(errorMessage);
- 
-
-    Now your code can call wait instead of setTimeout:
-
-        wait(1000).then(success, failure);
-
-        var success = function(result) {
-            //now do something with the result
-            console.log("resolved at" + result.resolved);
-        };
-
-        var failure = function(error) {
-            console.error('Something went wrong', error);
-        }
-
-        
-
+*  Ext.Promise an Asynchronous API based on the Promises A+ spec http://promisesaplus.com
+*
+*
+*   Promises are used extensively by Space's APIs. Most of Space's APIs return promises. 
+*   In the case of Ext.space.Invoke, the called application needs to create, return, and resolve 
+*   promises.
+*   
+*   To understand how promises work, here is a simple promise-based version of setTimeout:
+*
+*       function wait(time) {
+*
+*           var promise = new Ext.Promise();
+*
+*           setTimeout(function(){
+*                promise.fulfill({resolved: new Date().getTime()});
+*           }, time);
+*
+*           return promise;
+*
+*       }
+*
+*   First create the promise, then return the promise so that the caller can react to the result of the promise.
+*   
+*   The promise can later be resolved when the data is available:
+*   
+*       promise.fulfill(response);
+*
+*   If an error occurs, call reject on the promise:
+*   
+*       promise.reject(errorMessage);
+*
+*
+*   Now your code can call wait instead of setTimeout:
+*
+*       wait(1000).then(success, failure);
+*
+*       var success = function(result) {
+*           // Do something with the result
+*           console.log("resolved at" + result.resolved);
+*       };
+*
+*       var failure = function(error) {
+*           console.error('Something went wrong', error);
+*       }
+* 
 */
 Ext.define('Ext.Promise', {
     statics: {
