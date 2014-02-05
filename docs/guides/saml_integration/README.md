@@ -30,7 +30,6 @@ IdP’s <code>federationmetadata.xml</code> file in the <code>SingleSignOnServic
 An <a href="http://en.wikipedia.org/wiki/X.509">X.509 certificate</a> in 
 <a href="http://en.wikipedia.org/wiki/Privacy-enhanced_Electronic_Mail">PEM format</a>.
 
-**Note**: Do not use for Azure ADFS, as there is a bug in the latest version.
 
 ### Attribute Presets
 
