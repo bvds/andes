@@ -225,8 +225,7 @@ Ext.define('Ext.space.Communicator', {
     send: function(args, synchronous) {
         if (!Ext.isSpaceReady) {
             if (synchronous) {
-                throw new Error('A synchronous request was made before Space was ready. ' +
-                    'Wrap the statement inside Ext.isSpaceReady(callback)');
+                throw new Error('A synchronous request was made before Space was ready.');
             }
 
             this.sendQueue.push(args);
@@ -296,9 +295,7 @@ Ext.define('Ext.space.Communicator', {
                 } else {
                     result = prompt("whatever", "sencha:"+JSON.stringify(data));
                 }
-                
 
-               
                 if (result) {
                     return JSON.parse(result);
                 }
@@ -336,8 +333,6 @@ Ext.define('Ext.space.Communicator', {
                 };
 
                 data = JSON.stringify(data);
-
-                DEBUG && console.log("[OUT]", data);
 
                 if (!synchronous) {
                     xhr.onreadystatechange = function() {
