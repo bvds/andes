@@ -103,6 +103,8 @@ Ext.define('Ext.space.Communicator', {
             throw new Error("[Communicator#init] Missing messages");
         }
 
+        Ext.isSpace = true;
+
         if (info.version) {
             Ext.spaceVersion = info.version;
         }

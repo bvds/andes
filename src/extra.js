@@ -21,7 +21,6 @@
 
     if (Ext.isSpace || Ext.spaceIsWindowsPhone) {
         function notifyNative() {
-            Ext.isSpace = true;
             Ext.space.Communicator.notifyReady();
         }
 
