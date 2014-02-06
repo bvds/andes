@@ -19,8 +19,9 @@
         }, 1);
     };
 
-    if (Ext.isSpace) {
+    if (Ext.isSpace || Ext.spaceIsWindowsPhone) {
         function notifyNative() {
+            Ext.isSpace = true;
             Ext.space.Communicator.notifyReady();
         }
 
