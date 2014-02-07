@@ -27,13 +27,11 @@
         if ('onReady' in Ext) {
             Ext.onReady(notifyNative);
         }
+        else if (!Ext.spaceIsWindowsPhone && document.readyState.match(/interactive|complete|loaded/) !== null) {
+            notifyNative();
+        }
         else {
-            if (document.readyState.match(/interactive|complete|loaded/) !== null) {
-                notifyNative();
-            }
-            else {
-                window.addEventListener('DOMContentLoaded', notifyNative, false);
-            }
+            window.addEventListener('DOMContentLoaded', notifyNative, false);
         }
     }
 })();
