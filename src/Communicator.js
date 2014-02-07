@@ -311,8 +311,10 @@ Ext.define('Ext.space.Communicator', {
                     appId: this.appId,
                     sync: synchronous
                 };
-         
-                window.external.notify(JSON.stringify(data));
+
+                try {
+                    window.external.notify(JSON.stringify(data));
+                } catch(e) {}
             };
         }
         else {
