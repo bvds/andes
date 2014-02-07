@@ -103,6 +103,12 @@ Ext.define('Ext.space.Communicator', {
             throw new Error("[Communicator#init] Missing messages");
         }
 
+        Ext.isSpace = true;
+
+        if (info.version) {
+            Ext.spaceVersion = info.version;
+        }
+
         this.device = device;
         this.session = session;
         this.appId = appId;
@@ -297,6 +303,19 @@ Ext.define('Ext.space.Communicator', {
                     return JSON.parse(result);
                 }
             }
+        }
+        else if (Ext.spaceIsWindowsPhone) {
+            return function(args, synchronous) {
+                var data = {
+                    args: args,
+                    appId: this.appId,
+                    sync: synchronous
+                };
+
+                try {
+                    window.external.notify(JSON.stringify(data));
+                } catch(e) {}
+            };
         }
         else {
             return function(args, synchronous) {

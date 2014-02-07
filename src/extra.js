@@ -19,7 +19,7 @@
         }, 1);
     };
 
-    if (Ext.isSpace) {
+    if (Ext.isSpace || Ext.spaceIsWindowsPhone) {
         function notifyNative() {
             Ext.space.Communicator.notifyReady();
         }
@@ -27,13 +27,11 @@
         if ('onReady' in Ext) {
             Ext.onReady(notifyNative);
         }
+        else if (!Ext.spaceIsWindowsPhone && document.readyState.match(/interactive|complete|loaded/) !== null) {
+            notifyNative();
+        }
         else {
-            if (document.readyState.match(/interactive|complete|loaded/) !== null) {
-                notifyNative();
-            }
-            else {
-                window.addEventListener('DOMContentLoaded', notifyNative, false);
-            }
+            window.addEventListener('DOMContentLoaded', notifyNative, false);
         }
     }
 })();

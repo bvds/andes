@@ -53,9 +53,6 @@ function expectSuccess(done, promise, callback) {
     });
 }
 
-function run(url) {
-    Ext.onSpaceReady().then(function() {
-        console.log("WAAAAAAAAA");
-       // mocha.run();
-    });
-}
+Ext.onSpaceReady().then(function() {
+    mocha.run();
+});

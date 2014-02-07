@@ -84,8 +84,17 @@
         if (!spaceReady) {
             spaceReady = new Ext.Promise();
         }
-        if (!Ext.isSpace) {
-            return spaceReady.reject("Not in Space");
+        if (Ext.spaceIsWindowsPhone) {
+            // windows phone might not be ready yet
+            setTimeout(function() {
+                if (!Ext.isSpace) {
+                    spaceReady.reject("Not in Space");
+                }
+            }, 100);
+        } else {
+            if (!Ext.isSpace) {
+                return spaceReady.reject("Not in Space");
+            }
         }
         return callback ? spaceReady.then(callback.bind(scope)) : spaceReady;
     };
@@ -100,4 +109,5 @@
     Ext.spaceIsIos = /(iPad|iPhone|iPod)/i.test(window.navigator.userAgent);
     Ext.spaceIsAndroid = /Android/i.test(window.navigator.userAgent);
     Ext.spaceIsBlackBerry = /(BlackBerry|BB10)/i.test(window.navigator.userAgent);
+    Ext.spaceIsWindowsPhone = /Windows Phone/i.test(window.navigator.userAgent);
 })(this);
