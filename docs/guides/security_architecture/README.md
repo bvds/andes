@@ -70,7 +70,7 @@ Encrypted Database: Each application can be granted access to an encrypted datab
 
 # Key Management
 
-Sencha Space can be configured to require a security pass phrase or pin before granting access to the organization's applications. For maxim security Space does not store the decryption keys in any persistent form. When the user enters their PIN, it is combined with other unique data to generate a decryption key. Once the decryption key is generated it is used to then decrypt the actual data. Without the user's PIN the data cannot be easily decrypted without resorting to brute force decryption methods. Space can also be instructed to delete the organization's data if too many incorrect pin entries are given.
+Sencha Space can be configured to require a security pass phrase or pin before granting access to the organization's applications. For maximum security Space does not store the decryption keys in any persistent form. When the user enters their PIN, it is combined with other unique data to generate a decryption key. Once the decryption key is generated it is used to then decrypt the actual data. Without the user's PIN the data cannot be easily decrypted without resorting to brute force decryption methods. Space can also be instructed to delete the organization's data if too many incorrect pin entries are given.
 
 {@img keys.png}
 
