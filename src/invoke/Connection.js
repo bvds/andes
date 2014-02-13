@@ -12,7 +12,7 @@ Ext.define('Ext.space.invoke.Connection', {
     	var proxy = this.proxyMap[name],
     	connection = this;
     	if (!proxy) {
-    		proxy = this.proxyMap[name] = Ext.space.Invoke.send(this.receiverId, {"$control": {"type": 'getProxy', 'name':  name}}, false).then(function(obj){
+    		proxy = this.proxyMap[name] = Ext.space.Invoke.send(this.receiverId, {"$control": {"action": 'getProxy', 'name':  name}}, false).then(function(obj){
     			 return new Ext.space.invoke.Proxy(connection,name,obj.methods);
     		})
     	}
