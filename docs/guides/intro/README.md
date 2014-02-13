@@ -53,8 +53,7 @@ The documentation set consists of these guides:
 
 Obtain Sencha Space Client from:
 
- - [Google Play](https://play.google.com/store?hl=en)
- - [Apple iPhone App Store](http://www.apple.com/iphone/from-the-app-store/)
- - [Apple iPad App Store](http://www.apple.com/ipad-mini/from-the-app-store/)
- - [BlackBerry App World](http://appworld.blackberry.com/webstore/?)
+ - [Google Play](https://play.google.com/store/apps/details?id=com.sencha.space)
+ - [iOS](https://itunes.apple.com/us/app/sencha-space/id641618133?mt=8)
+ - [BlackBerry App World](http://appworld.blackberry.com/webstore/content/43066890/)
 
