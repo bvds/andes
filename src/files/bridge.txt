@@ -1,0 +1,56 @@
+Files#getFile
+	key
+	-> File
+
+Files#createFile
+	path,fileData,name*,type
+	-> File
+
+Files#removeFile
+	key
+	-> boolean
+
+Files#renameFile
+	key, newName
+	-> boolean
+
+Files#getFileContents
+	key
+	-> fileData
+
+Files#setFileContents
+	key,fileData
+	-> boolean
+
+
+Files#queryFiles
+	query: {
+		name: "abe"
+		path: 'foo'
+		type: []
+	}
+	sortField: field
+	sortDirection: 'asc' or ' desc' 
+
+	-> Array of File(s) that match the query
+
+
+select * from files 
+	where 	path = 	'foo' 
+	and 	type in ('jpg') 
+	and 	name like "*abe*"
+
+
+File:
+
+{
+	key
+	name
+	created
+	modified
+	type
+	appName
+	appId
+	path
+	size
+}

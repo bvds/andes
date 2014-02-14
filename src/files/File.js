@@ -1,5 +1,14 @@
-
-
+/***
+*  name
+*  created
+*  modified
+*  mime/type
+*  appName
+*  appId
+*  path
+*  size (bytes)
+*
+*/
 Ext.define('Ext.space.files.File', {
     /*
     * @private
@@ -15,6 +24,8 @@ Ext.define('Ext.space.files.File', {
     getName: function() {
     	return this.name;
     },
+
+
 
     /**
     * Fetch the contents of the file.
