@@ -97,15 +97,28 @@ Ext.define("Ext.space.FileLocker", {
 
     /**
      * @private
+     * Cache of the downloads' Promise objects
+     */
+    promises: null,
+
+    /**
+     * @private
      * Whether or not the file locker has registered callbacks with the native bridge Locker#watchDownloads
      */
     watching: false,
 
     /**
      * @private
+     * Count of the number of active downloads, so we know when we can unwatch
+     */
+    downloadsInProgress: 0,
+
+    /**
+     * @private
      */
     constructor: function() {
         this.downloads = {};
+        this.promises = {};
     },
 
     /**
@@ -131,18 +144,20 @@ Ext.define("Ext.space.FileLocker", {
                 Ext.space.Communicator.send({
                     command: "Locker#download",
                     callbacks: {
-                        onStart: function(response) {
-                            if (response && response.downloadId) {
+                        onStart: function(id) {
+                            if (id) {
                                 // cache a reference to the Download object, so we can
                                 // continue to update it over time
-                                locker.downloads[response.downloadId] = new Ext.space.filelocker.Download(response);
+                                locker.downloads[id] = new Ext.space.filelocker.Download();
+                                locker.promises[id] = promise;
+                                locker.downloadsInProgress++;
                             }
 
                             locker.watchDownloads();
                         },
-                        onSuccess: function(response) {
-                            promise.fulfill(locker.downloads[response.downloadId]._updateWith(response));
-                        },
+                        // no onSuccess callback because we'll let watchDownloads do
+                        // the necessary notification
+                        // onSuccess: function(id) {},
                         onError: function(error) {
                             promise.reject(error);
                         }
@@ -297,7 +312,30 @@ Ext.define("Ext.space.FileLocker", {
      * @private
      */
     watchDownloads: function() {
-        var locker = this, cache = this.downloads;
+        var locker = this, cache = this.downloads, promises = this.promises;
+
+        function processItem(item) {
+            var id = item.downloadId,
+                alreadyComplete = !(id in cache) || cache[id].isComplete,
+                justCompleted = !alreadyComplete && item.isComplete;
+
+            // create or update the cached download object
+            if (cache[id]) {
+                cache[id]._updateWith(item);
+            } else {
+                cache[id] = new Ext.space.filelocker.Download(item);
+            }
+
+            // resolve the original promise with the final data
+            if (justCompleted && (id in promises)) {
+                promises[id].fulfill(cache[id]);
+
+                // if that was the last one, discontinue watching
+                if (!--locker.downloadsInProgress) {
+                    locker.unwatchDownloads();
+                }
+            }
+        }
 
         if (!locker.watching) {
             locker.watching = true;
@@ -306,26 +344,28 @@ Ext.define("Ext.space.FileLocker", {
                 callbacks: {
                     onSuccess: function(responses) {
                         if (Object.prototype.toString.call(responses) === "[object Array]") {
-                            responses.forEach(function(item) {
-                                var id = item.downloadId;
-                                if (cache[id]) {
-                                    cache[id]._updateWith(item);
-                                } else {
-                                    cache[id] = new Ext.space.filelocker.Download(item);
-                                }
-                            });
-                        /*
-                        } else {
-                            // Should we build something that lets us stop watching?
-                            // I don't expect this will happen much if at all.
-                        */
+                            responses.forEach(processItem);
                         }
                     },
                     onError: function(error) {
-                        locker.watching = false;
+                        locker.unwatchDownloads();
                     }
                 }
             });
+        }
+    },
+
+    /**
+     * Discontinue watching for download updates from the native bridge
+     *
+     * @private
+     */
+    unwatchDownloads: function() {
+        if (this.watching) {
+            Ext.space.Communicator.send({
+                command: "Locker#unwatchDownloads"
+            });
+            this.watching = false;
         }
     }
 });

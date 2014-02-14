@@ -50,20 +50,8 @@ describe("FileLocker", function() {
                 command: CMD_DOWNLOAD,
                 url: TEST_URL,
                 callbacks: {
-                    onStart: function(download) {
-                        console.log("onStart ============", download);
-                        expect(download).to.exist;
-                        expect(download.downloadId).to.exist;
-                        expect(download.isComplete).to.exist;
-                        expect(download.isComplete).to.equal(false);
-                        done();
-                    },
-                    onSuccess: function() {
-                        console.log("onSuccess ==========", arguments);
-                        done();
-                    },
-                    onError: function(error) {
-                        console.log("onError ============", error);
+                    onStart: function(downloadId) {
+                        expect(downloadId).to.exist;
                         done();
                     }
                 }
@@ -75,16 +63,8 @@ describe("FileLocker", function() {
                 command: CMD_DOWNLOAD,
                 url: TEST_URL,
                 callbacks: {
-                    onSuccess: function(download) {
-                        expect(download).to.exist;
-                        expect(download.downloadId).to.exist;
-                        expect(download.isComplete).to.exist;
-                        expect(download.bytesDownloaded).to.exist;
-                        expect(download.totalBytes).to.exist;
-
-                        expect(download.isComplete).to.equal(true);
-                        expect(download.bytesDownload).to.equal(download.totalBytes);
-
+                    onSuccess: function(downloadId) {
+                        expect(downloadId).to.exist;
                         done();
                     }
                 }
@@ -112,16 +92,13 @@ describe("FileLocker", function() {
             bridge.send({
                 command: CMD_DOWNLOAD,
                 callbacks: {
-                    onSuccess: function(startedDownload) {
-                        downloadId = startedDownload.downloadId; // store this for future tests
-
+                    onStart: function(downloadId) {
                         bridge.send({
                             command: CMD_GET_PROGRESS,
                             downloadId: downloadId,
                             callbacks: {
-                                onSuccess: function(download) {
-                                    expect(download).to.exist;
-                                    expect(download.downloadId).to.equal(downloadId);
+                                onSuccess: function(percentDone) {
+                                    expect(percentDone).to.exist;
                                     done();
                                 }
                             }
@@ -153,15 +130,13 @@ describe("FileLocker", function() {
                 command: CMD_DOWNLOAD,
                 url: TEST_URL,
                 callbacks: {
-                    onStart: function(download) {
+                    onStart: function(downloadId) {
                         // kicked off a download, now cancel it right away
                         bridge.send({
                             command: CMD_CANCEL,
-                            downloadId: download.downloadId,
+                            downloadId: downloadId,
                             callbacks: {
-                                onSuccess: function() {
-                                    done();
-                                }
+                                onSuccess: done
                             }
                         });
                     }
@@ -171,12 +146,21 @@ describe("FileLocker", function() {
 
         it("cancel should error out when the download is already complete", function(done) {
             bridge.send({
-                command: CMD_CANCEL,
-                downloadId: downloadId,
+                command: CMD_DOWNLOAD,
+                url: TEST_URL,
                 callbacks: {
-                    onError: function(error) {
-                        expect(error).to.exist;
-                        done();
+                    onSuccess: function(downloadId) {
+                        // finished downloading, now attempt to cancel it
+                        bridge.send({
+                            command: CMD_CANCEL,
+                            downloadId: downloadId,
+                            callbacks: {
+                                onError: function(error) {
+                                    expect(error).to.exist;
+                                    done();
+                                }
+                            }
+                        });
                     }
                 }
             });
@@ -226,6 +210,8 @@ describe("FileLocker", function() {
             });
         });
 
+        // TODO: a combined download/watchDownloads test, where we wait until done,
+        //       then check that the watched part finishes up correctly
     });
 
 
