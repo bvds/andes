@@ -109,12 +109,6 @@ Ext.define("Ext.space.FileLocker", {
 
     /**
      * @private
-     * Count of the number of active downloads, so we know when we can unwatch
-     */
-    downloadsInProgress: 0,
-
-    /**
-     * @private
      */
     constructor: function() {
         this.downloads = {};
@@ -150,7 +144,6 @@ Ext.define("Ext.space.FileLocker", {
                                 // continue to update it over time
                                 locker.downloads[id] = new Ext.space.filelocker.Download();
                                 locker.promises[id] = promise;
-                                locker.downloadsInProgress++;
                             }
 
                             locker.watchDownloads();
@@ -276,7 +269,7 @@ Ext.define("Ext.space.FileLocker", {
      *                       the download is already done or canceled, it will reject.
      */
     cancel: function(args) {
-        var id, promise = new Ext.Promise();
+        var id, promise = new Ext.Promise(), locker = this;
 
         if (args) {
             promise = promisize(args, {supportProgress: false});
@@ -312,12 +305,20 @@ Ext.define("Ext.space.FileLocker", {
      * @private
      */
     watchDownloads: function() {
-        var locker = this, cache = this.downloads, promises = this.promises;
+        var locker = this,
+            cache = this.downloads,
+            promises = this.promises,
+            activeCount = 0;
 
         function processItem(item) {
             var id = item.downloadId,
                 alreadyComplete = !(id in cache) || cache[id].isComplete,
                 justCompleted = !alreadyComplete && item.isComplete;
+
+            // count the downloads still in progress to we know when to unwatch
+            if (!item.isComplete) {
+                activeCount++;
+            }
 
             // create or update the cached download object
             if (cache[id]) {
@@ -329,11 +330,6 @@ Ext.define("Ext.space.FileLocker", {
             // resolve the original promise with the final data
             if (justCompleted && (id in promises)) {
                 promises[id].fulfill(cache[id]);
-
-                // if that was the last one, discontinue watching
-                if (!--locker.downloadsInProgress) {
-                    locker.unwatchDownloads();
-                }
             }
         }
 
@@ -345,6 +341,9 @@ Ext.define("Ext.space.FileLocker", {
                     onSuccess: function(responses) {
                         if (Object.prototype.toString.call(responses) === "[object Array]") {
                             responses.forEach(processItem);
+                            if (!activeCount) {
+                                locker.unwatchDownloads();
+                            }
                         }
                     },
                     onError: function(error) {
