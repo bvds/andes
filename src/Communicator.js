@@ -103,6 +103,12 @@ Ext.define('Ext.space.Communicator', {
             throw new Error("[Communicator#init] Missing messages");
         }
 
+        Ext.isSpace = true;
+
+        if (info.version) {
+            Ext.spaceVersion = info.version;
+        }
+
         this.device = device;
         this.session = session;
         this.appId = appId;
@@ -208,6 +214,11 @@ Ext.define('Ext.space.Communicator', {
     invoke: function(id, args) {
         var data = this.getCallbackData(id);
 
+        // If args is a string, assume it is a JSON encoded array and deserialize it.
+        if (Object.prototype.toString.call(args) === '[object String]') {
+            args = JSON.parse(args);
+        }
+
         data.callback.apply(data.scope, args);
     },
 
@@ -292,6 +303,19 @@ Ext.define('Ext.space.Communicator', {
                     return JSON.parse(result);
                 }
             }
+        }
+        else if (Ext.spaceIsWindowsPhone) {
+            return function(args, synchronous) {
+                var data = {
+                    args: args,
+                    appId: this.appId,
+                    sync: synchronous
+                };
+
+                try {
+                    window.external.notify(JSON.stringify(data));
+                } catch(e) {}
+            };
         }
         else {
             return function(args, synchronous) {

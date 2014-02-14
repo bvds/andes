@@ -452,6 +452,7 @@ To invite a user:
 
 You can invite a user more than once if needed. 
 
+
 ### Remove a User
 
 To remove a user:
@@ -699,7 +700,10 @@ Lets you set:
 <li>Authentication Method - <b>Invite Only</b> - Indicates that 
 you can only add user access to the Space client by an email
 invitation. <b>SAML 2.0</b> - Indicates that users are given access
-to the Space client by virtue of access through SAML.</li>
+to the Space client by virtue of access through SAML. If SAML, users
+are automatically added to the user list in Space Manager and
+assigned to the <code>Default</code> group if it exists. The Default
+group is automatically created when an organization is created.</li>
 <li>SAML Configuration - Identity Provider (IDP) Config:
   <ul>
   <li>Endpoint URL - Indicate the URL for how to access the IDP.</li>
@@ -718,6 +722,7 @@ to the Space client by virtue of access through SAML.</li>
 </ul>
 
 {@img AuthenticationSettings.png}
+
 
 <a name="SubscriptionSettings"></a>
 ### Subscription
@@ -822,4 +827,8 @@ app, the deletion may fail and allow the user to continue
 using the Space Client. <!-- BROW-1442 --> </li>
 <li>Space Manager: Reports may not update after changing
 filter values. <!-- BROW-1595 --> </li>
+<li>Space Manager: If you add a user and SAML is enabled, users are automatically
+added to the Default group. If this group is removed or its name 
+changed, the user is not added to a group and must be added manually
+to ensure that the user has access to apps. <!-- BROW-1761 --> </li>
 </ol>
