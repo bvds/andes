@@ -9,3 +9,5 @@ camera.js
 connection.js
 notification.js
 orientation.js
+filelocker/download.js
+filelocker.js
