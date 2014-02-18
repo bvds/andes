@@ -19,38 +19,20 @@ Ext.define('Ext.space.localstorage.Collection', {
     */
     query: function(query, params) {
         var rs = new Ext.Promise();
-    
-        this.loaded.then(function(db){
-            db.transaction({
-                callback: function(transaction) {
-                        console.log("create table transaction begin");
 
-                        transaction.executeSql({
-                            sqlStatement: query,
-                            arguments: params,
-                            callback: function(tx, results) {
-                                console.log("query complete ", tx, results);
+        this.loaded.then(function(db) {
+            return db.transaction().then(function(transaction) {
+                transaction.executeSql(query, params).then(function(results) {
+                    rs.fulfill(results);
+                });
 
-                                rs.fulfill(results);
-
-                            },
-                            failure: function(tx, err) {
-                                console.log("Could not execute query", query, params, arguments);
-                                rs.reject(err);
-                            }
-                        });
-
-                        console.log("create table transaction end");
-                },
-                failure: function(err) {
-                    console.log("Could not start Transaction", arguments);
-                    rs.reject(err);
-                }
+                return transaction.run();
             });
-
+        }).error(function(e) {
+            rs.reject(e);
         });
-        return rs;
 
+        return rs;
     },
 
 

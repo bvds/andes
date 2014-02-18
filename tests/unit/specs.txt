@@ -1,12 +1,11 @@
 core.js
-securefiles.js
-connection.js
-securelocalstorage.js
+communcator.js
 sqlite.js
+securelocalstorage.js
+securefiles.js
+filesystem.js
 invoke.js
 camera.js
-communcator.js
 connection.js
-filesystem.js
 notification.js
 orientation.js
