@@ -147,7 +147,7 @@ describe("Secure Local Storage", function() {
 
 
         it("Should be able to delete an item", function(done) {
-            testCollection.delete('myKey').then(function(deleted){
+            testCollection.remove('myKey').then(function(deleted){
                 expect(deleted).to.equal.true;
                 testCollection.get('myKey').then(function(object){
                     expect(object).to.equal.undefined;

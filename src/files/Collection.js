@@ -1,5 +1,5 @@
 /**
-*  Key/Value store for files. 
+*  Key/Value store for files.
 *  Each collection represents a top-level directory in the applications file system.
 *
 *  This class should only be created by Ext.space.SecureFiles and should not be created manually.
@@ -43,7 +43,7 @@ Ext.define('Ext.space.files.Collection', {
                 }
             });
         });
-        
+
         return result;
     },
 
@@ -57,7 +57,7 @@ Ext.define('Ext.space.files.Collection', {
             //do something with the content of the file.
         });
 
-    * @param {String} key  The key to get a value for. 
+    * @param {String} key  The key to get a value for.
     * @return {Ext.Promise} the promise that will resolve when the value is fetched.
     *
     */
@@ -83,7 +83,7 @@ Ext.define('Ext.space.files.Collection', {
         });
 
     * @param {String} key  The key to store the value at.
-    * @param {Object} value The JSON object to store. 
+    * @param {Object} value The JSON object to store.
     * @return {Ext.Promise} the promise that will resolve when the value is stored.
     *
     */
@@ -120,7 +120,7 @@ Ext.define('Ext.space.files.Collection', {
                     result.reject(err);
                 }
             });
-        });       
+        });
         return result;
     },
 
@@ -162,7 +162,7 @@ Ext.define('Ext.space.files.Collection', {
 
     /**
     * @private
-    * list all of the files in a directory 
+    * list all of the files in a directory
     */
     _listFiles: function(){
         var result = new Ext.Promise();
@@ -175,8 +175,8 @@ Ext.define('Ext.space.files.Collection', {
                 failure: function(err) {
                     result.reject(err);
                 }
-            })
-        });     
+            });
+        });
         return result;
     },
 
@@ -186,10 +186,10 @@ Ext.define('Ext.space.files.Collection', {
         var secrets = Ext.space.SecureFiles.get('secrets');
 
         secrets.has('myKey').then(function(hasKey){
-           
+
         });
 
-    * @param {String} key  The key to get a value for. 
+    * @param {String} key  The key to get a value for.
     * @return {Ext.Promise} the promise that will resolve when the value is checked.
     *
     */
@@ -208,17 +208,17 @@ Ext.define('Ext.space.files.Collection', {
 
         var secrets = Ext.space.SecureFiles.get('secrets');
 
-        secrets.delete('myKey').then(function(done){
-           
+        secrets.remove('myKey').then(function(done){
+
         });
 
     * @param {String} key The key to delete
     * @return {Ext.Promise} the promise that will resolve when the value is checked.
     *
     */
-    delete: function(key){
+    remove: function(key){
         var result = new Ext.Promise();
-        
+
 
         this._getFile(key, false).then(function(file) {
             if(!file){
@@ -273,7 +273,7 @@ Ext.define('Ext.space.files.Collection', {
         });
 
 
-    * @param {function}  callback this function will be called once for each file in the collection. 
+    * @param {function}  callback this function will be called once for each file in the collection.
     * @return {Ext.Promise} the promise that will resolve when all of the file have been iterated.
     *
     */
@@ -284,7 +284,7 @@ Ext.define('Ext.space.files.Collection', {
                     var name = files[i].getName();
                     var file = new Ext.space.files.File(name, this);
                     callback(file);
-                }  
+                }
             }
             return files;
         });
@@ -300,7 +300,7 @@ Ext.define('Ext.space.files.Collection', {
             // done.
         });
 
-    * @return {Ext.Promise} the promise that will resolve with a the number of files in the collection. 
+    * @return {Ext.Promise} the promise that will resolve with a the number of files in the collection.
     *
     */
     count: function() {
@@ -315,7 +315,7 @@ Ext.define('Ext.space.files.Collection', {
 
 
     /**
-    * Deletes all of the files in a collection. 
+    * Deletes all of the files in a collection.
 
         var secrets = Ext.space.SecureFiles.get('secrets');
 
@@ -341,8 +341,8 @@ Ext.define('Ext.space.files.Collection', {
                 failure: function(err) {
                     result.reject(err);
                 }
-            })
-        });     
+            });
+        });
         return result;
     }
 

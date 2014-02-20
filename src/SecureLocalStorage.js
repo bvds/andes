@@ -1,6 +1,6 @@
 /**
 
-Secure Local Storage is a key value store modeled around html5 localstoage. 
+Secure Local Storage is a key value store modeled around html5 localstoage.
 
 The key differences from localstrorage are:
 
@@ -20,12 +20,12 @@ The key differences from localstrorage are:
             var a = object.field;
         });
 
-        secrets.delete().then(function(isDeleted){
+        secrets.remove().then(function(isDeleted){
             // done.
         });
 
         secrets.has(key).then(function(hasKey){
-            
+
         });
 
         secrets.forEach(function(key, value){}).then(function(){
@@ -33,13 +33,13 @@ The key differences from localstrorage are:
         });
 
         secrets.count().then(function(numberOfItems){
-            
+
         });
 
         secrets.clear().then(function(){
             // done.
         });
-    
+
 */
 Ext.define('Ext.space.SecureLocalStorage', {
     singleton: true,

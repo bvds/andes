@@ -11,7 +11,7 @@ Ext.define('Ext.space.localstorage.Collection', {
         //add code to normalize name to sql table name limits
         this.name = name;
         this.loaded = loaded;
-        
+
     },
 
     /**
@@ -46,7 +46,7 @@ Ext.define('Ext.space.localstorage.Collection', {
             var a = object.field;
         });
 
-    * @param {String} key  The key to get a value for. 
+    * @param {String} key  The key to get a value for.
     * @return {Ext.Promise} the promise that will resolve when the value is fetched.
     *
     */
@@ -77,7 +77,7 @@ Ext.define('Ext.space.localstorage.Collection', {
 
 
     * @param {String} key  The key to store the value at.
-    * @param {Object} value The JSON object to store. 
+    * @param {Object} value The JSON object to store.
     * @return {Ext.Promise} the promise that will resolve when the value is stored.
     *
     */
@@ -100,10 +100,10 @@ Ext.define('Ext.space.localstorage.Collection', {
         var secrets = Ext.space.SecureLocalStore.get('secrets');
 
         secrets.has('myKey').then(function(hasKey){
-           
+
         });
 
-    * @param {String} key  The key to get a value for. 
+    * @param {String} key  The key to get a value for.
     * @return {Ext.Promise} the promise that will resolve when the value is checked.
     *
     */
@@ -129,15 +129,15 @@ Ext.define('Ext.space.localstorage.Collection', {
 
         var secrets = Ext.space.SecureLocalStore.get('secrets');
 
-        secrets.delete('myKey').then(function(done){
-           
+        secrets.remove('myKey').then(function(done){
+
         });
 
     * @param {String} key The key to delete
     * @return {Ext.Promise} the promise that will resolve when the value is checked.
     *
     */
-    delete: function(key){
+    remove: function(key){
         var result = new Ext.Promise();
         this.query("delete from item where collection = ? and name = ?", [this.name, key]).then(function(rs){
             console.log("value ", rs.rowsAffected);
@@ -185,7 +185,7 @@ Ext.define('Ext.space.localstorage.Collection', {
         });
 
 
-    * @param {function}  callback this function will be called once for each item in the collection. 
+    * @param {function}  callback this function will be called once for each item in the collection.
     * @return {Ext.Promise} the promise that will resolve when all of the itmes have been iterated.
     *
     */
@@ -209,7 +209,7 @@ Ext.define('Ext.space.localstorage.Collection', {
             // done.
         });
 
-    * @return {Ext.Promise} the promise that will resolve with a the number of items in the collection. 
+    * @return {Ext.Promise} the promise that will resolve with a the number of items in the collection.
     *
     */
     count: function() {
@@ -222,7 +222,7 @@ Ext.define('Ext.space.localstorage.Collection', {
     },
 
     /**
-    * Deletes all of the items in a collection. 
+    * Deletes all of the items in a collection.
 
         var secrets = Ext.space.SecureLocalStore.get('secrets');
 
@@ -230,7 +230,7 @@ Ext.define('Ext.space.localstorage.Collection', {
             // done.
         });
 
-    * @return {Ext.Promise} the promise that will resolve with a the number of items in the collection. 
+    * @return {Ext.Promise} the promise that will resolve with a the number of items in the collection.
     *
     */
     clear: function(){

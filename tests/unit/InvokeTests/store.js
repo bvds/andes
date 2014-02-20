@@ -16,7 +16,7 @@ collection.has('myKey').then(function(hasObject){
 });
 
 
-collection.delete('myKey').then(function(object){
+collection.remove('myKey').then(function(object){
 
 });
 
