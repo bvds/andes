@@ -136,7 +136,9 @@ describe("FileLocker", function() {
                             command: CMD_CANCEL,
                             downloadId: downloadId,
                             callbacks: {
-                                onSuccess: done
+                                onSuccess: function() {
+                                    done();
+                                }
                             }
                         });
                     }
