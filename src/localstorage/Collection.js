@@ -150,6 +150,16 @@ Ext.define('Ext.space.localstorage.Collection', {
         return result;
     },
 
+    /**
+     * Alias for .remove()
+     *
+     * @private
+     * @return {Ext.Promise} the promise that will resolve when the value is checked
+     */
+    delete: function(key) {
+        return this.remove.apply(this, arguments);
+    },
+
 
     /**
     * Gets an array of all the keys in a collection

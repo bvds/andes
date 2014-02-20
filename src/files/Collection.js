@@ -239,6 +239,16 @@ Ext.define('Ext.space.files.Collection', {
         return result;
     },
 
+    /**
+     * Alias for .remove()
+     *
+     * @private
+     * @return {Ext.Promise} the promise that will resolve when the value is checked
+     */
+    delete: function(key) {
+        return this.remove.apply(this, arguments);
+    },
+
 
     /**
     * Gets an array of all the names of the files in a collection
