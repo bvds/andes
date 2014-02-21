@@ -69,11 +69,10 @@ Ext.define('Ext.space.sqlite.SqlResultSet', {
      * The inserted row ID.
      */
     getInsertId: function() {
-        if (this.insertId != 0) {
+        if (this.insertId !== 0) {
             return this.insertId;
         } else {
             throw new Error('Ext.space.sqlite.SqlResultSet#getInsertId: An SqlTransaction did not insert a row.');
-            return null;
         }
     },
 
@@ -133,12 +132,10 @@ Ext.define('Ext.space.sqlite.SqlTransaction', {
     executeSql: function(sql, args) {
         if (!this.valid) {
             throw new Error('Ext.space.sqlite.SqlTransaction#executeSql: An attempt was made to use a SqlTransaction that is no longer usable.');
-            return null;
         }
 
         if (sql == null) {
             throw new Error('Ext.space.sqlite.SqlTransaction#executeSql: You must specify `sql` for the transaction.');
-            return null;
         }
 
         var promise = new Ext.Promise();
@@ -217,7 +214,7 @@ Ext.define('Ext.space.sqlite.SqlTransaction', {
                         // Protect against a DB deadlock in case promise handler throws an exception.
                         try {
                             stmt.promise.reject(result.error);
-                        } catch(e) {}
+                        } catch(ex) {}
                         me.rollback(e);
                     }
                 }
@@ -283,7 +280,7 @@ Ext.define('Ext.space.sqlite.SqlTransaction', {
      * The promise that is resolved when the transaction has been committed or rolled back.
      */
     run: function() {
-        this.begin().then(this, this.execute);
+        this.begin().then(this.execute.bind(this));
         return this.promise;
     }
 });
@@ -386,7 +383,6 @@ Ext.define('Ext.space.sqlite.Database', {
 
         if (version == null) {
             throw new Error('Ext.space.sqlite.Database#changeVersion: You must specify a `version` for the database.');
-            return null;
         }
 
         var promise = new Ext.Promise(),
@@ -461,22 +457,18 @@ Ext.define('Ext.space.Sqlite', {
     openDatabase: function(config) {
         if (config.name == null) {
             throw new Error('Ext.space.Sqlite#openDatabase: You must specify a `name` of the database.');
-            return null;
         }
 
         if (config.version == null) {
             throw new Error('Ext.space.Sqlite#openDatabase: You must specify a `version` of the database.');
-            return null;
         }
 
         if (config.displayName == null) {
             throw new Error('Ext.space.Sqlite#openDatabase: You must specify a `displayName` of the database.');
-            return null;
         }
 
         if (config.estimatedSize == null) {
             throw new Error('Ext.space.Sqlite#openDatabase: You must specify a `estimatedSize` of the database.');
-            return null;
         }
 
         var promise = new Ext.Promise(),
