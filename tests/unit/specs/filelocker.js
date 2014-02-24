@@ -6,7 +6,6 @@ var locker = Ext.space.FileLocker;
 var TEST_URL = "http://www.sencha.com/img/v2/logo.png";
 
 var CMD_DOWNLOAD = "Locker#download";
-var CMD_GET_PROGRESS = "Locker#getProgress";
 var CMD_CANCEL = "Locker#cancel";
 var CMD_GET_DOWNLOADS = "Locker#getDownloads";
 var CMD_WATCH_DOWNLOADS = "Locker#watchDownloads";
@@ -75,42 +74,6 @@ describe("FileLocker", function() {
             bridge.send({
                 command: CMD_DOWNLOAD,
                 url: "",
-                callbacks: {
-                    onError: function(error) {
-                        expect(error).to.exist;
-                        done();
-                    }
-                }
-            });
-        });
-
-
-        //
-        // getProgress
-        //
-        it("getProgress should provide a download in onSuccess", function(done) {
-            bridge.send({
-                command: CMD_DOWNLOAD,
-                callbacks: {
-                    onStart: function(downloadId) {
-                        bridge.send({
-                            command: CMD_GET_PROGRESS,
-                            downloadId: downloadId,
-                            callbacks: {
-                                onSuccess: function(percentDone) {
-                                    expect(percentDone).to.exist;
-                                    done();
-                                }
-                            }
-                        });
-                    }
-                }
-            });
-        });
-
-        it("getProgress should error out when downloadId is omitted", function(done) {
-            bridge.send({
-                command: CMD_GET_PROGRESS,
                 callbacks: {
                     onError: function(error) {
                         expect(error).to.exist;
@@ -247,6 +210,7 @@ describe("FileLocker", function() {
                 });
             });
 
+            /* TODO: disable this test until we actually support progress events
             it("download fires progress events", function(done) {
                 locker.download({ url: TEST_URL }).then(null, null, function(download) {
                     expect(download).to.exist;
@@ -254,6 +218,7 @@ describe("FileLocker", function() {
                     done();
                 });
             });
+            */
 
             it("download errors out without a URL", function(done) {
                 locker.download({}).then(null, function(error) {
@@ -297,6 +262,7 @@ describe("FileLocker", function() {
                 });
             });
 
+            /* TODO: disable this test until we actually support progress events
             it("download.getProgress succeeds", function(done) {
                 locker.download({ url: TEST_URL }).then(null, null, function(startedDownload) {
                     downloadId = startedDownload.downloadId;
@@ -310,6 +276,7 @@ describe("FileLocker", function() {
                     });
                 });
             });
+            */
 
             it("getProgress (omitted direct downloadId) fails", function(done) {
                 locker.getProgress().then(null, function(error) {
@@ -328,6 +295,7 @@ describe("FileLocker", function() {
                 done();
             });
 
+            /* TODO: disable these tests until we actually support progress events
             it("cancel (direct downloadId) should resolve properly", function(done) {
                 // kick off a download and immediately cancel it as soon as it reports progress
                 locker.download({ url: TEST_URL }).then(null, null, function(download) {
@@ -355,6 +323,7 @@ describe("FileLocker", function() {
                     });
                 });
             });
+            */
 
             it("cancel should error out when the download is already complete", function(done) {
                 // kick off a download and try to cancel it after it's done
@@ -365,6 +334,7 @@ describe("FileLocker", function() {
                 });
             });
 
+            /* TODO: disable this test until we actually support progress events
             it("cancel should error out when downloadId is omitted", function(done) {
                 locker.download({ url: TEST_URL }).then(null, null, function(download) {
                     locker.cancel().then(null, function() {
@@ -372,6 +342,7 @@ describe("FileLocker", function() {
                     });
                 });
             });
+            */
 
 
             //
@@ -402,6 +373,8 @@ describe("FileLocker", function() {
                 locker.download({
                     url: TEST_URL,
                     onComplete: function(download) {
+                        downloadId = download.downloadId; // for use in later tests
+
                         expect(download).to.exist;
                         expect(download).to.be.instanceof(Ext.space.filelocker.Download);
 
@@ -413,6 +386,7 @@ describe("FileLocker", function() {
                 });
             });
 
+            /* TODO: disable this test until we actually support progress events
             it("download fires progress events", function(done) {
                 locker.download({
                     url: TEST_URL,
@@ -423,6 +397,7 @@ describe("FileLocker", function() {
                     }
                 });
             });
+            */
 
             it("download errors out without a URL", function(done) {
                 locker.download({
@@ -463,6 +438,7 @@ describe("FileLocker", function() {
             //
             // cancel
             //
+            /* TODO: disable this test until we actually support progress events
             it("cancel should resolve properly", function(done) {
                 // kick off a download and immediately cancel it as soon as it reports progress
                 locker.download({ url: TEST_URL }).then(null, null, function(download) {
@@ -474,6 +450,7 @@ describe("FileLocker", function() {
                     });
                 });
             });
+            */
 
             it("cancel should error out when the download is already complete", function(done) {
                 // kick off a download and try to cancel it after it's done
@@ -487,6 +464,7 @@ describe("FileLocker", function() {
                 });
             });
 
+            /* TODO: disable this test until we actually support progress events
             it("cancel should error out when downloadId is omitted", function(done) {
                 locker.download({ url: TEST_URL }).then(null, null, function(download) {
                     locker.cancel({
@@ -496,6 +474,7 @@ describe("FileLocker", function() {
                     });
                 });
             });
+            */
 
 
             //

@@ -60,7 +60,7 @@ function promisize(args, options) {
         supportProgress = !!(options && options.supportProgress);
 
     if (args && (args.onComplete || args.onError || (supportProgress && args.onProgress))) {
-        promise = promise.then(
+        promise.then(
             typeof args.onComplete == "function" ? args.onComplete : undefined,
             typeof args.onError == "function" ? args.onError : undefined,
             // TODO: create a standard progress handler that invokes both
@@ -70,6 +70,13 @@ function promisize(args, options) {
     }
 
     return promise;
+}
+
+
+// utility function to filter out the weird empty items that sometimes come back from
+// the native side, that look like they're still in progress, but they're invalid;
+function downloadIsReal(item) {
+    return item.isComplete || (!!item.totalBytes && !!item.fileName);
 }
 
 
@@ -180,22 +187,24 @@ Ext.define("Ext.space.FileLocker", {
         var promise = promisize(args, {supportProgress: false});
 
         var locker = this;
+
+        function makeDownload(item) {
+            var id = item.downloadId;
+            if (locker.downloads[id]) {
+                return locker.downloads[id]._updateWith(item);
+            } else {
+                locker.downloads[id] = new Ext.space.filelocker.Download(item);
+                return locker.downloads[id];
+            }
+        }
+
         Ext.space.Communicator.send({
             command: "Locker#getDownloads",
             callbacks: {
                 onSuccess: function(responses) {
                     if (Object.prototype.toString.call(responses) === "[object Array]") {
                         // resolve with an array of Download objects
-                        promise.fulfill(responses.map(function(item) {
-                            var id = item.downloadId;
-                            if (locker.downloads[id]) {
-                                return locker.downloads[id]._updateWith(item);
-                            } else {
-                                locker.downloads[id] = new Ext.space.filelocker.Download(item);
-                                return locker.downloads[id];
-                            }
-                        }));
-
+                        promise.fulfill(responses.filter(downloadIsReal).map(makeDownload));
                         locker.watchDownloads();
 
                     } else {
@@ -222,38 +231,49 @@ Ext.define("Ext.space.FileLocker", {
      *                       Ext.space.filelocker.Download
      */
     getProgress: function(args) {
-        var id, promise, locker = this;
+        var id, promise, match, locker = this;
 
         if (args) {
             promise = promisize(args, {supportProgress: false});
-            id = extract(args, "downloadId");
+            id = typeof args == "number" ? args : extract(args, "downloadId");
 
-            if (id) {
-                Ext.space.Communicator.send({
-                    command: "Locker#getProgress",
-                    downloadId: id,
-                    callbacks: {
-                        onSuccess: function(response) {
-                            var result;
-                            if (args instanceof Ext.space.filelocker.Download) {
-                                // we were originally given an existing Download object; update it
-                                result = args._updateWith(response);
-                            } else {
-                                // create a new Download
-                                result = locker[response.downloadId] = new Ext.space.filelocker.Download(response);
+            if (id && locker.downloads[id]) {
+                if (locker.downloads[id].isComplete) {
+                    // if it's cached and complete, return it
+                    promise.fulfill(locker.downloads[id]);
+
+                } else {
+                    // if it's cached and incomplete, get it from getDownloads
+                    this.getDownloads().then(function(downloads) {
+                        downloads.some(function(download) {
+                            if (download.downloadId === id) {
+                                match = download;
+                                return true;
                             }
-                            promise.fulfill(result);
-                        },
-                        onError: function(error) {
-                            promise.reject(error);
+                        });
+
+                        if (match) {
+                            promise.fulfill(match);
+                        } else {
+                            promise.reject("Download " + id + " not found");
                         }
-                    }
-                });
+
+                    }, function(error) {
+                        promise.reject(error);
+                    });
+                }
             }
+
+
         }
 
         if (!args || !id) {
+            if (!promise) {
+                promise = new Ext.Promise();
+            }
             promise.reject("Missing download ID");
+        } else if (!locker.downloads[id]) {
+            promise.reject("Download " + id + " not found");
         }
 
         return promise;
@@ -316,7 +336,10 @@ Ext.define("Ext.space.FileLocker", {
                 justCompleted = !alreadyComplete && item.isComplete;
 
             // count the downloads still in progress to we know when to unwatch
-            if (!item.isComplete) {
+            // (we check totalBytes and fileName because if an invalid bridge call
+            // makes it through, the native side will return an object with zeroes
+            // across the board, no filename, and isComplete == false)
+            if (!item.isComplete && downloadIsReal(item)) {
                 activeCount++;
             }
 
@@ -339,6 +362,7 @@ Ext.define("Ext.space.FileLocker", {
                 command: "Locker#watchDownloads",
                 callbacks: {
                     onSuccess: function(responses) {
+                        activeCount = 0;
                         if (Object.prototype.toString.call(responses) === "[object Array]") {
                             responses.forEach(processItem);
                             if (!activeCount) {
