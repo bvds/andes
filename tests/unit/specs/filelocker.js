@@ -6,7 +6,6 @@ var locker = Ext.space.FileLocker;
 var TEST_URL = "http://www.sencha.com/img/v2/logo.png";
 
 var CMD_DOWNLOAD = "Locker#download";
-var CMD_GET_PROGRESS = "Locker#getProgress";
 var CMD_CANCEL = "Locker#cancel";
 var CMD_GET_DOWNLOADS = "Locker#getDownloads";
 var CMD_WATCH_DOWNLOADS = "Locker#watchDownloads";
@@ -75,42 +74,6 @@ describe("FileLocker", function() {
             bridge.send({
                 command: CMD_DOWNLOAD,
                 url: "",
-                callbacks: {
-                    onError: function(error) {
-                        expect(error).to.exist;
-                        done();
-                    }
-                }
-            });
-        });
-
-
-        //
-        // getProgress
-        //
-        it("getProgress should provide a download in onSuccess", function(done) {
-            bridge.send({
-                command: CMD_DOWNLOAD,
-                callbacks: {
-                    onStart: function(downloadId) {
-                        bridge.send({
-                            command: CMD_GET_PROGRESS,
-                            downloadId: downloadId,
-                            callbacks: {
-                                onSuccess: function(percentDone) {
-                                    expect(percentDone).to.exist;
-                                    done();
-                                }
-                            }
-                        });
-                    }
-                }
-            });
-        });
-
-        it("getProgress should error out when downloadId is omitted", function(done) {
-            bridge.send({
-                command: CMD_GET_PROGRESS,
                 callbacks: {
                     onError: function(error) {
                         expect(error).to.exist;
