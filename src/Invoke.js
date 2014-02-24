@@ -1,12 +1,12 @@
 /**
     @aside guide invoke
     The Invoke API allows Applications running inside a Sencha Space client to communicate.
-    Applications can securely exchange data with each other.  
+    Applications can securely exchange data with each other.
 
-    When one application requests data from another, that application loads, and the user 
+    When one application requests data from another, that application loads, and the user
     is shown the called app. Once the user is done interacting with the called app,
     the called app returns data back to the calling application, and Sencha Space
-    returns the user to the original application. 
+    returns the user to the original application.
 
     The two primary functions for Invoke are Ext.space.Invoke.get and Ext.space.Invoke.onMessage
 
@@ -45,7 +45,7 @@ Ext.define('Ext.space.Invoke', {
         setTimeout(function() {
             messages.forEach(function(message) {
                 me.onReceived(message);
-            })
+            });
         }, 1);
     },
 
@@ -76,10 +76,10 @@ Ext.define('Ext.space.Invoke', {
             return Ext.Promise.from(connection);
         }
         else {
-            return this.broadcast(broadcastMessage).then(this, function(receiverIds) {
+            return this.broadcast(broadcastMessage).then(function(receiverIds) {
                 connections[broadcastMessage] = connection = new Ext.space.invoke.Connection(receiverIds[0].id);
                 return connection;
-            });
+            }.bind(this));
         }
     },
 
@@ -109,8 +109,8 @@ Ext.define('Ext.space.Invoke', {
 
     /**
      * @private
-     * Assign the callback to handle a new connection.  
-     * The Boolean returned value determines whether or not 
+     * Assign the callback to handle a new connection.
+     * The Boolean returned value determines whether or not
      * to accept the connection.
      * @param {Function} callback
      */
@@ -140,7 +140,7 @@ Ext.define('Ext.space.Invoke', {
         var proxy = this.proxies[name];
 
         //someone could be waiting for this proxy to be registered
-        //if not create a new promise. 
+        //if not create a new promise.
         if(!proxy) {
             proxy = new Ext.Promise();
             this.proxies[name] =proxy;
@@ -151,13 +151,13 @@ Ext.define('Ext.space.Invoke', {
             methods: []
         };
 
-        /** 
+        /**
         * Extract all the functions from the passed object.
         */
-        for(var property in obj) { 
+        for(var property in obj) {
             if(obj.propertyIsEnumerable(property) && typeof obj[property] == "function"){
-                console.log(property, obj.propertyIsEnumerable(property)) 
-                temp.methods.push(property);      
+                console.log(property, obj.propertyIsEnumerable(property));
+                temp.methods.push(property);
             }
         }
 
@@ -166,8 +166,8 @@ Ext.define('Ext.space.Invoke', {
     },
 
     /**
-     *   onMessage registers a function to be called each time another application 
-     *   invokes this application. 
+     *   onMessage registers a function to be called each time another application
+     *   invokes this application.
      *
      *   For example for the photos application to respond to a request to get photos:
      *
@@ -176,7 +176,7 @@ Ext.define('Ext.space.Invoke', {
      *
      *          console.log('Got message from ' + appId + ' ' + message);
      *
-     *          // Do whatever is needed asynchronously before returning the result 
+     *          // Do whatever is needed asynchronously before returning the result
      *          //  (fulfilling the promise)
      *          setTimeout(function(){
      *             promise.fulfill('Yeah I got it');
@@ -276,13 +276,14 @@ Ext.define('Ext.space.Invoke', {
                     }
                 }
 
+                var invoke = this;
                 if (response instanceof Ext.Promise) {
-                    response.then(this, function(result) {
-                        this.doSend(appId, messageId, {
+                    response.then(function(result) {
+                        invoke.doSend(appId, messageId, {
                             success: result
                         }, foreground);
                     }, function(reason) {
-                        this.doSend(appId, messageId, {
+                        invoke.doSend(appId, messageId, {
                             error: reason
                         }, foreground);
                     });
@@ -305,9 +306,9 @@ Ext.define('Ext.space.Invoke', {
 
     /**
     *@private
-    * 
+    *
     Handle app to app control messages
-        Fetch an RPC proxy 
+        Fetch an RPC proxy
         Call a proxy method
         add or remove an event listener
 
@@ -344,7 +345,7 @@ Ext.define('Ext.space.Invoke', {
         return result;
 
         /*this.doSend(appId, messageId, {
-            success: 
+            success:
         }, foreground);*/
     },
 
@@ -352,7 +353,7 @@ Ext.define('Ext.space.Invoke', {
      * @private
      * Broadcast a message (intent) to look for receivers who can respond to the message.
      * @param message
-     * @returns {Ext.Promise} A promise that provides an array of objects to fulfill. 
+     * @returns {Ext.Promise} A promise that provides an array of objects to fulfill.
      * Each object contains information about a receiver, with 'id', 'name', and 'icon' keys.
      */
     broadcast: function(message) {

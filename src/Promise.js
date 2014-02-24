@@ -151,32 +151,14 @@ Ext.define('Ext.Promise', {
         return listeners;
     },
 
-    then: function(scope, success, error) {
-        if (typeof scope == 'function') {
-            error = success;
-            success = scope;
-            scope = null;
-        }
-
-        if (typeof success == 'string') {
-            success = scope[success];
-        }
-
-        if (typeof error == 'string') {
-            error = scope[error];
-        }
-
-        return this.doThen(scope, success, error);
-    },
-
-    doThen: function(scope, success, error) {
+    then: function(success, error) {
         var Promise = Ext.Promise,
             completed = this.completed,
             promise, result;
 
         if (completed === -1) {
             if (error) {
-                error.call(scope, this.lastReason);
+                error(this.lastReason);
             }
             return this;
         }
@@ -186,7 +168,7 @@ Ext.define('Ext.Promise', {
                 return this;
             }
 
-            result = success.apply(scope, this.lastResults);
+            result = success.apply(null, this.lastResults);
 
             if (result instanceof Promise) {
                 promise = result;
@@ -200,7 +182,6 @@ Ext.define('Ext.Promise', {
             promise.$owner = this;
 
             this.getListeners(true).push({
-                scope: scope,
                 success: success,
                 error: error,
                 promise: promise
@@ -210,22 +191,13 @@ Ext.define('Ext.Promise', {
         return promise;
     },
 
-    error: function(scope, error) {
-        if (typeof scope == 'function') {
-            error = scope;
-            scope = null;
-        }
-
-        if (typeof error == 'string') {
-            error = scope[error];
-        }
-
-        return this.doThen(scope, null, error);
+    error: function(error) {
+        return this.then(null, error);
     },
 
     fulfill: function() {
         var results = arguments,
-            listeners, listener, scope, success, promise, callbackResults;
+            listeners, listener, success, promise, callbackResults;
 
         this.lastResults = results;
         this.completed = 1;
@@ -238,11 +210,10 @@ Ext.define('Ext.Promise', {
                 success = listener.success;
 
                 if (success) {
-                    scope = listener.scope;
                     promise = listener.promise;
                     delete promise.$owner;
 
-                    callbackResults = success.apply(scope, results);
+                    callbackResults = success.apply(null, results);
 
                     if (callbackResults instanceof Ext.Promise) {
                         callbackResults.connect(promise);
@@ -262,10 +233,10 @@ Ext.define('Ext.Promise', {
     connect: function(promise) {
         var me = this;
 
-        me.then(promise, function(result) {
+        me.then(function(result) {
             this.fulfill(result);
             return result;
-        }, 'reject');
+        }.bind(promise), promise.reject.bind(promise));
     },
 
     reject: function(reason) {
@@ -283,7 +254,7 @@ Ext.define('Ext.Promise', {
                 delete promise.$owner;
 
                 if (error) {
-                    error.call(listener.scope, reason);
+                    error(reason);
                 }
 
                 promise.reject(reason);
