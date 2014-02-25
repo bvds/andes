@@ -7,13 +7,13 @@ var erCb = function(message) {
     return function(err){
         console.error(message, err);
         throw new Error(err);
-    }
-}
+    };
+};
 
 describe("File Storage", function() {
     describe("Ext.space.SecureFiles", function() {
 
-    	it("Ext.space.SecureFiles should exist", function(done) {
+        it("Ext.space.SecureFiles should exist", function(done) {
             expect(Ext.space.SecureFiles).to.exist;
             expect(Ext.space.files.Collection).to.exist;
 
@@ -75,7 +75,7 @@ describe("File Storage", function() {
         });
 
         it("count should be zero", function(done) {
-            testCollection.count().then(function(count){ 
+            testCollection.count().then(function(count){
                 expect(count).to.exist;
                 expect(count).to.equal(0);
                 done();
@@ -83,7 +83,7 @@ describe("File Storage", function() {
         });
 
         it("keys should be empty", function(done) {
-            testCollection.keys().then(function(keys){ 
+            testCollection.keys().then(function(keys){
                 expect(keys).to.exist;
                 expect(keys.length).to.exist;
                 expect(keys.length).to.eql(0);
@@ -101,7 +101,7 @@ describe("File Storage", function() {
                 expect(keys.length).to.eql(0);
                 done();
             });
-            
+
         });
 
         it("should be able to create multiple files", function(done) {
@@ -115,7 +115,7 @@ describe("File Storage", function() {
         });
 
         it("count should be 3", function(done) {
-            testCollection.count().then(function(count){ 
+            testCollection.count().then(function(count){
                 expect(count).to.exist;
                 expect(count).to.equal(3);
                 done();
@@ -123,7 +123,7 @@ describe("File Storage", function() {
         });
 
         it("keys should return 3 files", function(done) {
-            testCollection.keys().then(function(keys){ 
+            testCollection.keys().then(function(keys){
                 expect(keys).to.exist;
                 expect(keys.length).to.exist;
                 expect(keys.length).to.eql(3);
@@ -144,18 +144,18 @@ describe("File Storage", function() {
                 expect(keys.length).to.eql(3);
                 done();
             });
-            
+
         });
 
         it("should be able to delete all the files in a collection", function(done) {
             testCollection.clear().then(function(){
                 done();
             });
-            
+
         });
 
         it("after clear, count should be zero", function(done) {
-            testCollection.count().then(function(count){ 
+            testCollection.count().then(function(count){
                 expect(count).to.exist;
                 expect(count).to.equal(0);
                 done();
@@ -163,7 +163,7 @@ describe("File Storage", function() {
         });
 
         it("after clear, keys should be empty", function(done) {
-            testCollection.keys().then(function(keys){ 
+            testCollection.keys().then(function(keys){
                 expect(keys).to.exist;
                 expect(keys.length).to.exist;
                 expect(keys.length).to.eql(0);
@@ -181,7 +181,7 @@ describe("File Storage", function() {
                 expect(keys.length).to.eql(0);
                 done();
             });
-            
+
         });
 
         it("after clear, should store a string", function(done) {
