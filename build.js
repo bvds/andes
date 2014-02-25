@@ -22,6 +22,8 @@ var fs = require('fs'),
         'SecureFiles',
         'files/Collection',
         'files/File',
+        'FileLocker',
+        'filelocker/Download',
         'extra'
     ],
     content = [];

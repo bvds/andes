@@ -66,7 +66,7 @@ describe("File Storage", function() {
         });
 
         it("Remove should remove the file", function(done) {
-            testCollection.delete("first.txt").then(function(){
+            testCollection.remove("first.txt").then(function(){
                 testCollection.has("first.txt").then(function(result){
                    expect(result).to.be.false;
                    done();
