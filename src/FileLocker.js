@@ -144,6 +144,7 @@ Ext.define("Ext.space.FileLocker", {
             if (url) {
                 Ext.space.Communicator.send({
                     command: "Locker#download",
+                    url: url,
                     callbacks: {
                         onStart: function(id) {
                             if (id) {
