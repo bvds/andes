@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <title>Secure Files API Tests (unit)</title>
+    <link rel="stylesheet" href="../mocha.css"/>
+    <script>
+        var MODULE = "securefiles";
+    </script>
+    <script src="/out/space.js"></script>
+    <script src="../mocha.js"></script>
+    <script src="../chai.js"></script>
+    <script>
+        mocha.setup({ui: 'bdd', timeout: 5000});
+        document.write('<script src="../specs/'+MODULE+'.js?'+(Date.now())+'"></'+'script>');
+    </script>
+    <script src="../run.js"></script>
+</head>
+<body>
+    <div id="mocha"></div>
+</body>
+</html>
