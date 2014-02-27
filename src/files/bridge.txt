@@ -8,11 +8,11 @@ Files#createFile
 
 Files#removeFile
 	key
-	-> boolean
+	-> [no return value]
 
 Files#renameFile
 	key, newName
-	-> boolean
+	-> [no return value]
 
 Files#getFileContents
 	key
@@ -20,14 +20,18 @@ Files#getFileContents
 
 Files#setFileContents
 	key,fileData
-	-> boolean
+	-> [no return value]
 
 
 Files#queryFiles
 	query: {
 		name: "abe"
 		path: 'foo'
-		type: []
+		type: [],
+		createdBefore: 123456789,
+		createdAfter: 123456789,
+		modifiedBefore: 123456789,
+		modifiedAfter: 123456789
 	}
 	sortField: field
 	sortDirection: 'asc' or ' desc' 
