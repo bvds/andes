@@ -578,7 +578,7 @@ describe("File Storage", function() {
                 }
                 if (testfiles.some(hasKey)) {
                     // failing midstream means a file creation failed
-                    done("Error creating test file" + filename);
+                    done("Error creating test file: " + filename);
                 } else {
                     // last thing that could have failed was the file modification
                     done("Error modifying test file: " + testfiles[0].name);
