@@ -8,6 +8,7 @@ var CMD_REMOVE = "Files#removeFile";
 var CMD_RENAME = "Files#renameFile";
 var CMD_GET_CONTENTS = "Files#getFileContents";
 var CMD_SET_CONTENTS = "Files#setFileContents";
+var CMD_VIEW = "Files#viewFile";
 var CMD_QUERY = "Files#queryFiles";
 
 var TEST_TIMESTAMP = (new Date).getTime();
@@ -451,6 +452,55 @@ describe("File Storage", function() {
             // don't wait until the bridge responds with success; just move on
             keys = [];
             done();
+        });
+
+
+        //
+        // viewFile
+        //
+        it("viewFile calls onSuccess on completion", function(done) {
+            var key = TEST_KEY;
+            bridge.send({
+                command: CMD_VIEW,
+                key: key,
+                callbacks: {
+                    onSuccess: function() {
+                        done();
+                    },
+                    onError: function(error) {
+                        done("Error: " + error);
+                    }
+                }
+            });
+        });
+
+        it("viewFile calls onError when key is omitted", function(done) {
+            bridge.send({
+                command: CMD_VIEW,
+                callbacks: {
+                    onSuccess: function(file) {
+                        done("Called onSuccess rather than onError");
+                    },
+                    onError: function(error) {
+                        done();
+                    }
+                }
+            });
+        });
+
+        it("viewFile calls onError when the file doesn't exist", function(done) {
+            bridge.send({
+                command: CMD_VIEW,
+                key: NONEXISTENT_FILE,
+                callbacks: {
+                    onSuccess: function() {
+                        done("Called onSuccess rather than onError");
+                    },
+                    onError: function(error) {
+                        done();
+                    }
+                }
+            });
         });
 
 

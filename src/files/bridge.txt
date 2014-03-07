@@ -22,6 +22,9 @@ Files#setFileContents
 	key,fileData
 	-> [no return value]
 
+Files#viewFile
+    key
+    -> [no return value]
 
 Files#queryFiles
 	query: {
