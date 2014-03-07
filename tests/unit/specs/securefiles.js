@@ -1250,9 +1250,9 @@ describe("File Storage", function() {
         it("foreach should callback for each file", function(done) {
             var callbackCount = 0;
             testCollection.forEach(function(key){
-                expect(key.getName).to.exsit;
-                expect(key.getName()).to.exsit;
-                expect(key.getContent).to.exsit;
+                expect(key.getName).to.exist;
+                expect(key.getName()).to.exist;
+                expect(key.getContent).to.exist;
                 callbackCount++;
             }).then(function(keys){
                 expect(keys).to.exist;
