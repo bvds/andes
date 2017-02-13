@@ -1,3 +1,6 @@
+% BvdS, Feb. 2013:   I have added minimal changes needed to make
+% the document match the published JEDM document.  Compile with "pdflatex"
+%
 % acmsmall-sample.tex, dated 24th May 2012
 % This is a sample file for ACM small trim journals
 % Users can also go through the FAQs available on the journal's submission webpage.
@@ -5,14 +8,26 @@
 % Steps to compile: latex, bibtex, latex latex
 %
 % For tracking purposes => this is v1.3 - May 2012
-\documentclass[jedm,acmnow]{acmtrans2m}
+\documentclass[jedm,acmnow,oneside]{acmtrans2m}
 
 % Metadata Information
-%\acmVolume{5}
-%\acmNumber{2}
+\acmVolume{5}
+\acmNumber{2}
 %\acmArticle{1}
-%\acmYear{2013}
-%\acmMonth{5}  % can also put in literal name
+\acmYear{13}
+\acmMonth{August}  % can also put in literal name
+
+\makeatletter
+\def\runningfoot{\def\@runningfoot{\@journalName, Vol.\ \@acmVolume, No.\ \@acmNumber, \@acmMonth\ 20\@acmYear}}
+\def\firstfoot{\def\@firstfoot{\@journalName, Vol.\ \@acmVolume, No.\ \@acmNumber, \@acmMonth\ 20\@acmYear}}
+\def\@oddfoot{\hskip -0.5in\parbox{5.8in}{
+\thepage\hfill\@runningfoot}}
+\def\@evenfoot{\hskip -0.5in\parbox{5.8in}{\@firstfoot\hfill\thepage}}
+\def\ps@titlepage{\let\@mkboth\@gobbletwo
+\def\@oddhead{}\def\@oddfoot{\hskip -0.5in\parbox{5.8in}{\thepage\hfill
+\@firstfoot}}\def\@evenhead{}\def\@evenfoot{\hskip -0.5in\parbox{5.8in}{\@firstfoot\hfill\thepage}}}
+\footskip 82pt %fine-tune to match published paper. 
+\makeatother
 
 %\usepackage[latin1]{inputenc}
 \usepackage{graphics}
@@ -24,46 +39,43 @@
 
 \markboth{}{Short title}
 
-\title{\sffamily Properties of the Bayesian Knowledge Tracing Model}
+\title{\sffamily Properties of the Bayesian Knowledge Tracing Model\protect\footnotemark}
 \author{\linespread{1}\selectfont \MakeUppercase{Brett van de Sande}\\
 Arizona State University\\
 bvds@asu.edu}
 
-
 \begin{abstract}
-Bayesian Knowledge Tracing is used very widely to
-model student learning.  It comes in two different forms:
-The first form is the Bayesian Knowledge Tracing {\em hidden Markov model} 
-which predicts the probability of correct application of a skill 
-as a function of the number of previous opportunities to apply that skill and the model parameters.  
-%This model can be fit to student prerformance data to determine model
-%parameters.  
-We present an analytical solution to this model and show that
-it is, in fact, a function of three parameters and has the 
-functional form of an exponential.
-The second form is the Knowledge Tracing {\em algorithm}
-which uses student performance at each opportunity to apply
+Bayesian knowledge tracing has been used widely to 
+model student learning.  However, the name ``Bayesian knowledge tracing'' has
+been applied to two related, but distinct, models: The
+first is the Bayesian knowledge tracing {\em Markov chain} which
+predicts the student-averaged probability of a correct application of a skill.  
+We present an analytical solution to this model and show that 
+it is a function of three parameters and has the
+functional form of an exponential.  
+The second form is the Baysian knowledge tracing {\em hidden Markov model} 
+which can use the individual student's performance at each opportunity to apply 
 a skill to update the conditional probability that the 
-student has learned that skill.
+student has learned that skill.  
 We use a fixed point analysis to study solutions of this 
-model and find a range of parameters where it has
+model and find a range of parameters where it has 
 the desired behavior.
-
 \end{abstract}
 
 \category{}{}{}
 
-\keywords{Bayesian Knowledge Tracing, student modelling, hidden Markov
-model}
+\keywords{Bayesian knowledge tracing, student modelling, Markov chain,
+  hidden Markov model}
 
 \linespread{1.25}\selectfont
-           
-\def\runningfoot{\thepage \fill Journal of Educational Data Mining, Volume 5, Issue 2
-(in press)}
-\def\firstfoot{}
 \begin{document}
 
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
 \maketitle
+
+\footnotetext{Revised version, February 2017.  The original
+  paper labeled the two forms of BKT incorrectly and did not
+  correctly identify the origin of the Markov chain form of the model.}
 
 %
 %  Had idea to look at extensions to BKT where the analytic solution
@@ -75,12 +87,13 @@ model}
 %
 
 
+
 \section{Introduction}
 
 Since its introduction by Corbett and 
 Anderson~\citeyear{corbett_knowledge_1995}, 
-Bayesian Knowledge Tracing (BKT) has been widely applied
-to studies of student learning and to various tutor systems.  
+Bayesian knowledge tracing (BKT) has been widely applied
+to studies of student learning and to various tutor systems.
 In addition, BKT often serves as the starting
 %
 %   Need examples of BKT-based models, only look at examples
@@ -90,13 +103,12 @@ point for more complicated models of learning, for
 example~\cite{baker_improving_2008,lee_impact_2012}.
 %  BKT comes in two flavors:  regular and unsweetened. 
 Researchers have applied BKT in two distinct ways:  
-The {\em Hidden Markov Model} (HMM) form and the 
-{\em Knowledge Tracing Algorithm} form.
+The full {\em hidden Markov model} (HMM) and the associated
+ {\em Markov chain}.
 The purpose of this paper is to investigate solutions of both
 forms of the BKT model.
 
-The HMM form~\cite{beck_identifiability:_2007} of BKT 
-predicts the probability that a student will 
+BKT predicts the probability that a student will 
 correctly apply a skill when they have an opportunity to apply it.
 %
 % In the original Corbett and Anderson paper, they do not say
@@ -125,27 +137,32 @@ test (sometimes described as ``curve fitting'')
 \cite{corbett_knowledge_1995} or a Maximum Likelihood
 test~\cite{pardos_navigating_2010}, with several studies comparing the two
 approaches~\cite{baker_ensembling_2011,chang_bayes_2006,pardos_ensembling_2011,pardos_sum_2012}.
-For the RSS test, many authors in these studies use a grid search
+For the RSS test, some authors have used conjugate gradients~\cite{corbett_knowledge_1995,beck_identifiability:_2007} while
+other authors have used a grid search
 over the parameter space, or ``BKT-BF'' \cite{baker_ensembling_2011}, to perform the fit.  
 Likewise, for the Maximum Likelihood test, the most widely used
-fitting technique is the Expecation Maximization (EM)
+fitting technique is the Expectation Maximization (EM)
 algorithm~\cite{dempster_maximum_1977,chang_bayes_2006}. 
 
 %While using this model,  number of authors have noted have noted the 
 %existence of what is called the ``Identifiability Problem'' 
 %\cite{beck_identifiability:_2007}.    
 %That is, there are certain combinations of the model 
-%parameters that produce identical models.   
-A typical HMM must be solved numerically to find its functional form.
-However, the BKT model is simple enough that it can be 
-solved analytically, which we will do here.  We will see that the model, 
+%parameters that produce identical models.
+How does the Markov chain form arise?
+If an RSS test is applied to the HMM, for each step, the predictions of the
+HMM are averaged over the students in the data set.
+In the limit of many students, this averaging procedure reduces the 
+HMM to the associated Markov chain.
+The BKT Markov chain is simple enough that it can be 
+solved analytically, which we will do here.  We will see that the solution, 
 in functional form, is an exponential.  Moreover, we will see that 
 it is, in fact, a three parameter model.  As we shall see, 
 this explains the ``Identifiability Problem'' first noted by 
 Beck and Chang~\citeyear{beck_identifiability:_2007}.
 
-%There are several reasons why a HMM is a good representation.  First,
-%the parameters of the HMM are often thought to have some physical
+%There are several reasons why a MC is a good representation.  First,
+%the parameters of the MC are often thought to have some physical
 %significance.  In BKT, for instance, $P(L_j)$ is the probability that the
 %student knows the skill at a certain point of time:  it is a simple
 %mental model of the student.  Thus, a distinction can be made between
@@ -153,20 +170,20 @@ Beck and Chang~\citeyear{beck_identifiability:_2007}.
 %can apply the skill correctly).   In contrast, a more behaviorist
 %approach would eschew $P(L_j)$ in favor of a model of actual behavior.
 
-Knowledge Tracing Algorithm form~\cite{corbett_knowledge_1995} 
-of BKT is used to 
+The BKT hidden Markov model~\cite{corbett_knowledge_1995} 
+can be used to 
 determine in real time whether a student has learned a skill.
 The probability that the student has learned a skill is 
 updated by student performance at each opportunity to apply
 that skill.  The model has four parameters which must be 
-supplied externally.  Although, this form of BKT is too complicated
+supplied externally.  Although the HMM is too complicated
 to solve analytically, we will use a fixed point analysis to
 study the behavior of its solutions.  Demanding that the model behaves
 in a reasonable manner leads to significant constraints on the model parameters.
 
-\section{Hidden Markov Model form}
+\section{Markov chain form}
 
-The Bayesian Knowledge Trading model~\cite{corbett_knowledge_1995} 
+The Bayesian knowledge tracing model~\cite{corbett_knowledge_1995} 
 has four parameters:
 %
 \begin{itemize}
@@ -205,15 +222,16 @@ where $P(L_j)$ is the ``hidden'' variable.
 
 \begin{figure}
 \centering\includegraphics{exponential.eps}
-\caption{Solution of the hidden Markov model form of BKT, Eqn.~(\ref{solnn}).
+\caption{Solution of the Markov chain form of BKT, Eqn.~(\ref{solnn}).
           $P(C_j)$ is the probability of  the student getting step $j$
           correct.  Note that the solution has the functional form of
           an exponential.}
 \label{bktgraph}
 \end{figure}
 
-This model can be  solved exactly.  First, we rewrite (\ref{recurse}) 
-in a more suggestive form:
+If we interpret $P(L_j)$ as the average value for a population of
+students, the resulting Markov chain model can be solved exactly.
+First, we rewrite (\ref{recurse}) in a more suggestive form:
 %
 \begin{equation}
         1-P(L_j) = \left(1-P(T)\right) \left(1-P(L_{j-1})\right) \; .
@@ -258,21 +276,21 @@ Thus, $P(C_j)$ is an exponential; see Fig.~\ref{bktgraph}.
 \begin{figure}
 \centering\includegraphics{table1.eps}
 \caption{The relation between the guess rate $P(G)$ and the initial
-  probability of knowing a skill $P(L_0)$ for the hidden
-  Markov model form of BKT.  All points along the curve correspond
-  to identical models.
+  probability of knowing a skill $P(L_0)$ for the Markov chain
+  associated with BKT.  All points along the curve correspond
+  to identical Markov chains.
   The curve is a plot of the solutions of Eqn.~(\ref{aa}), with $P(S)=0.05$ and $A=0.416$.
   The three points are the three parameter sets listed in Table~1 of
   \protect\cite{beck_identifiability:_2007}.}
  \label{table1}
 \end{figure}
 
-The fact that the Markov model is a function of three parameters
+The fact that the BKT Markov chain is a function of three parameters
 was first noticed by Beck and Chang~\citeyear{beck_identifiability:_2007} 
 where they call it the ``Identifiability Problem.''   In their paper, 
 they noted that multiple combinations of $P(G)$ and $P(L_0)$ give
-exactly the same error rate $P(C_j)$, but do not explain the origin of 
-these degenerate solutions.  From Eqn.~(\ref{aa}), we see that diffrent
+exactly the same student averaged error rate $P(C_j)$, but do not explain the origin of 
+these degenerate solutions.  From Eqn.~(\ref{aa}), we see that different
 combinations of $P(G)$ and $P(L_0)$ that give the same value for
 $A$ will result in models that have the exact same functional form.   
 An example showing the relation
@@ -281,7 +299,7 @@ Thus, we can see that Eqn.~(\ref{aa}) provides an explanation
 of the Identifiability problem.
 
 In general, for a model to make sense, all probabilities must lie between 
-zero and one.  For the HMM form of BKT, this means that $0\le P(L_0)\le 1$ and $0\le P(G) \le 1$.
+zero and one.  For the BKT Markov chain, this means that $0\le P(L_0)\le 1$ and $0\le P(G) \le 1$.
 If we further demand that learning is positive (which may or may not be
 empirically justified), then we have the constraint $A>0$ or $P(G)+P(S)<1$.  
 These constraints on $P(L_0)$ and $P(G)$ correspond to the rectangular
@@ -291,20 +309,20 @@ $0<A<1-P(S)$; for negative learning, meaningful values occur when
 $-P(S)<A<0$.  This sets the range of physically meaningful values of
 $A$ when fitting to student data.
 
-Note that it is reasonable for the HMM form of the model to find
-negative learning when fitting to student data.  If the student does
+Note that it is reasonable for the Markov chain to find
+negative learning when fitting to aggregated student data.  If the students do
 well on the first opportunities to apply a skill and then poorly on latter
 opportunities, then the best fit to the student data will be a
 decreasing function, which corresponds to $A<0$.  However,
 we will see that such model parameters are problematic when
-used as input for the Knowledge Tracing Algorithm.
+used as input for the hidden Markov model.
 
-\section{Bayesian Knowledge Tracing Algorithm}
+\section{Hidden Markov Model}
 
 \begin{figure}
 \centering\includegraphics{p-recursion.eps}
 \caption{
-  Plot of the recursion relations for the Knowledge Tracing Algorithm, 
+  Plot of the recursion relations for the BKT hidden Markov model, 
   Eqns.~(\ref{correct}) and (\ref{incorrect}).
   The stable fixed point for each equation is marked
   by a dot.  The dashed line represents the boundary between
@@ -323,7 +341,7 @@ used as input for the Knowledge Tracing Algorithm.
 %in functional form, can be fitted to empirical data to obtain values
 %for the three model parameters.  
 In order to predict $P(L_j)$ for an individual student in real time,
-the Knowledge Tracing Algorithm~\cite{corbett_knowledge_1995} may be employed.
+the forward algorithm may be employed.
 In this case, we find $P(L_j|O_j)$,  the probability that the student has 
 learned a skill just after completing step $j$ given student
 performance $O_j$ on previous steps, where $O_j=\left\{o_1,\ldots,o_j\right\}$ is the student performance
@@ -424,7 +442,7 @@ $P(S)+P(G)>1$, we find that the behavior of $P(L_j|O_j)$ becomes inverted:
 $P(L_j|O_j)$ decreases for correct steps and increases for incorrect steps.
 
 Baker, Corbett, and Aleven~\citeyear{baker_more_2008} discuss the need
-to choose model parameters such that the BKT algorithm behaves in a sensible
+to choose model parameters such that the forward algorithm behaves in a sensible
 fashion.  In particular, they point out that correct actions by
 the student should cause the estimate of learning
 $P(L_j|O_j)$ to increase.  They define models that do not have
@@ -449,7 +467,7 @@ guess rates that are very large are simply nonsensical.
 \caption{
   Plot of the constraint on the learning rate $P(T)$ as a function of the  guess rate $P(G)$ and the
   slip rate $P(S)$ given by Eqn.~(\ref{bigconstraint}).  Valid
-  parameters for the knowledge tracing algorithm lie in the region 
+  parameters for the BKT hidden Markov model lie in the region 
   that is below this surface and above the $P(T)=0$ plane.  The
   vertical surface represents the other constraint $ P(G)+P(S)< 1 $,
   Eqn.~(\ref{littleconstraint}); valid model parameters lie to the left of this surface.
@@ -463,37 +481,29 @@ provides a significant constraint on allowed values of model
 parameters; see Fig.~\ref{region}.  In fact, it completely supersedes the
 other constraint $P(G)+P(S)<1$.
 
-Finally, the ``Identifiability Problem'' for the Knowledge Tracing Algorithm
+Finally, the ``Identifiability Problem'' for the BKT hidden Markov model
 does not exist, so long as there are both correct and incorrect steps.
 This fact can be seen by examining Eqns.~(\ref{correct}) and (\ref{incorrect})
 where we see that $P(G)$ has a different functional form in
 the numerator of each equation.  Thus, any redefinition of $1-P(L_j|O_j)$ 
 cannot be compensated for by a redefinition
 of other parameters in both  (\ref{correct}) and (\ref{incorrect}).
-That is, all four model parameters are needed to define the behavior
-of the Knowledge Tracing Algorithm.
+That is, all four model parameters are needed to define the HMM.
 
 
 \section{Conclusion}
 
 
-In conclusion, the hidden Markov model form of BKT, when expressed
+In conclusion, the hidden Markov chain associated with BKT, when expressed
 in functional form, is an exponential function with three parameters.
-Expressing the model in terms of three parameters should 
-improve the speed and stability of any RSS or maximum likelihood 
-fit to student data.  In that case, if $P(G)$ or
-$P(L_0)$ is needed as output, then we suggest finding $A$ by
-the fitting process,  fixing $P(G)$ or $P(L_0)$ by some 
-external constraint, and using Eqn.~(\ref{aa}) to find the remaining
-variable.
-This would be an alternative to the Dirichlet 
-priors~\cite{beck_identifiability:_2007} approach used by
-some authors, but is much easier to implement and does not
-modify the model itself.  Typically, Dirichlet priors are applied
-to all four model parameters, which adds further complexity to the
-model. 
+The Markov chain is obtained by averaging the HMM
+over students, which happens when comparing model predictions
+to student data using a RSS test.
+This suggests that the use of a maximum likelihood test
+should be the preferred method for finding parameter values 
+for the BKT hidden Markov Model. 
 
-Our other result is that the functional form of the Markov model 
+Our other result is that the functional form of the Markov chain
 corresponds to an exponential, rather than a power law.  
 Heathcote, Brown, and Mewhort~\citeyear{heathcote_power_2000}
 argue that learning for individuals is better described by an
@@ -505,11 +515,11 @@ in the initial acquisition of a skill.  A recent study that focused
 on students learning physics skills found that student learning
 was better explained by a power law function, even for individual 
 students~\cite{chi_instructional_2011}.
-Together, these results call into question the popular practice of 
-fitting the Markov model form of BKT to student data. 
+Together, these results call into question the practice of 
+using the BKT to model student data. 
 Perhaps a model that has power law behavior would work better?
 
-We see that the Knowledge Tracing Algorithm does not suffer from
+We see that the hidden Markov model itself does not suffer from
 the Identifiability Problem:  all four model parameters
 affect model behavior separately.  
 We also see that, for the model to behave properly,  there are 
@@ -518,7 +528,7 @@ and that parameters consistent with negative learning are not allowed.
 Violations of these constraints should correspond to the ``empirically
 degenerate'' models found in~\cite{baker_more_2008}.
 Also, it would be interesting to apply to see how often these constraints are
-violated in situations where the  Knowledge Tracing algorithm is
+violated in situations where BKT is
 employed, such as in the Cognitive Tutors~\cite{ritter_cognitive_2007}.
 A violation of these constraints could lead to incorrect estimates of
 student learning.
