@@ -100,7 +100,7 @@ dojo.declare("andes.WordTip", null, {
 			wrd += ", &#8230;";
 		    }
                     console.log("Successfully retrieved tips: ", line.words.join(), " \nminimized to: ", wrd);
-                    dijit.showTooltip(wrd, this.conEdit, "above");   
+                    dijit.showTooltip(wrd, this.conEdit, ["above"]);   
                 };
             };
         },this);
