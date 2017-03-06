@@ -2,27 +2,7 @@
 
 <head>
     <title>Andes Admin Login</title>
-
-<script language=JavaScript>
-<!--
-function getCookie(c_name)
-{
-if (document.cookie.length>0)
-  {
-  c_start=document.cookie.indexOf(c_name + "=");
-  if (c_start!=-1)
-    {
-    c_start=c_start + c_name.length+1;
-    c_end=document.cookie.indexOf(";",c_start);
-    if (c_end==-1) c_end=document.cookie.length;
-    return unescape(document.cookie.substring(c_start,c_end));
-    }
-  }
-return "";
-}
-// --> 
-</script>
-
+    <script type="text/javascript" src="formFields.js"></script>
 </head>
 
 <body>
@@ -66,10 +46,6 @@ Comment status:&nbsp;
 <input name="dbuser" type="text" value="open" size="6"/>
 <label>DB password</label>:&nbsp;
 <input name="passwd" type="password" size="6"/><br>
-<script language=JavaScript>
-document.queryForm.adminName.value=getCookie("userName");
-document.queryForm.passwd.value=getCookie("passWord");
-</script>
 <BR />
 <BR />
 <input type="submit"/>
