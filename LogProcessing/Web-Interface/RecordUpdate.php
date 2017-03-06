@@ -1,4 +1,4 @@
-<?
+<?php
 $dbuser=$_GET["x"];
 $dbserver=$_GET["sv"];
 $dbpass=$_GET["pwd"];

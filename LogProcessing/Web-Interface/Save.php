@@ -1,4 +1,4 @@
-<?
+<?php
 $dbname=$_GET["d"];
 $dbuser=$_GET["x"];
 $dbserver=$_GET["sv"];
