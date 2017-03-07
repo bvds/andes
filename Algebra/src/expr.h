@@ -26,7 +26,9 @@
 #include <math.h>
 #include <cstring>
 #include <cstdlib>
-using namespace std;
+using std::vector;
+using std::endl;
+// using namespace std;
 
 #include "dimens.h"
 

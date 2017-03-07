@@ -30,7 +30,7 @@
 #include "extstruct.h"
 #include <math.h>
 #define DBG(A) DBGF(EQUALEQ,A)
-using namespace std;
+// using namespace std;
 
 bool equaleqs(const expr * exp1, const expr * exp2)
 {

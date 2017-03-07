@@ -24,6 +24,7 @@
 #include "extstruct.h"
 #include "mconst.h"
 #include "dbg.h"
+using std::max;
 
 #define DBG(A) DBGF(CHKSOL,A)
 #define DBGM(A) DBGFM(CHKSOL,A)

@@ -28,6 +28,8 @@
 #include "dbg.h"
 #include "extstruct.h"
 
+using std::iostream;
+
 #define DBG(A) DBGF(DIMCHK,A)
 
 void dimchkeqf(iostream & outstr)

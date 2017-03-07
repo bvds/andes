@@ -25,7 +25,8 @@
 #include "extstruct.h"
 #include "dbg.h"
 #include "binopfunctions.h"
-using namespace std;
+using std::setprecision;
+// using namespace std;
 #define DBG(A) DBGF(PLSAS,A)
 
 /************************************************************************

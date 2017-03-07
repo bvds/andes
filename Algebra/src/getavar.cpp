@@ -24,7 +24,7 @@
 #include <vector>
 #include <stdio.h>
 #include <math.h>
-using namespace std;
+// using namespace std;
 #include "decl.h"
 #include "extstruct.h"
 #include "mconst.h"

@@ -28,7 +28,7 @@
 #include "extoper.h"
 #include "dbg.h"
 #include "mconst.h"
-using namespace std;
+// using namespace std;
 
 #define DBG(A) DBGF(SLVTRIG,A)
 #define DTL(A) DBGFM(SLVTRIG,A)

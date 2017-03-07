@@ -27,7 +27,7 @@
 #include "extoper.h"
 #include "extstruct.h"
 #include "dbg.h"
-using namespace std;
+// using namespace std;
 
 #define DBG(A) DBGF(POLY,A)
 #define POLYDTL(A) DBGFM(POLY,A)

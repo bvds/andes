@@ -21,7 +21,8 @@
 #include "dbg.h"
 #include "extstruct.h"
 
-using namespace std;
+using std::min;
+// using namespace std;
 #define DBG(A) DBGF(FACTOUT,A)
 
 /************************************************************************

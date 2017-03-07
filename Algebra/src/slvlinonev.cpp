@@ -28,7 +28,7 @@
 #include "dbg.h"
 #include "extoper.h"
 #include "extstruct.h"
-using namespace std;
+// using namespace std;
 
 #define DBG(A) DBGF(LINONEV,A)
 #define DBGM(A) DBGFM(LINONEV,A)
