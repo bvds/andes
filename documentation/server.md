@@ -31,25 +31,6 @@ and `seek-help` messages are sent to the server.
 A session ends when the student hits the submit button or the back
 button on the browser. 
 
-## Database access ##
-
-Create the file `db_user_password` in the Andes root
-directory.   This file should contain, on separate lines,
-the mysql user name, password, and (optionally) the database
-name. 
-This file should be readable only by the user:
-
-    chmod 600 db_user_password
-
-You can test this file by running, in lisp, the commands:
-
-    (rhelp)
-    (andes-database:read-login-file)
-
-The command `(start-help)` will access this file for any values
-that are not given explicitly.
-
-
 ## Running the Help Server ##
 
 For normal production use, the Help server will be run as a daemon. 

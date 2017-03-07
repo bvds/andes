@@ -39,6 +39,7 @@ endif
 	ln -s `pwd`/review $(httpd-document-root)
 	ln -s `pwd`/images $(httpd-document-root)
 	ln -s `pwd`/LogProcessing/Web-Interface $(httpd-document-root)/log
+	apachectl restart
 
 install-server:
 	cd help-server; $(MAKE) install-server

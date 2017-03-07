@@ -1,0 +1,433 @@
+Andes2 Bubble system file README
+Collin Lynch
+1/21/2001
+
+This file defines the basic interface to and use of the Andes2 Bubble Graph solution system.  Please read it to get an idea of the basic loading and operation of the system.  For a more theoretical explanation of the data structures or algorithms please look at the documents supplied by professor Kurt Vanlehn.
+
+Please e-mail collinl@pitt.edu with any questions that you have.
+
+CONTENTS
+
+1. Loading. 
+2. Use.
+3. Walkthrough.
+a.	Loading and Solving
+b.	Bubble graphs
+c.	Paths
+d.	Equation Files.
+e.	Switches.
+
+
+========================== LOADING ===========================================
+
+In order to use the system you must unzip the contents of the package into 'c:\'. Ensure that ‘Use Folder Names’ is checked when you extract.  This will generate a directory tree rooted at 'c:\Andes2\Bubble\'. You can then load the file 'c:\Andes2\Bubble\Loader.cl'.  This will load the entire system into memory.  
+
+Once the system has been installed call ‘(rca)’.  This will compile the source tree and load it.
+
+After you have loaded the files into lisp you can call ‘(rca)’ at any time to recompile and reload.
+
+‘(ra)’ Will reload the system without recompiling.
+
+‘(rkb)’ compiles and reloads the KB files  This includes the ‘Problems.cl’, ‘Newtons2.cl’ and ‘NewtonsNogoods.cl’ files which will be changed most often.  This should be done whenever any modification is made to the files.  
+
+The source tree is laid out in the following form.
+
+C:\Andes2\Bubble
+  |
+  |- README.txt    -- The instructions manual (in brief).
+  |
+  |- Load-Me.cl    -- Master loading file all subdirectories contain
+  |		      their own load-me files not listed here.
+  | 
+  |- Psudocode.txt -- Psudocode description of the Bubblegraph.
+  |- Interface.cl  -- Definitions for the main interface functions.
+  |- Modules.cl    -- Defines the module system at use here.
+  |
+  |- Base -- Files common to all elements of the system.
+  |   |
+  |   |- Unification.cl -- Base unification code for ?vars
+  |   |- Utility.cl     -- General utility files.
+  |
+  |- Knowledge  --Files necessary for the knowledge base.
+  |   |
+  |   |-Problem.cl	-- Definition of Problem struct, and access.
+  |   |-ProblemFile.cl	-- Problem storage and file structure. 
+  |   |-Operator.cl	-- Operator definition and storage.
+  |   |-Nogood.cl	-- Nogood struct and storage.
+  |   
+  |- KB -- Physics Knowledge (May change file extensions.)
+  |   |
+  |   |- BubbleHeader.cl   -- PSM definitions for the Bubble Solver.
+  |   |- Newtons2.cl	   -- Physics Knowledge.
+  |   |- NewtonsNogoods.cl -- Nogood definitions for use with Newtons2.
+  |   |- PhysicsFuncs.cl   -- Utility functions for use with Newtons2.
+  |   |- Problems.cl       -- Physics problems for use with Newtons2.
+  |   
+  |- Qsolver -- Quantity solver based upon the turkey solver.
+  |   |
+  |   |- Qsolver.cl -- Main interface file.
+  |   |- Ops.cl     -- Additional operator code.
+  |   |- Exec.cl    -- Executable code for preconditions.
+  |   |- Macro.cl   -- Macro facilities.
+  |
+  |- Bubble.cl  -- Bubble solver system.
+  |   | 
+  |   |- Bubble.cl    -- Main Bubble solver loop.
+  |   |- Traversal.cl -- Bubblegraph traversal code.
+
+
+
+========================== USE ===============================================
+
+The Andes2 Bubble Graph system is designed to solve physics problems from the 'c:\Andes2\Bubble\KB\Problems.cl' file using the knowledge defined in the rest of the KB directory.  In this section I will describe the basic functions available for loading and solving problems as well as the debugging switches.  The system is designed around the concept of a currently active problem.  
+
+(lcp <Problem Name>) load the problem specified by <Problem Name>. 
+
+(s <Problem Name>) Load and automatically solve the problem specified by 
+                   <Problem Name> this is the more commonly used form.
+
+
+Once a problem is loaded you can execute any of the following functions:
+
+(scp) Will attempt to solve the current problem displaying any debugging output   
+      in the process and will return the set of equation sets defined by the 
+      Problem.
+
+(pg) Print out the Bubble-Graph associated with the current problem in small  
+     form.
+
+(pgf) Prints out the Bubble Graph associated with the current problem in full 
+      form including the PSM graphs associated with each equation node.
+
+(pe) Print out the numbered set of solution sets of equations associated with 
+     the current problem.
+
+(pep <Set Num>) Print out an individual set of equations specified by <Set Num> 
+                along with the traversal paths that generate it.
+
+
+(sw) Print out a list of switches that can be set to modify the behavior of the 
+     system.  I will discuss those below.
+
+(def) Dump the variables and equations in the current problem to a file in the    
+directory c:\andes2\sgg\bubble\Equations\<Problem-Name>.Eqn
+
+
+
+========================= EXAMPLE ================================
+
+1. LOADING and SOLVING
+
+Once the system has been loaded suppose we can start by examining ‘K8’ which defines a simple linear kinematics problem.
+
+[1] USER(4): (lcp k8)
+Problem: K8
+  Statement: ("A car starts at rest and rolls down a 37 degree driveway." 
+ 	       "It accelerates at 2 m/s^2 for 10 seconds."
+              "What is its final velocity?")
+  Comments: ("Produces 5 states" "One has just one equation, lk-no-s."
+             "The others have pairs of lk equations connected by displacement"
+             "The choices for the first equation are lk-no-t, lk-no-vi and lk-no-a."
+             "These are the only lk equations besides lk-no-s that contain vf."
+             "There are 4 choices for the second equation (all except lk-no-s)"
+             "However, one has already been written, so only 3 choices remain." 
+	      "Hence there are 9 equation pairs."
+             "However, the physicists do not want Andes to hint lk-no-vi."
+             "Since it has been removed, there are only 4 pairs solutions" ...)
+  Features:  (WORKING)
+  Sought: ((AT (MAG (VELOCITY CAR)) 2))
+  Givens: ((OBJECT CAR) (TIME (DURING 1 2)) (TIME 1) (TIME 2) (MOTION CAR 1 AT-REST)
+           (MOTION CAR (DURING 1 2) (STRAIGHT SPEED-UP (DNUM 217 DEGREES)))
+           (MOTION CAR 2 (STRAIGHT SPEED-UP (DNUM 217 DEGREES)))
+           (GIVEN (AT (MAG (ACCEL CAR)) (DURING 1 2)) (DNUM 10 M/S^2))
+	    (GIVEN (DURATION (DURING 1 2)) (DNUM 10 S)))
+  Solution Graph: NIL
+[1] USER(5):
+
+Most of the contents are self-explanatory with the exception of the features.  This tag contains marking information that is intended to identify the problem for the user and the system.  At present only four features are used:
+
+Working: 	 This is a valid problem that may be solved.
+
+Not-Working: A problem that will be valid but is not yet complete and therefore 
+ cannot be solved. 
+
+Test: 	 A feature testing problem such as t1 which exists to test a    
+ specific piece of knowledge.
+
+No-quant: 	 A problem that does not specify a sought quantity and therefore 
+cannot be solved properly by the bubble solver.  These problems   
+will, in the future, generate dummy graphs as their solutions. 
+
+Following this we can solve k8 using ‘(scp)’.
+
+[1] USER(5): (scp)
+Solving Problem: K8
+Solving for <Q: (AT (MAG (VELOCITY CAR)) 2)>
+To find (AT (MAG (VELOCITY CAR)) 2),
+   drawing vectors (LK CAR (DURING 1 2)).
+Drawing (DNUM 217 DEGREES) accel for CAR at (DURING 1 2).
+Setting axes for CAR at (DURING 1 2): x=37, y=127
+Vectors drawn for (LK CAR (DURING 1 2)).
+Start compo eqn (LK-NO-S X 37 (LK CAR (DURING 1 2))) 
+  for (AT (MAG (VELOCITY CAR)) 2)
+Wrote compo eqn (= Xc_v_CAR_2_37 (+ Xc_v_CAR_1_37 (* Xc_a_CAR_12_37 t_12))). 
+   start compo-free eqn (LK-NO-S X 37 (LK CAR (DURING 1 2)))
+wrote compo-free eqn (LK-NO-S X 37 (LK CAR (DURING 1 2))).
+Start compo eqn (LK-NO-T X 37 (LK CAR (DURING 1 2))) 
+  for (AT (MAG (VELOCITY CAR)) 2)
+Wrote compo eqn (= (^ Xc_v_CAR_2_37 2) (+ (^ Xc_v_CAR_1_37 2) (* 2 Xc_a_CAR_12_37 Xc_s_CAR_12_37))). 
+   start compo-free eqn (LK-NO-T X 37 (LK CAR (DURING 1 2)))
+wrote compo-free eqn (LK-NO-T X 37 (LK CAR (DURING 1 2))).
+Start compo eqn (LK-NO-A X 37 (LK CAR (DURING 1 2))) 
+  for (AT (MAG (VELOCITY CAR)) 2)
+Wrote compo eqn (= Xc_s_CAR_12_37 (* 0.5 (+ Xc_v_CAR_1_37 Xc_v_CAR_2_37) t_12)). 
+   start compo-free eqn (LK-NO-A X 37 (LK CAR (DURING 1 2)))
+wrote compo-free eqn (LK-NO-A X 37 (LK CAR (DURING 1 2))).
+Solving for <Q: (AT (MAG (DISPLACEMENT CAR)) (DURING 1 2))>
+To find (AT (MAG (DISPLACEMENT CAR)) (DURING 1 2)),
+   drawing vectors (LK CAR (DURING 1 2)).
+Drawing (DNUM 217 DEGREES) accel for CAR at (DURING 1 2).
+Setting axes for CAR at (DURING 1 2): x=37, y=127
+Vectors drawn for (LK CAR (DURING 1 2)).
+Start compo eqn (LK-NO-T X 37 (LK CAR (DURING 1 2))) 
+  for (AT (MAG (DISPLACEMENT CAR)) (DURING 1 2))
+Wrote compo eqn (= (^ Xc_v_CAR_2_37 2) (+ (^ Xc_v_CAR_1_37 2) (* 2 Xc_a_CAR_12_37 Xc_s_CAR_12_37))). 
+   start compo-free eqn (LK-NO-T X 37 (LK CAR (DURING 1 2)))
+wrote compo-free eqn (LK-NO-T X 37 (LK CAR (DURING 1 2))).
+Start compo eqn (LK-NO-VF X 37 (LK CAR (DURING 1 2))) 
+  for (AT (MAG (DISPLACEMENT CAR)) (DURING 1 2))
+Wrote compo eqn (= Xc_s_CAR_12_37 (+ (* Xc_v_CAR_1_37 t_12) (* 0.5 Xc_a_CAR_12_37 (^ t_12 2)))). 
+   start compo-free eqn (LK-NO-VF X 37 (LK CAR (DURING 1 2)))
+wrote compo-free eqn (LK-NO-VF X 37 (LK CAR (DURING 1 2))).
+Start compo eqn (LK-NO-A X 37 (LK CAR (DURING 1 2))) 
+  for (AT (MAG (DISPLACEMENT CAR)) (DURING 1 2))
+Wrote compo eqn (= Xc_s_CAR_12_37 (* 0.5 (+ Xc_v_CAR_1_37 Xc_v_CAR_2_37) t_12)). 
+   start compo-free eqn (LK-NO-A X 37 (LK CAR (DURING 1 2)))
+wrote compo-free eqn (LK-NO-A X 37 (LK CAR (DURING 1 2))).
+((<Eq: (COMPO-FREE LK-NO-S X 37 (LK CAR (DURING 1 2)))>)
+ (<Eq: (COMPO-FREE LK-NO-VF X 37 (LK CAR (DURING 1 2)))> 
+  <Eq: (COMPO-FREE LK-NO-T X 37 (LK CAR (DURING 1 2)))>)
+ (<Eq: (COMPO-FREE LK-NO-T X 37 (LK CAR (DURING 1 2)))> 
+  <Eq: (COMPO-FREE LK-NO-A X 37 (LK CAR (DURING 1 2)))>)
+ (<Eq: (COMPO-FREE LK-NO-VF X 37 (LK CAR (DURING 1 2)))> 
+  <Eq: (COMPO-FREE LK-NO-A X 37 (LK CAR (DURING 1 2)))>))
+[1] USER(6):
+
+
+The result is the set of viable solution sets for the problem.
+
+The printed output between the initial line 'Solving Problem: K8' and the equation set is debugging output returned by the Bubble solver to facilitate tracking.  This is more idiosyncratic and may not be practically useful.  If you want to remove this you can set the *Debug* switch to nil.
+
+
+
+
+2. BUBBLE GRAPHS
+
+Once the current problem has been solved you can print out the Bubble graph by calling (pg) as follows.
+
+[1] USER(9): (pg)
+===== Quantity nodes: =====
+<Quantity-Node: (AT (MAG (DISPLACEMENT CAR)) (DURING 1 2))
+  Variable: s_CAR_12
+  Equations: (<Eq: (COMPO-FREE LK-NO-VF X 37 (LK CAR (DURING 1 2)))> 
+              <Eq: (COMPO-FREE LK-NO-T X 37 (LK CAR (DURING 1 2)))>
+              <Eq: (COMPO-FREE LK-NO-A X 37 (LK CAR (DURING 1 2)))>)
+
+<Quantity-Node: (AT (MAG (VELOCITY CAR)) 2)
+  Variable: v_CAR_2
+  Equations: (<Eq: (COMPO-FREE LK-NO-S X 37 (LK CAR (DURING 1 2)))> 
+              <Eq: (COMPO-FREE LK-NO-T X 37 (LK CAR (DURING 1 2)))>
+              <Eq: (COMPO-FREE LK-NO-A X 37 (LK CAR (DURING 1 2)))>)
+
+
+===== Equation nodes: =====
+<Equation-Node: (COMPO-FREE LK-NO-VF X 37 (LK CAR (DURING 1 2)))
+  Algebra: (= 0 (+ (* (* s_CAR_12 (COS (- 0s_CAR_12 37))) t_12) 
+                   (* 0.5 (* a_CAR_12 (COS (- 0a_CAR_12 37))) (^ t_12 2))))
+  Quantities: (<Q: (AT (MAG (DISPLACEMENT CAR)) (DURING 1 2))>)
+  Assumptions: ((USING-COMPO-FREE (LK-NO-VF X 37 (LK CAR (DURING 1 2)))) 
+                (USING LK-EQN CAR 1 2 X 37)
+                (AXIS-FOR CAR (DURING 1 2) Y 127) 
+                (AXIS-FOR CAR (DURING 1 2) X 37))>
+
+<Equation-Node: (COMPO-FREE LK-NO-S X 37 (LK CAR (DURING 1 2)))
+  Algebra: (= (* v_CAR_2 (COS (- 0v_CAR_2 37))) 
+              (+ (* a_CAR_12 (COS (- 0a_CAR_12 37))) (* 0 t_12)))
+  Quantities: (<Q: (AT (MAG (VELOCITY CAR)) 2)>)
+  Assumptions: ((USING-COMPO-FREE (LK-NO-S X 37 (LK CAR (DURING 1 2)))) 
+                (USING LK-EQN CAR 1 2 X 37)
+                (AXIS-FOR CAR (DURING 1 2) Y 127) 
+                (AXIS-FOR CAR (DURING 1 2) X 37))>
+
+<Equation-Node: (COMPO-FREE LK-NO-T X 37 (LK CAR (DURING 1 2)))
+  Algebra: (= (^ (* a_CAR_12 (COS (- 0a_CAR_12 37))) 2)
+              (+ (^ (* s_CAR_12 (COS (- 0s_CAR_12 37))) 2) 
+                 (* 2 (* v_CAR_2 (COS (- 0v_CAR_2 37))) 0)))
+  Quantities: (<Q: (AT (MAG (VELOCITY CAR)) 2)> 
+               <Q: (AT (MAG (DISPLACEMENT CAR)) (DURING 1 2))>)
+  Assumptions: ((USING-COMPO-FREE (LK-NO-T X 37 (LK CAR (DURING 1 2)))) 
+                (USING LK-EQN CAR 1 2 X 37)
+                (AXIS-FOR CAR (DURING 1 2) Y 127) 
+                (AXIS-FOR CAR (DURING 1 2) X 37))>
+
+<Equation-Node: (COMPO-FREE LK-NO-A X 37 (LK CAR (DURING 1 2)))
+  Algebra: (= 0 (* 0.5 (+ (* s_CAR_12 (COS (- 0s_CAR_12 37))) 
+                          (* v_CAR_2 (COS (- 0v_CAR_2 37)))) t_12))
+  Quantities: (<Q: (AT (MAG (VELOCITY CAR)) 2)> 
+               <Q: (AT (MAG (DISPLACEMENT CAR)) (DURING 1 2))>)
+  Assumptions: ((USING-COMPO-FREE (LK-NO-A X 37 (LK CAR (DURING 1 2)))) 
+                (USING LK-EQN CAR 1 2 X 37)
+                (AXIS-FOR CAR (DURING 1 2) Y 127) 
+                (AXIS-FOR CAR (DURING 1 2) X 37))>
+
+NIL
+[1] USER(10): 
+
+
+Each quantity node in this graph is identified by its solver expression, the variable used for it in equation nodes, and a list of the equation nodes in which it appears.
+
+Each equation node is defined by its solver expression, algebraic form, the Quantity nodes that appear in it (listed by <Q: <Quantity Expression>>) and the set of assumptions made by the equation.
+
+If you wish to see the PSM Graphs for each equation node you can call ‘(pgf)’ which reproduces the outputs above save that it appends the path information to each equation structure as follows:
+
+<Equation-Node: (COMPO-FREE LK-NO-A X 37 (LK CAR (DURING 1 2)))
+  Algebra: (= 0 (* 0.5 (+ (* s_CAR_12 (COS (- 0s_CAR_12 37))) 
+                       (* v_CAR_2 (COS (- 0v_CAR_2 37)))) t_12))
+  Path: ((SG DUMMY (PSM (AT (MAG (VELOCITY CAR)) 2) ?EQN-ID ?EQN-ALGEBRA ?UNKNOWNS))
+         (OP (APPLY-VECTOR-PSM (AT (MAG (VELOCITY CAR)) 2) ?EQN-ID28470))
+         (SG APPLY-VECTOR-PSM (VECTOR-EQN-CONTAINS ?VEC-EQN-ID28460 
+                                                   (AT (MAG (VELOCITY CAR)) 2)))
+         (OP (LK-VECTOR-CONTAINS (AT (MAG (VELOCITY CAR)) 2)))
+         (SG LK-VECTOR-CONTAINS
+          (ANY-MEMBER (AT (MAG (VELOCITY CAR)) 2)
+           ((AT (MAG (VELOCITY ?B28727)) ?T128728) 
+            (AT (DIR (VELOCITY ?B28727)) ?T128728)
+            (AT (MAG (VELOCITY ?B28727)) ?T228729) 
+            (AT (DIR (VELOCITY ?B28727)) ?T228729)
+            (AT (MAG (ACCEL ?B28727)) (DURING ?T128728 ?T228729)) 
+            (AT (DIR (ACCEL ?B28727)) (DURING ?T128728 ?T228729))
+            (AT (MAG (DISPLACEMENT ?B28727)) (DURING ?T128728 ?T228729))
+            (AT (DIR (DISPLACEMENT ?B28727)) (DURING ?T128728 ?T228729)) 
+            (DURATION (DURING ?T128728 ?T228729)))))
+         (SG LK-VECTOR-CONTAINS (OBJECT CAR)) 
+         …(DO (DUMMY) () ))
+  Quantities: (<Q: (AT (MAG (VELOCITY CAR)) 2)> 
+               <Q: (AT (MAG (DISPLACEMENT CAR)) (DURING 1 2))>)
+  Marks: NIL
+  Assumptions: ((USING-COMPO-FREE (LK-NO-A X 37 (LK CAR (DURING 1 2)))) 
+                (USING LK-EQN CAR 1 2 X 37)
+                (AXIS-FOR CAR (DURING 1 2) Y 127) (AXIS-FOR CAR (DURING 1 2) X 37))>
+
+
+
+
+3. PATHS
+
+   The successful solution paths through each graph are grouped by the set of equations that they generate.  This is done to simplify the act of viewing the large number of viable paths that are generated.  In order to view the set of equations call ‘(pe)’ as follows:
+
+[1] USER(11): (pe)
+Equation sets for problem: K8
+0: (<Eq: (COMPO-FREE LK-NO-S X 37 (LK CAR (DURING 1 2)))>)
+
+1: (<Eq: (COMPO-FREE LK-NO-VF X 37 (LK CAR (DURING 1 2)))> 
+    <Eq: (COMPO-FREE LK-NO-T X 37 (LK CAR (DURING 1 2)))>)
+
+2: (<Eq: (COMPO-FREE LK-NO-T X 37 (LK CAR (DURING 1 2)))> 
+    <Eq: (COMPO-FREE LK-NO-A X 37 (LK CAR (DURING 1 2)))>)
+
+3: (<Eq: (COMPO-FREE LK-NO-VF X 37 (LK CAR (DURING 1 2)))> 
+    <Eq: (COMPO-FREE LK-NO-A X 37 (LK CAR (DURING 1 2)))>)
+
+NIL
+[1] USER(12): 
+
+Each numbered set is a single list of viable equations that can be used to solve the problem.  In this case they consist solely of the viable linear kinematics equations but they can and will be larger in other problems.
+
+In order to view the individual paths associated with each equation use the function (pep <Set Number>).  Here we are viewing the second solution set from above.
+
+[2] USER(17): (pep 2)
+Equation set 2
+ (<Eq: (COMPO-FREE LK-NO-T X 37 (LK CAR (DURING 1 2)))> <Eq: (COMPO-FREE LK-NO-A X 37 (LK CAR (DURING 1 2)))>)
+
+<B: Path:        (<Q: (AT (MAG (VELOCITY CAR)) 2)> 
+                  <Eq: (COMPO-FREE LK-NO-T X 37 (LK CAR (DURING 1 2)))>
+                  <Q: (AT (MAG (DISPLACEMENT CAR)) (DURING 1 2))> 
+                  <Eq: (COMPO-FREE LK-NO-A X 37 (LK CAR (DURING 1 2)))>)
+
+    Assumptions: ((USING-COMPO-FREE (LK-NO-A X 37 (LK CAR (DURING 1 2)))) 
+                  (USING LK-EQN CAR 1 2 X 37)
+                  (AXIS-FOR CAR (DURING 1 2) Y 127) (AXIS-FOR CAR (DURING 1 2) X 37)
+                  (USING-COMPO-FREE (LK-NO-T X 37 (LK CAR (DURING 1 2)))) 
+                  (USING LK-EQN CAR 1 2 X 37)
+                  (AXIS-FOR CAR (DURING 1 2) Y 127) (AXIS-FOR CAR (DURING 1 2) X 37))>
+
+<B: Path:        (<Q: (AT (MAG (VELOCITY CAR)) 2)> 
+                  <Eq: (COMPO-FREE LK-NO-A X 37 (LK CAR (DURING 1 2)))>
+                  <Q: (AT (MAG (DISPLACEMENT CAR)) (DURING 1 2))> 
+                  <Eq: (COMPO-FREE LK-NO-T X 37 (LK CAR (DURING 1 2)))>)
+
+    Assumptions: ((USING-COMPO-FREE (LK-NO-T X 37 (LK CAR (DURING 1 2)))) 
+                  (USING LK-EQN CAR 1 2 X 37)
+                  (AXIS-FOR CAR (DURING 1 2) Y 127) (AXIS-FOR CAR (DURING 1 2) X 37)
+                  (USING-COMPO-FREE (LK-NO-A X 37 (LK CAR (DURING 1 2)))) 
+                  (USING LK-EQN CAR 1 2 X 37)
+                  (AXIS-FOR CAR (DURING 1 2) Y 127) (AXIS-FOR CAR (DURING 1 2) X 37))>
+
+NIL
+[2] USER(18): 
+
+In this case each Bubble B is a distinct traversal through the graph unified by the list of equations that they contain. 
+
+The Path of the bubble is a list traversal through the bubble of the form (Q1, E1, ... Qn, En).  The first element of each list is the problem's sought quantity (in the case of problems with multiple soughts this will be one of the quantities.  Each quantity is followed by the equation that is used to make it known.  The elements are added to the list in the order that they are generated.
+
+The Assumptions list is the union (with duplication) of the assumptions made by each equation node in the bubble.
+
+
+4. Equation files.
+As a preliminary task in developing our solver the system has been designed to collect up the maximal set of equations and variables defined in solving a problem.  This includes all quantities and equations that appear in the Bubblegraphs and those that are nested below them in the PSM graphs.  
+
+If you wish to generate this set you can call (def) which will dump the current Problem’s Equations and variables to a file.  Of the following form:
+
+<EQUATIONS>
+<QVARS>
+(Variable g_EARTH)
+(nonnegative g_EARTH)
+
+…
+</QVARS>
+
+<EQNS>
+(= g_EARTH 9.8)
+
+
+(Variable OFw_BALL_EARTH_1)
+(= OFw_BALL_EARTH_1 270)
+(= Fw_BALL_EARTH_1 (* m_BALL g_EARTH))
+
+…
+</EQNS>
+</EQUATIONS>
+
+The first section consists of quantities in the bubble graph bracketed by the <Qvars> and </qvars> statements.  Each one is designated by a statement of the form; ‘(variable <Var>)’ followed by one or more descriptor statements such as ‘(nonnegative <Var>)’ which describe the quantity itself.  These descriptor statements are based upon physics-knowledge principles such as ‘Gravity is not negative’ which holds true for the basic Newtonian problems.  Quantum-mechanical modules may take issue with this.
+
+The second section of the file bracketed by the <EQNS> and </EQNS> statements are collections representing the variables and equations that are located in the PSM graphs of each Enode.  They are printed in blank-line separated groups with the variable statements first (in the form from above).  Immediately following these will be equation statements such as; (= OFw_BALL_EARTH_1 270) followed finally by the equation statement of the Enode itself here; (= Fw_BALL_EARTH_1 (* m_BALL g_EARTH)).  
+
+This facility was defined for temporary purposes and is basic.  Therefore the files may contain duplicated equations or variables if they appear in more than one PSM graph or more than once in each PSM graph.  In the future this will be modified.  At present it is of a low priority.
+
+
+That concludes the list of interface functions that are available.
+
+
+5. SWITCHES
+
+*Debug* which was set to nil above is one of several switches that are available to control the system's output calling the function ‘(sw)’ will display these all of which can be altered by a setf or setq.
+
+[2] USER(18): (sw)
+*PRINT-NOGOOD-MESSAGES* = NIL  If a nogood is signaled print out the nogood message.
+*LK-HACK*       = NIL  When true, causes only one lk equation to be generated.
+*DEBUG*         = NIL  When true, the executable precondition (debug <string> . <args>) prints
+*ACTIONS*       = NIL  Controls whether note-action will trace.
+*S-PRINT-GRAPH* = NIL  If t a long form of the Graph will be pretty-printed at the end                 
+                       of a call to solve-problem.
+NIL
+[2] USER(19): 

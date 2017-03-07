@@ -6,7 +6,7 @@ A front-end web server forwards student help messages
 to the Andes help server and serves other static content.
 See [Server Documentaton](server.html) for more information.
 
-This installation uses sbcl for lisp, Apache for the web server, mysql for
+This installation uses sbcl for lisp, Apache for the web server, MySQL for
 the database, and g++ for the solver.  It has been tested on Linux (RedHat 
 Enterprise 5.4, CentOS 5.4) and OS X (10.4 and 10.6).
 
@@ -58,11 +58,11 @@ The rest of the install will take place in the Andes directory.
 
     cd andes    # switch to the Andes root directory
 
-Switch to the stable branch of Andes;  the "master"
-branch is for development.  In the Andes root directory:
+If you are just running the Andes server, switch to the stable
+branch of Andes;  the "master" branch is for development.
+In the Andes root directory:
 
     git checkout --track -b stable origin/stable
-
 
 For the system to work, a library of problem definitions 
 must be included.  The original Andes problem definitions
@@ -107,10 +107,11 @@ command to compile the source code.
     cd ../
 
 
-## MySql ##
+## MySQL database ##
 
-To save session data, we use MySql. 
-First, mysql server must be started (not needed in Ubuntu).
+To save session data, we use MySQL. 
+
+First, the MySQL server must be started (not needed in Ubuntu).
 As superuser:
 
     /sbin/chkconfig mysqld on
@@ -122,15 +123,35 @@ Then set the root password (choose your own) and restart:
     /sbin/service mysqld restart
 
 Currently, the root password cannot be empty; see bug #2277.
-(In OS X, go to <http://dev.mysql.com>, install mysql and MySQLStartupItem,
+(In OS X, go to <http://dev.mysql.com>, install MySQL and MySQLStartupItem,
 add `/usr/local/mysql/bin` to `PATH` in `~/.profile`,
 execute `(cd /usr/local/lib;sudo ln -s ../mysql/lib/lib*.{a,dylib} .)`,
 execute `sudo /Library/StartupItems/MySQLCOM/MySQLCOM start`, and
-set the root mysql password using the above command.) 
+set the root MySQL password using the above command.) 
 
-Set up tables in database:
+You can either create a separate user for Andes or use root.
+To store the database login credentials, create the file
+`db_user_password` in the Andes root directory.
+This file should contain, on separate lines,
+
+* the user name for Andes,
+* password, and 
+* the database name (optional, the default is `andes3`).
+
+This file should be readable only by the user:
+
+    chmod 600 db_user_password
+
+The command `(start-help)` will access this file for any values
+that are not given explicitly.
+
+Funally, set up the tables in the database:
 
     make install-database
+
+The script will prompt you for a password for the user "open"
+The user open will be given the database permissions appropriate
+for a researcher under IRB rules.
 
 ## Apache Web Server ##
 
@@ -174,7 +195,7 @@ while the stable branch uses (mostly) the latest release.
 
     ;; To test the Help Server type "sbcl" to start up lisp, then:
      (rhelp)
-     (start-help :password "my-db-pass") ;specify your mysql password 
+     (start-help)
 
     ;; The help server is now running on port 8080.
     ;; You can test access to the help server by using telnet:
