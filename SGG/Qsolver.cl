@@ -808,10 +808,20 @@
       (setf (opinst-subgoals new-inst)
 	(append (expand-precond-macro subgoal state)
 		(opinst-subgoals new-inst)))
-      (setf subgoal (pop (opinst-subgoals new-inst))))
+         (setf subgoal (pop (opinst-subgoals new-inst))))
+    (if (and nil (consp new-inst) (eql (car new-inst) 'dot-term))
+        (progn (format t "*** opinst-next ~S~%" new-inst)
+               (trace goal-successors-effects execute-bind))
+        ;(untrace)
+        )
     (push new-inst (st-stack state))
     ;; NB: macro may expand to NIL => no new subgoal.
     (when subgoal                                                          
+      (if (and nil (consp subgoal) (eql (car subgoal) 'dot-term))
+          (progn (format t "*** opinst-next subgoal ~S~%" subgoal)
+                 (trace goal-successors-effects execute-bind))
+                                        ;(untrace)
+          )
       (push subgoal (st-stack state))                                      
       (note-action state 
 		   (make-cssg 
@@ -826,6 +836,9 @@
 
 (defun goal-successors (goal state)
   "Given a new state, returns a copy for each unification of the given goal"
+  (if (and (consp goal) (eql (car goal) 'dot-term))
+      (trace operator-var-copy goal-successors-effects)
+      (untrace))
   (nconc (goal-successors-wmes goal state t)
 	 (goal-successors-effects goal state)))
 
@@ -909,6 +922,11 @@
 		:identifier (cons (operator-name op) 
 				  (operator-arguments new-op))
 		:variables (operator-variables new-op)))
+    (if (and nil (consp inst) (eql (car inst) 'dot-term))
+        (progn (format t "*** effect-unified ~S~%" inst)
+               (trace goal-successors-effects execute-bind))
+                                        ;(untrace)
+        )
     (push inst (st-stack new-state))
     (setf (st-bindings new-state) bindings)
     (note-action new-state 

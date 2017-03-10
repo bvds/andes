@@ -21,20 +21,18 @@
   "If x is a list return it, otherwise return the list of x"
   (if (listp x) x (list x)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; flatten - gets rid of embedded lists -- completely
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun flatten (x)
-  (cond
-   ((null x) x)
-   ((atom x) x)
-   ((atom (car x)) (cons (car x) (flatten (rest x))))
-   (t (append (flatten (car x)) (flatten (rest x))))))
+  "Remove embedded lists."
+  (if (consp x)
+      (append (flatten (car x)) (flatten (rest x)))
+      x))
+
 
 (defun flatten1 (exp)
   "Get rid of embedded lists (to one level only)."
   (mappend #'mklist exp))
-	       
+
+
 (defun remove-duplicates-order-preserve (lst &optional (elts ()))
   (cond ((null lst) Elts)
 	((member (car lst) elts) (remove-duplicates-order-preserve (cdr lst) elts))
@@ -51,22 +49,27 @@
 (defun unique-find-anywhere-if (predicate tree
                                 &optional found-so-far)
   "Return a list of leaves of tree satisfying predicate,
-  with duplicates removed."
-  (if (atom tree)
-      (if (funcall predicate tree)
-          (adjoin tree found-so-far)
-          found-so-far)
-      (unique-find-anywhere-if
-        predicate
-        (first tree)
-        (unique-find-anywhere-if predicate (rest tree)
-                                 found-so-far))))
+  with duplicates removed.  Handle commas in sbcl, version > 1.2.2."
+  (cond ((consp tree)
+         (unique-find-anywhere-if
+          predicate
+          (first tree)
+          (unique-find-anywhere-if predicate (rest tree)
+                                   found-so-far)))
+        #+sbcl((sb-impl::comma-p tree)
+               (unique-find-anywhere-if predicate (sb-impl::comma-expr tree)
+                                        found-so-far))
+        ((funcall predicate tree)
+         (adjoin tree found-so-far))
+        (t found-so-far)))
 
 
 (defun find-anywhere-if (predicate tree)
-  "Does predicate apply to any atom in the tree?"  
-  (if (atom tree)
-      (funcall predicate tree)
-      (or (find-anywhere-if predicate (first tree))
-          (find-anywhere-if predicate (rest tree)))))
-
+  "Does predicate apply to any atom in the tree?   
+   Handle commas in sbcl, version > 1.2.2."
+  (cond ((consp tree)
+         (or (find-anywhere-if predicate (first tree))
+             (find-anywhere-if predicate (rest tree))))
+        #+sbcl((sb-impl::comma-p tree)
+               (find-anywhere-if predicate (sb-impl::comma-expr tree)))
+        (t (funcall predicate tree))))

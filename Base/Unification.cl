@@ -64,9 +64,21 @@
 
 (defun rename-variables (x)
   "Replace all variables in x with new ones."
-  (sublis (mapcar #'(lambda (var) (cons var (gensym (string var))))
+  (sublis (mapcar #'(lambda (var) (when (and nil (search "AAAA" (string var))) (format t "*** rename-variables list ~S for ~S~%" (variables-in x) x) (break)) (cons var (gensym (string var))))
                   (variables-in x))
           x))
+
+(defun sublis-comma (x y)
+  "sbcl, version 1.2.2 represents comma as a struct. 
+   Modify sublis to treat backquotes as part of a tree."
+  #-sbcl (sublis x y)
+  #+sbcl (cond ((consp y)
+                (reuse-cons (sublis-comma x (car y)) (sublis-comma x (cdr y)) y))
+               ((sb-impl::comma-p y)
+                (setf (sb-impl::comma-expr y)
+                      (sublis-comma x (sb-impl::comma-expr y)))
+                y)
+               (t (sublis x y))))
 
 
 (defun get-binding (var bindings)
@@ -268,6 +280,7 @@
   (cond ((eq bindings fail) fail)
         ((eq bindings no-bindings) x)
         ((and (variable-p x) (get-binding x bindings))
+         (when (and t (search "AAAA" (string x))) (break))
          (subst-bindings bindings (lookup x bindings)))
         ((atom x) x)
 	;; remove null keyword pairs
@@ -506,29 +519,8 @@
 		       x))))
 
 
-;;=============================================================================
-;; Code by Collin Lynch
-
-;;; We may want to perform recursive binds or more complex binds in which 
-;;; case it will become necessary to call some function for each element to 
-;;; be bound.  
-;;; Subst-bindings-func does so by calling the specified predicate function 
-;;; and setting its value in the location specified.
-
-(defun subst-bindings-func (Bindings Func X)
-   "Returns X with all variables inside replaces by the value of Func(B)."
-  (cond ((eq bindings fail) fail)
-        ((eq bindings no-bindings) x)
-        ((variable-p x)
-	 (funcall Func (subst-bindings Bindings (lookup x bindings))))
-        ((atom x) x)
-        (t (cons (subst-bindings-func bindings Func (car x))
-                 (subst-bindings-func bindings Func (cdr x))))))
-
-
-
-;;; Given a list of elements this code collects up all those members of
-;;; the list that unify with the supplied pattern.  Otional keywoyd arguments
+;;; Given a list of elements, this code collects up all those members of
+;;; the list that unify with the supplied pattern.  Optional keyword arguments
 ;;; can be supplied for key and bindings if any.
 
 (defun collect-unifiers (set pattern &key (bindings no-bindings) 
@@ -540,44 +532,6 @@
 	      pattern bindings))
    set))
   
-
-;;;; ==================================================================
-;;;; Strip off the leading question mark from a variable
-
-(defun strip-variable-qm (var)
-  "Get back the symbol for the var sans the quote mark."
-  (if (not (variable-p var))
-      (error "Non-var supplied to strip-variable-qm.")
-    (intern (string-upcase (subseq (format nil "~a" var) 1)))))
-
-(defun strip-expression-var-qms (exp)
-  "Apply strip-variable-qm to all vars in exp."
-  (cond ((null exp) ())
-	((variable-p (car exp))
-	 (cons (strip-variable-qm (car exp))
-	       (strip-expression-var-qms (cdr exp))))
-	((listp (car exp)) 
-	 (cons (strip-expression-var-qms (car exp))
-	       (strip-expression-var-qms (cdr exp))))
-	(t (cons (car exp) (strip-expression-var-qms (cdr exp))))))
-
-
-;;; Cycle through all of the variables in the expression replacing them
-;;; with an upper-case string form sans question mark.
-(defun strip-replace-exp-vars (exp)
-  "Apply strip-variable-qm to all vars in exp."
-  (cond ((null exp) ())
-	((variable-p exp) (list (string-upcase 
-				 (subseq (format nil "~w" exp) 1)) ))
-	((atom exp) (list exp))
-	((variable-p (car exp))
-	 (cons (string-upcase (subseq (format nil "~w" (car exp)) 1)) 
-	       (strip-replace-exp-vars (cdr exp))))
-	((listp (car exp))
-	 (cons (strip-replace-exp-vars (car exp))
-	       (strip-replace-exp-vars (cdr exp))))
-	(t (cons (car exp) (strip-replace-exp-vars (cdr exp))))))
-
 
 ;;;; =======================================================================
 ;;;; Non-destrictively modify bindings

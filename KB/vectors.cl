@@ -1292,15 +1292,15 @@
 	     ;; nogood rule to so that only one form of dot is chosen
 	     (assume using-dot ?a ?b nil) ))
 
-(defoperator dot-term (?a ?b ?xyz ?rot)
+(defoperator dot-term (?aaaa ?b ?xyz ?rot)
   :preconditions 
   ( 
    (get-axis ?xyz ?rot)
-   (variable ?a-xyz (compo ?xyz ?rot ?a))
+   (variable ?aaaa-xyz (compo ?xyz ?rot ?aaaa))
    (variable ?b-xyz (compo ?xyz ?rot ?b))
-   (bind ?dot (if (exactly-equal ?a ?b) `(^ ,?a-xyz 2) `(* ,?a-xyz ,?b-xyz)))
+   (bind ?dot (if (exactly-equal ?aaaa ?b) `(^ ,?aaaa-xyz 2) `(* ,?aaaa-xyz ,?b-xyz)))
     )
-  :effects ( (dot-term ?dot ?a ?b ?rot) ))
+  :effects ( (dot-term ?dot ?aaaa ?b ?rot) ))
 
 (defoperator dot-term-nonzero (?a ?b ?xyz ?rot)
   :preconditions 

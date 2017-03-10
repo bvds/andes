@@ -11,7 +11,7 @@ and put it into `/usr/local`.
 
 
 
-## The main Andes2 Solution-Graph-Generator commands. ##
+## The main Andes Solution-Graph-Generator commands. ##
 
 Starting up and loading the System.
 
@@ -25,15 +25,15 @@ Solving a problem:
 
 Examining results for current problem after solving:
 
-    (ps)                  ; print report of each solution found    
+    (ps)                  ; print report of each solution found 
     (pg)                  ; print bubble graph	
-    (pgn N)               ; print graph node N -- shows PSM graph (maybe long)  
+    (pgn N)               ; print graph node N -- shows PSM graph (maybe long) 
     (pgv)                 ; print index of all variables
-    (pge)                 ; print index of all equations      
+    (pge)                 ; print index of all equations 
     (pe)                  ; print equation subsets constituting a solution
     (pep N)               ; print contents of equation set numbered N
   
-Controlling trace output -- Set to T for on, NIL for off:
+Controlling trace output -- Set to `T` for on, `NIL` for off:
   
     (watch op1 op2...)    ;; turn on tracing within named operators
     (unwatch op1 op2...)  ;; remove given ops from the trace list
@@ -46,10 +46,20 @@ Writing problem files
 
     (spf)                 ; store .prb problem file for current problem
     (make-prbs)           ; make all problems w/features working & andes2
-    (make-prbs 'kinematics 'statics ...)  
+    (make-prbs 'kinematics 'statics ...) 
 			  ; make all working problems w/specified feature tags
 
 Force recompilation of all sgg sources (shouldn't be necessary, but
 harmless)
 
     (ra)                  ; recompile-all
+
+## Solver ##
+
+Andes lisp communicates with the solver through a socket.
+Logging of this communcation can be turned on via:
+
+    (setf *solver-logging* t)
+
+This will create a log file `Solver.log`.
+See [`Algebra/solver.cl`](../Algebra/solver.cl) for details.

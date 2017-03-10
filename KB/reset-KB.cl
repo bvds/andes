@@ -41,6 +41,6 @@
 ;;; It may be convenient to define this in the initialization file
 ;;;
 (defun rkb ()
-  "Reset the lists in KB and reload all files using asdf"
-  (reset-kb)
-  (asdf:operate 'asdf:load-source-op 'problems))
+  "Reset the lists in KB and reload all files using quicklisp"
+  ;; (reset-kb)
+  (ql:quickload 'problems))
