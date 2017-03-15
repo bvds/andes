@@ -147,7 +147,7 @@
 			documentation
 	        	new-english)
   "Define a quantity expression."
- 
+
   ;; Compile-time tests
 
   (when (match:matches-model-syntax form)
@@ -155,50 +155,40 @@
 
   (when (and rank (not short-name))
     (error "short-name must be supplied for ~A" type))
-  
+
 
   `(let ((E (make-exptype 
-	    :type ',type
-	    :form ',form
-	    :rank ',rank
-	    :documentation ',documentation
-	    :symbol-base ',symbol-base
-	    :short-name ',short-name
-	    :units ',Units
-	    :restrictions ',restrictions
-	    :new-english (compile-evals ',new-english))))
+             :type ',type
+             :form ',form
+             :rank ',rank
+             :documentation ',documentation
+             :symbol-base ',symbol-base
+             :short-name ',short-name
+             :units ',Units
+             :restrictions ',restrictions
+             :new-english (compile-evals ',new-english))))
 
-  ;; Remove any existing entry of this name (thus, allowing updates)
-  (when (expression-type-p ',type)
-    (let ((old-bound-sub (get-bound-sub 
-			  (ExpType-form (lookup-exptype-struct ',type)))))
-      (setf (gethash old-bound-sub *Ontology-form-table*)
-	    (delete ',type 
-		    (gethash old-bound-sub *Ontology-form-table*) 
-		    :key #'ExpType-Type)))
-    (setf *Ontology-ExpTypes*
-	  (delete ',type *Ontology-ExpTypes* :key #'ExpType-Type :count 1)))
+     ;; Remove any existing entry of this name (thus, allowing updates)
+     (when (expression-type-p ',type)
+       (let ((old-bound-sub (get-bound-sub 
+                             (ExpType-form (lookup-exptype-struct ',type)))))
+         (setf (gethash old-bound-sub *Ontology-form-table*)
+               (delete ',type 
+                       (gethash old-bound-sub *Ontology-form-table*) 
+                       :key #'ExpType-Type)))
+       (setf *Ontology-ExpTypes*
+             (delete ',type *Ontology-ExpTypes* :key #'ExpType-Type :count 1)))
 
      (let ((matching-form (lookup-expression-struct ',Form)))
-      (when matching-form
-	(error "Adding ~A with form ~A: ~%conflict for exptype ~A with form ~A."
-	   ',type ',form 
-	   (exptype-type matching-form)
-	   (exptype-form matching-form))))
+       (when matching-form
+         (error "Adding ~A with form ~A: ~%conflict for exptype ~A with form ~A."
+                ',type ',form 
+                (exptype-type matching-form)
+                (exptype-form matching-form))))
 
     (push E *Ontology-ExpTypes*)
     (push E (gethash (get-bound-sub ',form) *Ontology-form-table* nil))))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; define-exptype (Hidden)
-;; This function defines an expression type and stores it 
-;; in the *ontology-exptypes* The values of the fields are
-;; primarily set directly from the input.  However this 
-;; function will perform error checking, will fill in
-;; unit types on the fields that are not supplied and 
-;; if the user provides a variable for the restrictions
-;; then that will be tested for here.
 
 (defun get-bound-sub (x)
   "Create unique identifier for expression based on first member."
@@ -210,13 +200,15 @@
 
 (defun compile-evals (model)
   "Recurse through new-english and compile any evals."
-  ;; Maybe problematic at load time?
   (cond ((atom model) model)
 	((and (consp model) (eq (car model) 'eval))
-	 (let ((params (variables-in (second model))))
+         ;; sbcl version 1.2.2 introduces a struct
+         ;; for backquote commas.  So, we need to expand
+         ;; backquotes before collecting variables.
+	 (let ((params (variables-in
+                        (sbcl-expand-backquote (second model)))))
 	   (append (list 'eval-compiled
-			 (compile nil `(lambda ,params 
-					 ,(transform-quotes (second model))))
+			 (compile nil `(lambda ,params ,(second model)))
 			 params)
 		 (cddr model))))
 	;; Recursion through model
@@ -224,27 +216,6 @@
 				   (compile-evals (cdr model))
 				   model))))
 
-(defun transform-quotes (expr)
-  "Find any quoted subexpressions and unquote any variables therein."
-  (cond ((atom expr) expr)
-	((and (consp expr) (eq (car expr) 'quote))
-	 (unquote-variables (second expr)))
-	((consp expr) (reuse-cons (transform-quotes (car expr))
-				  (transform-quotes (cdr expr))
-				  expr))))
-
-(defun unquote-variables (expr)
-  "Rewrite expression so that it evaluates to the original expression, except for variables."
-  ;; This is equivalent to backquoting an expression, putting commas
-  ;; in front of any variables. 
-  (cond ((variable-p expr) expr)
-	((groundp expr) `(quote ,expr))
-	((atom expr) expr)
-	;; For a proper list, map onto list:
-	((and (consp expr) (null (cdr (last expr))))
-	 (cons 'list (mapcar #'unquote-variables expr)))
-	((consp expr) (list 'cons (unquote-variables (car expr))
-			    (unquote-variables (cdr expr))))))
 
 ;;;-------------------------------------------------------
 ;;; Expression Lookup Functions. (public)
@@ -304,6 +275,7 @@
 		  (subst-bindings b r))
 	       (list r))))
 
+
 ;;;;============================================================
 ;;;; Entry Propositions.
 ;;;; The entry propositions exists to provide information for the
@@ -323,7 +295,7 @@
 ;;  (format Stream "  KB:   ~A~%" (EntryProp-KB Prop))
 ;;  (pprint-indent :block Level Stream)
 ;;  (format Stream "  Help: ~A~%" (EntryProp-Help Prop)))
-  
+
 (defmacro def-entryprop (Type form
 			 &key (helpform form)
 			 doc)
@@ -659,7 +631,7 @@
 		  :short-name ',short-name
 		  :nlg-english ',nlg-english
 		  :tutorial ',tutorial ;should verify file exists.
-		  :ExpFormat ',ExpFormat
+		  :ExpFormat (sbcl-expand-backquote ',ExpFormat)
 		  :EqnFormat ',EqnFormat
 		  :doc ',doc)))
     

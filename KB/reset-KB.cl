@@ -30,7 +30,7 @@
   ;; Reset ontology database on each load of this file.
   (clear-ontology)
   ;; reset NewtonsNogoods list
-  (clear-nogoods)		
+  (clear-nogoods)
   ;; reset post-processing operations
   (clear-post-processing)
   ;; reset entry tests

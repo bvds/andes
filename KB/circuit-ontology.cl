@@ -77,7 +77,7 @@
   ;; a compound component.
   ;; Sometimes the component can be defined with the body tool.
   :new-english (or (variable ?a :namespace :objects)
-		   (eval (if (consp ?a) '(conjoin (or "and" "&") . ?a) ?a)
+		   (eval (if (consp ?a) `(conjoin (or "and" "&") . ,?a) ?a)
 			 ;; Remove list for single components
 			 (?a . (append (problem-atoms *cp*)
 				       (problem-circuit-compounds *cp*)
@@ -217,7 +217,7 @@
   ;;   One way would be a problem-specific ontology.
   ;;   Bug #1724
   :new-english (eval (if (expand-new-english ?region)
-			'(preferred ((or "in" "inside") ?region))
+			`(preferred ((or "in" "inside") ,?region))
 			'(allowed ("in" (the) "region")))
 		     ;; include case where region is omitted.
 		     (?region . (cons nil (problem-atoms *cp*)))))

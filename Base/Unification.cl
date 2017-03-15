@@ -68,6 +68,23 @@
                   (variables-in x))
           x))
 
+#+sbcl(defparameter +quasiquote+ (car '`()))
+(defun sbcl-expand-backquote (expr)
+  "Sbcl, starting with version 1.2.2, represents backquote commas as a struct
+   that is not user-accessible.  As a work-around, macroexpand-1 any backquotes
+   at compile time."
+  ;; See:
+  ;; http://christophe.rhodes.io/notes/blog/posts/2014/backquote_and_pretty_printing
+  ;; and/or
+  ;; https://sourceforge.net/p/sbcl/mailman/message/32669467
+  #-sbcl expr
+  #+sbcl (cond ((and (consp expr) (eql (car expr) +quasiquote+))
+                (sbcl-expand-backquote (macroexpand-1 expr)))
+                ((consp expr)
+                 (reuse-cons (sbcl-expand-backquote (car expr))
+                             (sbcl-expand-backquote (cdr expr)) expr))
+                (t expr)))
+
 
 (defun get-binding (var bindings)
   "Find a (variable . value) pair in a binding list."
@@ -506,29 +523,8 @@
 		       x))))
 
 
-;;=============================================================================
-;; Code by Collin Lynch
-
-;;; We may want to perform recursive binds or more complex binds in which 
-;;; case it will become necessary to call some function for each element to 
-;;; be bound.  
-;;; Subst-bindings-func does so by calling the specified predicate function 
-;;; and setting its value in the location specified.
-
-(defun subst-bindings-func (Bindings Func X)
-   "Returns X with all variables inside replaces by the value of Func(B)."
-  (cond ((eq bindings fail) fail)
-        ((eq bindings no-bindings) x)
-        ((variable-p x)
-	 (funcall Func (subst-bindings Bindings (lookup x bindings))))
-        ((atom x) x)
-        (t (cons (subst-bindings-func bindings Func (car x))
-                 (subst-bindings-func bindings Func (cdr x))))))
-
-
-
-;;; Given a list of elements this code collects up all those members of
-;;; the list that unify with the supplied pattern.  Otional keywoyd arguments
+;;; Given a list of elements, this code collects up all those members of
+;;; the list that unify with the supplied pattern.  Optional keyword arguments
 ;;; can be supplied for key and bindings if any.
 
 (defun collect-unifiers (set pattern &key (bindings no-bindings) 
@@ -540,44 +536,6 @@
 	      pattern bindings))
    set))
   
-
-;;;; ==================================================================
-;;;; Strip off the leading question mark from a variable
-
-(defun strip-variable-qm (var)
-  "Get back the symbol for the var sans the quote mark."
-  (if (not (variable-p var))
-      (error "Non-var supplied to strip-variable-qm.")
-    (intern (string-upcase (subseq (format nil "~a" var) 1)))))
-
-(defun strip-expression-var-qms (exp)
-  "Apply strip-variable-qm to all vars in exp."
-  (cond ((null exp) ())
-	((variable-p (car exp))
-	 (cons (strip-variable-qm (car exp))
-	       (strip-expression-var-qms (cdr exp))))
-	((listp (car exp)) 
-	 (cons (strip-expression-var-qms (car exp))
-	       (strip-expression-var-qms (cdr exp))))
-	(t (cons (car exp) (strip-expression-var-qms (cdr exp))))))
-
-
-;;; Cycle through all of the variables in the expression replacing them
-;;; with an upper-case string form sans question mark.
-(defun strip-replace-exp-vars (exp)
-  "Apply strip-variable-qm to all vars in exp."
-  (cond ((null exp) ())
-	((variable-p exp) (list (string-upcase 
-				 (subseq (format nil "~w" exp) 1)) ))
-	((atom exp) (list exp))
-	((variable-p (car exp))
-	 (cons (string-upcase (subseq (format nil "~w" (car exp)) 1)) 
-	       (strip-replace-exp-vars (cdr exp))))
-	((listp (car exp))
-	 (cons (strip-replace-exp-vars (car exp))
-	       (strip-replace-exp-vars (cdr exp))))
-	(t (cons (car exp) (strip-replace-exp-vars (cdr exp))))))
-
 
 ;;;; =======================================================================
 ;;;; Non-destrictively modify bindings
@@ -599,42 +557,3 @@
   "Change the bindings value for var from its initial form the new one."
   (when (get-binding Var Bindings)
     (extend-bindings Var Value (reduce-bindings Var Bindings))))
-
-
-#| Unused for now.
-;;; One expression (containing variables) subsumes another if:
-;;; 1. They are of the same length and
-;;; 2. All positions that contain bound constants in one 
-;;;    expression contain identical bound constants in the
-;;;    other and
-;;; 3. If there exist any unbound variables within the
-;;;    subsuming expression then at least one of the
-;;;    corresponsing locations in the subsumed expression
-;;;    is bound.
-;;;
-;;; Therefore foo(a ? c) subsumes foo(a x c) but not 
-;;; foo(a ? ?)
-;;;
-;;; This is a recursive process of testing.
-
-(defun expression-subsumes? (subsumer subsumed &optional (bindings no-bindings))
-  "Does the subsumer subsume the subsumed?"
-  (declare (optimize (speed 0)))
-  (cond ((eq bindings NIL) NIL)
-	((eql subsumer subsumed) bindings)
-	;;((and (variable-p subsumer) (variable-p subsumed)) bindings)
-	((and (consp subsumer) (consp subsumed)) 
-	 (pprint (LIST subsumer subsumed))
-	 (expression-subsumes? 
-	  (cdr subsumer) (cdr subsumed)
-	  (expression-subsumes? 
-	   (car subsumer) (car subsumed) bindings)))
-	(t nil)))
-|#
-
-
-
-
-
-
-
