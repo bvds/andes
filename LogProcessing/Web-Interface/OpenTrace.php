@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
  <LINK REL=StyleSheet HREF="log.css" TYPE="text/css">
-<?
+<?php
 
 $dbuser=$_GET["x"];
 $dbserver=$_GET["sv"];

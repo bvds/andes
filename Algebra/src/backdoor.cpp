@@ -177,7 +177,6 @@ bool backdoor(const char * const fakeeqn) {
 
   if (theeqn->lhs->etype != physvart) {theeqn->destroy(); return(false);}
 
-  varindx var = ((physvarptr *)theeqn->lhs)->varindex;
 
   if (theeqn->rhs->etype != n_op) {theeqn->destroy(); return(false);}
 

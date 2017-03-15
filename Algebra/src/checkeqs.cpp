@@ -150,7 +150,6 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	       ostream & solfile) 		// file for solutions
 {
   int k, q;
-  int numeqs = eqn->size();
   int doagain;			// should checkeqs recall itself at end
 #if WITHDBG
   unsigned long thisdbg = ++dbgnum;	// recursive calls for debug

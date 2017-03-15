@@ -20,7 +20,8 @@
 #ifndef DIMENSH
 #define DIMENSH
 #include <string>
-using namespace std;
+using std::string;
+// using namespace std;
 
 typedef signed char DIMEXP;	// dimensions are stored as
 		// signed DIMEXPs of MULTP times the real

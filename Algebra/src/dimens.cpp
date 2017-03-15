@@ -199,8 +199,8 @@ DIMEXP dimens::addem(const int a, const int b) const
     if ((a == -OVERFL) ||(b == -OVERFL)) return(-OVERFL); 
   }
   else if ((a == OVERFL) ||(b == OVERFL)) return(UNKNDIM);
-  if (((a == MAYBZ) && ((b == 0)) || (b == MAYBZ)) ||
-      ((a == 0) && (b == MAYBZ))) return(MAYBZ);
+  if ((a == MAYBZ && b == 0) || b == MAYBZ ||
+      (a == 0 && b == MAYBZ)) return(MAYBZ);
   int temp = a+b;
   if (temp > MULTP * MAXP) temp = OVERFL;
   if (temp < -MULTP * MAXP) temp = -OVERFL;

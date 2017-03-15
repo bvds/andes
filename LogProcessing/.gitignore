@@ -1,0 +1,9 @@
+#
+#  files to ignore (add latex stuff)
+#
+*.aux
+*.log
+*.bbl
+*.blg
+*.bib
+

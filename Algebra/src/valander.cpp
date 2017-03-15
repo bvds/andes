@@ -30,7 +30,7 @@
 #include "valander.h"
 #include <math.h>
 #include "mconst.h"
-using namespace std;
+// using namespace std;
 
 #define DBG(A) DBGF(VALANDER,A)
 

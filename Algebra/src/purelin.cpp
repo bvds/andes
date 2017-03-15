@@ -25,7 +25,8 @@
 #include "extstruct.h"
 #include "dbg.h"
 #include "binopfunctions.h"
-using namespace std;
+using std::setprecision;
+// using namespace std;
 #define DBG(A) DBGF(PLSAS,A)
 
 /************************************************************************
@@ -90,10 +91,13 @@ bool purelinsolv(vector<binopexp *> const * eqs,
 	break;
       case n_op:
 	lhs = (n_opexp *)thiseq->lhs;
-	if (lhs->op->opty == multe)
-	  if (!doterm(lhs,A[k],vars)) 
+	if (lhs->op->opty == multe) {
+	  if (!doterm(lhs,A[k],vars)) {
 	    throw(string("lhs of eq is term not OK, in purelinsolv"));
-	  else break;
+	  } else {
+	    break;
+	  }
+	}
 	for (q=0; q < lhs->args->size(); q++)
 	  if (!doterm((*lhs->args)[q],A[k],vars)) 
 	    throw(string("lhs of eq has term not OK, in purelinsolv"));

@@ -8,9 +8,9 @@ dojo.provide("andes.PreferenceRegistry");
     //      server to update values that register here.
     //      Example api:
     //          andes.api.recordAction({type:"set-preference", name: "display-timer", value: true});
-    _prefs = {};
+    var _prefs = {};
 
-    andes.preferenceRegistry = {
+    window.andes.preferenceRegistry = {
         // Prefs are name value pairs with scope so that the server
         // can update them.
         registerPref: function(/*String*/pref, /*function*/setter, scope){
@@ -28,7 +28,7 @@ dojo.provide("andes.PreferenceRegistry");
             }else{
                 if(_prefs[pref].value != value){
                     // This is user changed
-                    andes.api.recordAction({type:"set-preference", name:pref, value:value });
+                    window.andes.api.recordAction({type:"set-preference", name:pref, value:value });
                 }
                 return true;
             }
@@ -51,5 +51,5 @@ dojo.provide("andes.PreferenceRegistry");
                 return false;
             }
         }
-    }
+    };
 })();

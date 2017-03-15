@@ -24,7 +24,7 @@
  *   and returns a pointer to it.					*
  ************************************************************************/
 #include "expr.h"
-using namespace std;
+// using namespace std;
 
 // has no diagnostics included.
 

@@ -1,0 +1,10 @@
+--- sbcl-1.2.11/src/compiler/generic/parms.lisp-original	2017-03-08 23:15:38.000000000 -0700
++++ sbcl-1.2.11/src/compiler/generic/parms.lisp	2017-03-08 23:15:49.000000000 -0700
+@@ -203,5 +203,5 @@
+ 
+ #!+gencgc
+ (progn
+-  (def!constant +highest-normal-generation+ 5)
+-  (def!constant +pseudo-static-generation+ 6))
++  (def!constant +highest-normal-generation+ 1)
++  (def!constant +pseudo-static-generation+ 2))

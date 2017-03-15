@@ -19,7 +19,6 @@
 
 // based on parseclipseq, but this goes into special mode on finding
 //   dnum. It also has no conversions of - and $
-#pragma warning (disable: 4786)
 #include <string>
 #include <stack>
 #include "decl.h"

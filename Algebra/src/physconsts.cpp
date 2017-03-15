@@ -24,7 +24,6 @@
 #include <fstream>
 #include "dbg.h"
 using namespace std;
-#pragma warning (disable: 4786)
 #define Asize(arr) (sizeof(arr)/sizeof(arr[0]))
 
 #define DBG(A) DBGF(UNITS,A)
@@ -41,7 +40,7 @@ struct physc {
   int chgu;
   int ku;
 	physc() {}
-	physc(char* n, double v, int l, int m, int s, int c, int k) {
+	physc(const char* n, double v, int l, int m, int s, int c, int k) {
 		name = n; value = v; lenu = l; massu = m; secu = s; chgu = c; ku = k;
 	}
 } pctab[] = {

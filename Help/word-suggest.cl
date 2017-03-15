@@ -277,7 +277,7 @@
 	     (get-first-model-words more-model nil)
 	     (list nil)))
 	((variable-p model)
-	 (warn "expand-new-english:  Unbound variable ~A" model) (list nil))
+	 (warn "get-first-model-words:  Unbound variable ~A" model) (list nil))
 	((and (consp model) (member (car model) 
 				    '(key case-sensitive case-insensitive)))
 	 (get-first-model-words (second model) more-model))

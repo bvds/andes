@@ -216,29 +216,34 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defmacro do-solver-turn (name &optional input)
-  ;; Solver output is double-precision
-  `(let ((*read-default-float-format* 'double-float))
-    (unless (and (sb-ext:process-p *process*) 
-		 (sb-ext:process-alive-p *process*))
-      (error "external program not running."))
-    (write-line 
-     ,(if input `(concatenate 'string ,name " " ,input) `,name) 
-     (sb-ext:process-input *process*))	
-    ;; RUN-PROGRAM creates its PROCESS-INPUT streams with
-    ;; :BUFFERING :FULL by default, rather than :BUFFERING :LINE.  
-    ;; Thus, it must be explicitly flushed
-    (force-output (sb-ext:process-input *process*))
-    (read-until-match (sb-ext:process-output *process*))))
+(defun do-solver-turn (name &optional input)
+  (unless (and (sb-ext:process-p *process*) 
+               (sb-ext:process-alive-p *process*))
+    (error "external program not running."))
+  (write-line 
+   (if input (concatenate 'string name " " input) name) 
+   (sb-ext:process-input *process*))	
+  ;; RUN-PROGRAM creates its PROCESS-INPUT streams with
+  ;; :BUFFERING :FULL by default, rather than :BUFFERING :LINE.  
+  ;; Thus, it must be explicitly flushed
+  (force-output (sb-ext:process-input *process*))
+  (read-until-match (sb-ext:process-output *process*)))
 
 (defun read-until-match (stream)
-    "solver has a lot of print statements, so we mark the actual function return as a line starting with //"
+  "Read lines from stream until there is a solver response.
+   The solver emits many print statements, so we mark the 
+   actual function return as a line starting with //"
+  ;; Solver output is double-precision
+  ;; Note that *read-default-float-format* also
+  ;; affects string writing.
+  (let ((*read-default-float-format* 'double-float))
     (do ((line (read-line stream) (read-line stream)))
-	((and (> (length line) 1) (string= line "//" :end1 2))
-	  (my-read-answer (subseq line 2)))
+        ((and (> (length line) 1) (string= line "//" :end1 2))
+         (my-read-answer (subseq line 2)))
       ;;(format t "   solver print:  ~A~%" line)
-      ))
-   
+      )))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun solver-logging (x)
@@ -262,7 +267,7 @@
 (defun solver-send-problem-statement (arg)
   ;; suppress pretty printing -- it may insert line breaks on 
   ;; very long equations
-  (do-solver-turn "solveAdd" 
+  (do-solver-turn "solveAdd"
     ;; :escape T for keyword colons
     (write-to-string arg :pretty NIL :escape T)))
 

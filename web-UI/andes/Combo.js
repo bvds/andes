@@ -1,6 +1,6 @@
 dojo.provide("andes.Combo");
 
-andes.Combo = dojox.drawing.util.oo.declare(
+window.andes.Combo = dojox.drawing.util.oo.declare(
 	// summary:
 	//	A special object used to combine an Andes Stencil
 	//	(Vector, Rect, Ellipse)
@@ -35,7 +35,7 @@ andes.Combo = dojox.drawing.util.oo.declare(
 		var s = this.statement;
 		var m = this.master;
 		
-		console.warn("combo statement:", this.statement)
+		console.warn("combo statement:", this.statement);
 
 		this.statement.connectMult([
 			[this.statement, "onChangeData", this, "textPositionEdit"],
@@ -90,7 +90,7 @@ andes.Combo = dojox.drawing.util.oo.declare(
 			//	split in two parts.  First is textEdit which triggers
 			//	onChangeData for final text changes.  TextPositionEdit handles
 			//	position changes.
-			var label = andes.variablename.parse(value);
+			var label = window.andes.variablename.parse(value);
 			var ol = this.master.getLabel();
 			if(label){
 				console.log("textEdit:  LABEL=", label," text=",value);
@@ -136,7 +136,7 @@ andes.Combo = dojox.drawing.util.oo.declare(
 		},
 
 		onDelete: function(value){ // value or 'this' ?
-			console.log("combo delete ", value)
+			console.log("combo delete ", value);
 			// summary:
 			//	Stub - fires when master or an item is deleted
 			//	(which makes this _Connection worthless and it
@@ -201,9 +201,9 @@ andes.Combo = dojox.drawing.util.oo.declare(
 			dojo.forEach(handles, dojo.disconnect, dojo);
 		}
 	}
-)
+);
 
-andes.buttonCombo = dojox.drawing.util.oo.declare(
+window.andes.buttonCombo = dojox.drawing.util.oo.declare(
 	// summary:
 	//	A special object used to combine a Button and a Statement. 
 	//
@@ -237,4 +237,4 @@ andes.buttonCombo = dojox.drawing.util.oo.declare(
 		}
 
 	}
-)
+);

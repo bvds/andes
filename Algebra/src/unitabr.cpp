@@ -24,7 +24,6 @@
 #include <fstream>
 #include "dbg.h"
 using namespace std;
-#pragma warning (disable: 4786)
 
 #define DBG(A) DBGF(UNITS,A)
 

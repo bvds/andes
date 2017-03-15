@@ -111,7 +111,6 @@ string powersolve(const int howstrong, const varindx sought,
   vector<binopexp *> soleqs;
   binopexp * ansexpr;		// will hold answer
   int doagain = 1;			// should we repeat
-  expr * numer = (expr *)NULL;		// expr will be rhs of answer 
 #ifdef WITHDBG
   int loopcount = 0;
 #endif
@@ -179,6 +178,7 @@ string powersolve(const int howstrong, const varindx sought,
   // check partsols for solution to student variable
   DBG(cout << "Exited doagain loop." << endl);
 #if 0 // AW: take out check for partial solutions
+  expr * numer = (expr *)NULL;		// expr will be rhs of answer 
   if (partsols.size() > 0) 
     {
       for (q = 0; q < partsols.size(); q++)

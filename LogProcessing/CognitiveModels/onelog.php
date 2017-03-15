@@ -16,6 +16,7 @@ if($htmlHeaders):
 // These are all optional
  //     ^md5:b50efc   // Student used for tests of different models.
  //     ^md5:e2ed3385  // student in '^uwplatt_2Y130'
+ //     ^md5:3f638244   // Student in Guerra summer 2012
 $userName = '';  // regexp to match
 	     // MIT_.*
              // asu experiment
@@ -28,7 +29,8 @@ $userName = '';  // regexp to match
 	     //       user names got mangled in these sections.
 	     // ^uwplatt_(2Y130|514219|6l1305|3n130) Andy Pawl sections
 	     //  discrepencies
-$sectionName = '^uwplatt_';  // regexp to match
+             //  ^asu_7e256268bab914fb5asul1_ Guerra summer 2012
+$sectionName = '^asu_7e256268bab914fb5asul1_';  // regexp to match
 $startDate = '2011-03-25';
 $endDate = '';
 
@@ -111,6 +113,10 @@ require("blame.php");
 require("step-model.php");
 require("training.php");
 require("state.php");
+require("condition.php");
+
+$expt = new experiment_condition();
+$expt->get_conditions($sectionName);
 
 $training = new training();
 $state = new student_state();
@@ -274,6 +280,8 @@ if ($myrow = mysql_fetch_array($result)) {
 			     'id' => $a->id,
 			     'clientID' => $clientID,
 			     'tID' => $ttID,
+			     // Needed for Summer 2012 experimental conditions
+			     'problem' => $thisProblem,
 			     'dt' => $sessionTime->dt(),
 			     'random-help' => array());
 	    // Determine if there is an associated error.
@@ -571,6 +579,29 @@ if(false){
   }
  }
 
+// For each kc and student, list correctness of first transaction
+// in each opportunity, csv format.  
+// Suitable as input for models of learning.
+if(false){
+  ksort($allKCStudent);
+  foreach ($allKCStudent as $kc => $ss){
+    // none:  entries where assigment of blame failed
+    // select-mc-answer  answer multiple-choice questions
+    if(!skipKC($kc)){
+      foreach($ss as $thisSection => $st){
+	foreach($st as $thisName => $opps){
+	  echo "\"$kc\",\"$thisSection\",\"$thisName\"";
+	  foreach($opps as $opp) {
+	    $yy=reset($opp); // return first element.
+	    echo "," . ($yy['grade']=='correct'?'1':'0');
+	  }
+	  echo "\n";
+	}
+      }
+    }
+  }
+ }
+
 // For each kc and student, print out first transaction for each step.
 if(false){
   ksort($allKCStudent);
@@ -598,8 +629,9 @@ function skipKC($kc){
 }
 
 // For each student and KC, Print out the model parameters.
+// this was used to compare with Anirudh fits to logistic model.
 if(false){
-  echo "\"KC\",\"Section\",\"Name\",\"AIC\",\"gainProb\"\n";
+  echo "\"KC\",\"Section\",\"Name\",\"AIC\",\"opps\"\n";
   ksort($allKCStudent);
   foreach($allKCStudent as $kc => $sec) {
     // none:  entries where assigment of blame failed
@@ -609,14 +641,66 @@ if(false){
 	foreach($stu as $thisName => $opps) {
 	  $maxv=$model[$kc][$thisSection][$thisName];
 	  $aic=$maxv['valid']?2*3-2*$maxv['logLike']:0;
-	  $gainProb=$maxv['gainProb'];
-	  echo "\"$kc\",\"$thisSection\",\"$thisName\",$aic,$gainProb\n";
+	  $opps=$maxv['opps'];
+	  echo "\"$kc\",\"$thisSection\",\"$thisName\",$aic,$opps\n";
 	}
       }
     }
   }
  }
 
+// For each Student & KC, print out:  probability for each experimental condition,
+// and expecation value of L and 1-s-g for each condition.
+//
+// Could equivalently print out Maximum Likelihood estmator for L and 1-s-g 
+// and experimental condition where MLE occurred.
+//
+if(true){
+  $conditions=array('control','mlh');
+  // Header
+  echo "\"Section\",\"student\",\"KC\",\"condition\"," . 
+    "\"prob\",\"gain\",\"gainSquared\",\"L\",\"LSquared\"\n";
+  // The other method.
+  // echo "\"Section\",\"student\",\"KC\",\"gain\",\"L\",\"condition\"\n";
+  foreach ($allKCStudent as $kc => $ss){
+    // none:  entries where assigment of blame failed
+    // select-mc-answer  answer multiple-choice questions
+    if(skipKC($kc))continue; 
+    foreach($ss as $thisSection => $st){
+      foreach($st as $thisName => $opps){
+	$maxv=$model[$kc][$thisSection][$thisName];
+	foreach($conditions as $condition){
+	  $prob=0; $gain=0; $gain2=0;
+	  $L=0; $L2=0;
+	  for($k=1; $k<count($opps); $k++){
+	    // All transactions in an
+	    // opportunity must occur in the same problem.
+	    $thisProb=$opps[$k-1][0]['problem'];
+	    $thisWeight=$maxv['learnHereProb'][$k];
+	    // true when $condition matches inExperiment
+	    if($expt->inExperiment($thisSection,$thisName,$thisProb)
+	       xor $condition=='control'){
+	      $prob+=$thisWeight;
+	      $gain+=$thisWeight*$maxv['learnGain'][$k];
+	      $gain2+=$thisWeight*pow($maxv['learnGain'][$k],2);
+	      // Labelling steps as 0,1,2, ...
+	      $L+=$thisWeight*($k);
+	      $L2+=$thisWeight*pow($k,2); 
+	    }
+	  }
+	  echo "\"$thisSection\",\"$thisName\",\"$kc\",\"$condition\"," . 
+	    "$prob,$gain,$gain2,$L,$L2\n";
+	}
+	$learnGain=1-$maxv['pg']-$maxv['ps'];
+	$theStep=$maxv['learn'];
+	// need to verify this bit of code.
+	$mleProb=$opps[$theStep][0]['problem'];
+	$condition=$expt->inExperiment($thisSection,$thisName,$mleProb);
+	// echo "\"$thisSection\",\"$thisName\",\"$kc\",$learnGain,$theStep,$condition\n";
+      }
+    }
+  }
+ }
 
 // For each kc and step, print model parameters, step id (ttID),
 // and policies used, in csv format.
@@ -726,7 +810,7 @@ if(false){
  }
 
 // Dump student state in csv format.
-if(true){
+if(false){
   $state->csv();
  }      
 

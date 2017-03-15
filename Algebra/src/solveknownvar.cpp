@@ -23,7 +23,7 @@
 #include "extstruct.h"
 #include "dbg.h"
 #include <math.h>
-using namespace std;
+// using namespace std;
 
 #define DBG(A) DBGF(SOLVKV,A)
 

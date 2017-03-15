@@ -305,14 +305,14 @@
   ((the) (key (eval (moment-name)))
    (and (preferred (object ?body))
 	;; eval is a wrapper simply to specify agent
-	(eval '(preferred (agent ?agent))
+	(eval `(preferred (agent ,?agent))
 	      (?agent . (mapcar #'remove-time 
 				;; torques are due to forces and couples
 				(append (remove 'force
 						(problem-vectors *cp*)
 						:key #'car :test-not #'eql)
 					(problem-couples *cp*)))))
-	(preferred (eval (when ?axis '("about" ?axis))
+	(preferred (eval (when ?axis (list "about" ?axis))
 			 ;; include case where axis is omitted
 			 (?axis . (cons nil (problem-axes *cp*)))))
 	(time ?time))))
@@ -323,7 +323,7 @@
   :short-name "net torque"
   :new-english ((the) (or "net" "total") (key (eval (moment-name)))
 		(and (preferred (object ?body))
-		     (preferred (eval (when ?axis '("about" ?axis))
+		     (preferred (eval (when ?axis (list "about" ?axis))
 				      (?axis . (problem-axes *cp*))))
 		     (time ?time))))
 
@@ -451,9 +451,9 @@
 
 (def-qexp object (object ?body)
   ;; eval wrapper to specify possible values for body.
-  :new-english (eval '((or "on" "acting on" "exerted on" "that acts on" 
+  :new-english (eval `((or "on" "acting on" "exerted on" "that acts on" 
 			"applied on" "applied to" "against") 
-		       (or (variable ?body :namespace :objects) ?body))
+		       (or (variable ,?body :namespace :objects) ,?body))
 		     ;; include case where body is omitted
 		     (?body . (problem-bodies-and-compounds *cp*))))
 
@@ -462,22 +462,22 @@
   ;; checking the content of ?body by (expand-new-english ..) is 
   ;; important for the case that it is missing (in elec4b, see Bug #1676)
   :new-english (eval (when (expand-new-english ?body)
-			'((or "due to" "by" "from" "caused by" "exerted by" "of") 
-			  (or (variable ?body :namespace :objects) ?body)))
+			`((or "due to" "by" "from" "caused by" "exerted by" "of") 
+			  (or (variable ,?body :namespace :objects) ,?body)))
 		     ;; include case with no agent
 		     (?body . (cons nil (problem-atoms *cp*)))))
 
 (def-qexp agent-prep (agent-prep ?preposition ?body)
   :new-english (eval (when (expand-new-english ?body)
-		       '(?preposition
-			 (or (variable ?body :namespace :objects) ?body)))
+		       `(,?preposition
+			 (or (variable ,?body :namespace :objects) ,?body)))
 		     ;; include case with no agent
 		     (?body . (cons nil (problem-atoms *cp*)))))
 
 
 (def-qexp time (time ?time)
   :new-english (eval (when ?time
-			'(preferred (time-not-omittable ?time)))
+			`(preferred (time-not-omittable ,?time)))
 		     ;; add timeless as possibility.
                     (?time . (cons nil (get-problem-times)))))
 
@@ -962,7 +962,7 @@
   :new-english (property-object 
 		 "moment of inertia" 
 		 ?body 
-		 :modifier (eval (when ?axis '(preferred ("about" ?axis)))
+		 :modifier (eval (when ?axis `(preferred ("about" ,?axis)))
 				 (?axis . (problem-axes *cp*)))
 		 :time ?time))
 
@@ -995,7 +995,7 @@
   :rank scalar
   :short-name "number of torques"
   :new-english ((the) "number of" (eval (moment-name)) "on" ?body 
-		(preferred (eval (when ?axis '("about" ?axis))
+		(preferred (eval (when ?axis (list "about" ?axis))
 				 (?axis . (problem-axes *cp*))))
 		(time ?time)))
 

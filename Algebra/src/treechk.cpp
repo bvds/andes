@@ -27,7 +27,7 @@
 #include "extoper.h"
 #include "dbg.h"
 #include <algorithm>
-using namespace std;
+// using namespace std;
 
 #define DBG(A) DBGF(DOEQCHK,A)
 /************************************************************************

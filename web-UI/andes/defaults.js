@@ -1,7 +1,7 @@
 dojo.provide("andes.defaults");
 
 (function(){
-	andes.defaults = {
+	window.andes.defaults = {
 		// summary:
 		//	The style used for Andes3.
 		// description:
@@ -267,7 +267,7 @@ dojo.provide("andes.defaults");
 				if(obj.push){
 					o = [];
 					for(var i=0; i<obj.length;i++){
-						o.push(cpy(obj[i]))
+						o.push(cpy(obj[i]));
 					}
 					return o;
 				}
@@ -277,12 +277,12 @@ dojo.provide("andes.defaults");
 						if(typeof(obj[nm])=="object"){
 							o[nm] = cpy(obj[nm]);
 						}else{
-							o[nm] = obj[nm]
+							o[nm] = obj[nm];
 						}
 					}
 				}
 				return o;
-			}
+			};
 			var o = cpy(this);
 			o.current = o.norm;
 			o.currentHit = o.hitNorm;
@@ -293,7 +293,7 @@ dojo.provide("andes.defaults");
 	};
 	
 	// change Drawing defaults to andes defaults
-	var a = andes.defaults;
+	var a = window.andes.defaults;
 	a.norm.fill = a.unknown.fill;
 	a.norm.color = a.unknown.color;
 	a.disabled.color = a.locked.color;

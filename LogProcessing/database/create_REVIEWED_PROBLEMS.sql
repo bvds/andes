@@ -1,8 +1,8 @@
 CREATE TABLE `REVIEWED_PROBLEMS` (
  `extra` int(10),
- `userName` varchar(50),
+ `userName` varchar(50) NOT NULL,
  `tID` int(10) unsigned DEFAULT 0,
- `adminName` varchar(50),
+ `adminName` varchar(50) NOT NULL,
  `radioID` int(10) unsigned DEFAULT 0,
  `myComment` text,
  PRIMARY KEY(`extra`)

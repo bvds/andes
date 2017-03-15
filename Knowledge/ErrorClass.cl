@@ -59,12 +59,12 @@
 ;;;  for backwards compatibility.
 ;;;
 
-(defmacro def-Error-Class (name arguments conditions &key (Probability 0.1) 
+(defmacro def-error-class (name arguments conditions &key (Probability 0.1)
 				(Utility 1.0))
   ;; Doesn't really need to be at end ...
   `(push-to-end (make-EntryTest   :name ',name
 		 :arguments ',arguments
-		 :preconditions ',conditions
+		 :preconditions (sbcl-expand-backquote ',conditions)
 		 :apply 'no-match
 		 :state '+incorrect+ ;these are all errors
 		 :hint '(make-hint-seq ,(cons name arguments))
@@ -85,7 +85,7 @@
 		 :preconditions ',preconditions
 		 :apply ',apply
 		 :state ',state
-		 :hint '(make-hint-seq ,hint)
+		 :hint (list 'make-hint-seq (sbcl-expand-backquote ',hint))
 		 :order ',order)
     **entry-tests** :key #'EntryTest-name))
 

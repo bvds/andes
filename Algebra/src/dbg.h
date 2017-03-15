@@ -17,6 +17,9 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with the Andes Solver.  If not, see <http://www.gnu.org/licenses/>.
 #include "standard.h"
+using std::cout;
+using std::endl;
+using std::cerr;
 
 #ifdef WITHDBG
 #define MORE            0x1	/* show more detail using DBGFM(...) */

@@ -1,0 +1,603 @@
+% It is an example file showing how to use the 'acm_proc_article-sp.cls' V3.2SP
+% LaTeX2e document class file for Conference Proceedings submissions.
+%
+%  On Centos 5.9, LaTeX does not handle png or pdf images.  Solution
+%  is to switch to pdflatex.  But then it does not handle eps
+%  files.  I could not get package epstopdf to work automatically,
+%  so I applied eps2pdf command to each eps file individually.
+%
+\documentclass{edm_template}
+
+
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{graphics}
+
+
+% Somehow the desired top margin is being set to 1/16in?
+\addtolength{\topmargin}{0.6875in}
+
+\begin{document}
+
+% Title portion
+\title{Self-improving intelligent tutor system}
+\numberofauthors{2}
+\author{
+\alignauthor
+      Brett van de Sande\\
+       \affaddr{Arizona State University}\\
+       \affaddr{PO Box 878809}\\
+       \affaddr{Tempe, AZ~~85287}\\
+       \email{bvds@asu.edu}
+\alignauthor
+      Kurt VanLehn\\
+       \affaddr{Arizona State University}\\
+       \affaddr{PO Box 878809}\\
+       \affaddr{Tempe, AZ~~85287}\\
+       \email{Kurt.Vanlehn@asu.edu@asu.edu}
+}
+\maketitle
+
+% Assignment of blame paper: 
+% http://www.public.asu.edu/~kvanlehn/Stringent/PDF/07UM_KVL_KK_etal.pdf
+%   my ``opportunity'' equals their ``step''
+%   my ``turn'' equals their ``transaction''
+%
+% Doing reinforcement learning by direct policy search.
+% See discussion on p. 17 of:
+% http://www.cs.brown.edu/research/pubs/theses/phd/2002/peshkin.pdf
+
+
+
+\begin{abstract}
+Human tutors constantly make decisions about
+what kind of help they are going to give (or not give).  Ideally,
+they make these decisions based on some determination of how
+the student is progressing coupled with some knowledge of what kind
+of tutoring strategies have worked in similar situations in the past.
+Computer tutors, in contrast, often have fixed policies for their
+tutoring strategies.   Can we do better?  To address this question, 
+we have implemented a method for iteratively improving 
+help-giving policies of a computer tutor for introductory physics.  
+We created a version of the tutor that randomly uses one of several 
+(reasonable) policies when helping students and deployed it in the
+classroom.  We then used the resulting student log data to 
+train a new version of the tutor having improved hinting policies
+and deployed the new version of the tutor in the classroom.  
+Finally, we introduce a new method for evuating the effectiveness 
+of an ITS using the log data.
+\end{abstract}
+
+\keywords{data mining, models of student learning}
+
+\section{Introduction}
+ 
+Intelligent tutor systems (ITS) have become increasingly
+sophisticated in their ability to interact with the student, including
+natural language dialogs and free-form user interfaces~\cite{vanlehn_behavior_2006}.  However, the associated
+help-giving policies for these tutor systems remain relatively simple.
+Typically, an ITS has a fixed help-giving policy that does not take
+into account the student knowledge's, affect, or behavior.
+If an ITS is to give help in the manner that a human tutor would, then
+it needs to continually assess the student's ``state'' and choose a tutoring strategy
+that is known to work for a student in that state.
+Questions that an ITS could ask include:
+%
+\label{intro}
+\begin{itemize}
+
+   \item Do I tell the student what to do next or remain silent?
+
+   \item After and error, do I give a hint or wait until the student asks?
+
+   \item Do I give a pointing hint or do I tell the student 
+         exactly what to do next?
+
+   \item Did the student really learn how to do this or should
+         I suggest more practice?
+
+   \item Do I show them a video, or do I just tell them something?
+         Should I put up a modal dialog box, so they can't miss the
+         help given?
+
+   \item Should I ask the student a question to better determine their 
+         current affect/understanding?
+
+\end{itemize}
+
+Theories of learning can tell us what kind of help-giving
+strategies may be effective and, broadly, when they might be effective.
+Likewise, theories of learning may help us identify what kinds of 
+features might be useful for determining the student's ``state'' at
+a given moment.  The purpose of this project is to fill in the gap
+by determining exactly what help-giving strategy the tutor should use for a 
+particular student state.
+The task of finding an optimal help-giving strategy for a
+given student state is commonly known as 
+Reinforcement Learning~\cite{kaelbling_reinforcement_1996}.
+We use past student behavior in response to various help-giving
+actions on the part of the tutor to construct a reward function
+and uses that reward function to determine an optimal hinting policy.
+We will use a direct policy search strategy for determining the optimal
+policy~\cite{rosenstein_robot_2001}.
+
+Since the agent must give hints in real time, the student state
+must contain features that are available in real time, so that
+the learned policy can be applied immediately.  In contrast,
+the reward function uses subsequent student actions and is only
+available after the fact.  Thus, there must be a two-phase process:
+an {\em off-line learning phase'} to determine the optimal help-giving 
+policy and an {\em online tutoring phase'} where the policy is applied.
+This leads to an iterative process where one alternates between 
+the {\em off-line learning phase} and the {\em online tutoring phase}.
+
+\section{Improvement Process}
+%
+%  Oo draw was a pretty bad choice for creading a diagram.
+%  There is a long-standing bug where exporting a selection
+%  to pdf still uses the entire page as the bounding box.
+%
+%  One solution (that works on CentOS 5.9) is:
+%     pdfcrop process.pdf process.pdf
+%
+\begin{figure*}
+\centering    \includegraphics{process}
+\caption{Iterative process for improvement of help-giving policies in
+  an intelligent  tutor system (ITS).  The steps corresponding to Study 1 are marked
+  with an asterisk.} \label{process}
+\end{figure*}
+
+\label{improvement}
+
+Let us describe this process in more detail; see Fig.~\ref{process}.  The first
+step is to identify a set of tutoring policies that can be varied,
+such as those listed in Section~\ref{intro}.  Since we have no {\em a priori}
+way of choosing what policy is optimal, we create a version of the ITS
+that randomly chooses between the possible help-giving policies for each student
+at every problem-solving step.  This random-help ITS is then deployed
+in the classroom.  As students use the ITS, we log the help-giving policies actually chosen, as well
+as all student activity.  The logs serve as input for the
+{\em off-line learning phase}.
+
+For the {\em off-line learning phase}, the first step is to identify
+features that can be used to define the student state $\mathbf{x}_k$
+associated with transaction $k$.  A rather
+long list of candidate features was investigated
+by~\cite{chi_micro-level_2009}.  Also, Baker {\em et alii} proposed
+a set of 25 features~\citeyear{baker_more_2008} that were used as input 
+for an extension to the Bayesian Knowledge Tracing model;  these
+could just as well be used to define a student state.
+
+Also, one needs some model of student learning to determine when the
+student may have learned something.  We will use a ``knowledge
+component'' (KC) picture of learning were we assume that learning can be
+broken down into a number of KCs or skills~\cite{vanlehn_behavior_2006}.  
+Since learning itself is not directly observable quantity, any model
+can, at best, give a probability that the student learned a KC at a
+given step.  Examples of such models include
+\cite{van_de_sande_measuring_2013,baker_detecting_2010}. 
+The strategy is to reward help policy choices that occur just prior to
+the student learning a skill (KC).
+
+The final ingredient is to construct a general help-giving model $f(\mathbf{x}_k)$ that
+acts as a function on the student state $\mathbf{x}_k$  and returns a suggested policy.
+The parameters of the model are then optimized so that, for steps
+just prior to learning, the model policies match the log policies.
+We do this optimization by constructing an objective function $Z$ that
+depends on the probability the student has learned at each step, the
+student state at each step,  the tutor policy actually chosen at
+that step (from the log data), and the help-giving model.
+
+The resulting machine learned help-giving model $f(\mathbf{x}_k)$ is
+then integrated into the  ITS and deployed in the classroom, beginning
+the {\em online tutoring phase}.  After accumulating sufficient student log data,
+the process can be repeated.
+
+
+\section{Our model of learning}
+
+\begin{figure}
+%     On CentOS 5.9, in order to use pdflatex, do: epstopdf step-model.eps
+\centering    \includegraphics{step-model}
+  \caption{Functional form of the step model.}
+         \label{stepf}
+\end{figure}
+
+We assume that each student problem-solving step in the log data is
+labelled with the KC (one or more) associated with that step.  For
+each KC and student, we find a sequence of steps associated with
+that KC.  Each step in that sequence is an ``opportunity'' $j$ for the
+student to learn that skill.  An opportunity is labelled with a 1
+if the student completes that step correctly without any preceding
+errors or requests for help; otherwise, it is labelled with a 0.
+
+In previous work, we introduced a simple ``step model'' of learning
+and showed that it was competitive with other common models
+of learning, when applied to individual student log
+data~\cite{van_de_sande_applying_2013}.
+It is the simplest possible model where learning occurs at
+a definite time and contains the guess and slip rates of Corbett and 
+Anderson~\cite{corbett_knowledge_1995}.  For each student and KC,
+the probability that the student applies that KC {\em correctly} on 
+opportunity $j$ is defined to be
+%
+\begin{equation}
+               P_\mathrm{step}(j) = \left\{\begin{array}{cc}
+                                       g,& j<L\\
+				       1-s,& j\ge L
+                                    \end{array}\right. \label{step}
+\end{equation}
+%
+where $g$ is the guess rate, $s$ is the slip rate and 
+$L$ is ``the moment of learning,'' the step where the student
+first shows mastery of the KC; see Figure~\ref{stepf}.  The case $L=1$
+corresponds to no learning and $g$ is ignored.
+%
+We can fit $P_\mathrm{step}(j)$ to the sequence of opportunities using the
+Maximum Likelihood method and determine maximum likelihood estimators
+for the model parameters.  
+
+Since the maximum likelihood estimator for $L$ often has large
+uncertainties, it is useful to regard the model for each value of $L$
+as be a separate ``sub-model''  $P_{\mathrm{step},L}(j)$ with parameters
+$s$ and $g$.
+Thus, for a given $L$, we can define the performance gain,
+%
+\begin{equation}
+         \Delta_L = 1- \hat{g}+\hat{s}\; . \label{gain}
+\end{equation}
+%
+where $\hat{g}$ and $\hat{s}$ are the
+Maximum Likelihood estimators for $g$ and $s$ given by sub-model
+$P_{\mathrm{step},L}(j)$. 
+
+\section{Akaike Weights}
+
+To calculate quantities that depend on $L$ we will use the
+Akaike weights $w_L$  \cite{burnham_model_2002} associated with sub-model
+$P_{\mathrm{step},L}(j)$.  We will summarze the
+method here; see~\cite{van_de_sande_measuring_2013}  for further
+details.
+
+For every student and KC, we fit each sub-model $P_{\mathrm{step},L}(j)$ to the
+ log data while maximizing the associated log likelihood, $\log\mathcal{L}_L$.  The associated
+AIC values are given by $\mathrm{AIC}_L=2 K-\log \mathcal{L}_L$ where
+$K$ is the number of fit parameters.  Note that $K=2$  (for $s$ and
+$g$) when $L>1$ and $K=1$ (for $s$) when $L=1$.
+
+From the AICs, we calculate 
+the Akaike weights
+%
+\begin{equation}
+     w_L=\frac{e^{-\mathrm{AIC}_L/2} }{\sum_{L^\prime}
+       e^{-\mathrm{AIC}_{L^\prime}/2}} \; .
+\end{equation}
+%
+The Akaike weight $w_L$ gives the relative probability that sub-model 
+$P_{\mathrm{step},L}(j)$ is, of all the sub-models, the closest to the 
+the model that actually generated the data.
+
+\section{Study 1}
+
+\begin{figure}
+\centering    \includegraphics[scale=0.5]{andes-hint-sequence.png}
+  \caption{A typical hint sequence from the Andes ITS. Sequences
+    often start with a ``pointing hint'' describing some relevant problem
+    feature, continue with a ``teaching hint'' which discusses a general principle,
+    and ends with a ``bottom-out hint'' which explicitly tells the student
+    what to do.}
+         \label{hint-sequence}
+\end{figure}
+
+Section~\ref{improvement} outlined a general strategy for creating an
+ITS with continuously improving help-giving strategies.  For the
+remainder of this paper, we will describe how we implemented this
+strategy for the Andes intelligent tutor homework system~\cite{vanlehn_andes_2005}.  
+Recent log analysis~\cite{ranganathan_what_2013} showed that students 
+using Andes
+who were stuck on a particular step, were often reluctant to ask for
+help or, if they were given help, were reluctant to go though the entire help
+sequence.  With this in mind, we chose to randomly vary two
+help-giving policies: 
+%
+\begin{enumerate} 
+\item After error, (1) give an unsolicited hint or (0) not?
+\item (1) Give bottom-out hint first or (0) give a normal hint sequence? See Fig.~\ref{hint-sequence}.
+\end{enumerate}
+%
+The 0 and 1 labels will be used for the linear classifier, Eqn.~(\ref{classifier}).
+For each student and each
+problem solution step, the help-giving policy was randomly chosen from
+the set of four possibilities.
+
+This modified version of Andes was used in the classroom by 111 students
+in an introductory physics course at the University of Wisconson, Platteville during the
+winter of 2012.   132 hours of student log data were recorded.  This
+was used as input for the subsequent {\em off-line learning phase}.
+
+\section{Feature space}
+
+The student state at any given time is described by a list of
+features.   Since the machine learned policy is to act on this list of
+features, they must be computable in real time.  This is can be a
+challenge in tutor system with a free-form interface like  Andes:
+often there is no way to determine, in real time, what a student is
+attempting when they make an entry and get it wrong, even if the attempt
+is examined by an expert human tutor.  Andes does have a
+number of error handlers that make such a determination, but they 
+apply only for certain well-known errors.  As a result, our ability to use
+KC-related features is limited.
+
+For determining which features to select, we used Min Chi's thesis
+as a starting point~\citeyear{chi_micro-level_2009}, 
+although her list was chosen for a rather different kind of tutor
+system.  We chose items were straightforward to measure and that did
+not require a determination of the KCs associated with the student entry.
+%
+\begin{description}
+
+\item[logSessionTime] Log of number of seconds since start of current
+  session.  This is a measure of student fatigue.
+
+\item[fracSessionFlounderTime] Flounder time is the time spent between 
+incorrect (object turns red) transactions, with no intervening correct 
+(object turns green) transactions. 
+  fracSessionFlounderTime is the total flounder
+time for the current session over total session time.
+
+\item[logNowRedTrans] Log of number of transactions since last
+  correct (object turns green) transaction.
+
+\item[logNowRedTime] Log of number of seconds since last
+  correct (object turns green) transaction.
+
+\item[logNowIdleTime] Log of number of seconds since last transaction.
+
+\item[sessionCorrect] Number of objects in current session that have
+  been  been marked  correct.
+
+\item[sessionIncorrect] Number of transactions in current session where 
+   object has been marked  incorrect.
+
+\item[sessionHelp] Number of help requests in current session.
+
+\item[fracSessionCorrect] \[=\frac{\mathrm{sessionCorrect}}{\mathrm{sessionCorrect}+\mathrm{sessionIncorrect}+\mathrm{sessionHelp}}\].
+
+\end{description}
+%
+We have taken the logarithm of quantities where the student data
+for that quantity ranges over several orders of magnitude.
+
+%On the Andes help server, the state for a given transaction 
+%is determined before the student action itself is analyzed,
+%in order that the help policy for that transaction can be set.  
+%Thus the state can only depend correct/incorrect (or floundering) 
+%information from {\em previous} transactions. 
+
+\section{Objective function}
+
+The basic approach for solving this problem, in terms of reinforcement
+learning, is called a ``direct policy search'' \cite{rosenstein_robot_2001}.
+For each student, help-giving policy, and KC, we define the objective 
+function to be 
+%
+\begin{subequations}
+  \label{objective}
+  \begin{align}
+  Z =& \sum_L w_L \left\{\sum_{j \in \mathcal{I},\,j<L}  
+  % Actually, we use the number of incorrect steps
+  % between j and L for the discount factor.
+  % need to add this to formula.
+       \frac{\gamma^{n(j,L)} \Delta_L}{\left|\sigma_j\right|}
+  \sum_{k\in \sigma_j} \left(f(\mathbf{x}_k)-d_k\right))^2 \right.
+     \label{before} \\
+ % reward for after-learning policy
+ % Includes case with no learning as k=0.
+  &+\beta \left. \sum_{j \in \mathcal{I},\,j \ge L} \frac{1-\hat{s}}
+      {n(L,j_\mathrm{max})\left|\sigma_j\right|}
+             \sum_{k\in \sigma_j} \left(f(\mathbf{x}_k)-d_k\right))^2
+     \right\}
+  \label{after}
+  \end{align}
+\end{subequations}
+%
+where $L$ labels different sub-models, each with Akaike weight $w_L$;
+$\mathcal{I}$ is the set of steps associated
+with that student, policy, and KC that were marked ``incorrect.''  
+$\sigma_j$ is the set of transactions associated with step $j$,
+$f(\mathbf{x}_k)$ is the machine-learned policy associated
+with transaction $k$ and
+$d_k\in \{0,1\}$ is the
+policy actually taken by the random-help version of Andes for that 
+transaction.
+We have arranged things so that finding an optimal policy 
+corresponds to {\em minimizing} $Z$.
+
+The first term (\ref{before}) rewards policies applied directly before
+the moment of learning (step $j=L$ for sub-model $L$).  
+These are weighted by the performance gain $\Delta_L$, Eqn.~(\ref{gain}).
+Also, $n(j,L)$ is the number
+of incorrect steps $\mathcal{I}$ between $j$ and $L$, 
+and $\gamma$ is the ``discount factor''~\cite{russell_artificial_2002}. 
+A good value for $\gamma \in [0,1]$ must be determined empirically.
+In a previous study involving physics learning~\cite{chi_empirically_2011}, 
+$\gamma=0.9$ was chosen.
+However, in that case, the discount factor was applied transaction-wise in 
+a situation where there were many transactions per step.  In our case, 
+we apply $\gamma$ step-wise to incorrect steps $\mathcal{I}$, 
+suggesting a lower number might be appropriate.  We chose $\gamma=0.5$.
+
+Also, the tutor must have a strategy to apply in the case of slips: 
+errors that occur after the student has learned the KC.
+The second term (\ref{after}) rewards policies applied after
+the KC has been learned.  Since the only available measure of 
+effectiveness after the moment of learning is the slip rate $\hat{s}$, 
+we look for a policy that maximizes $1-\hat{s}$.  The reward for 
+this policy is evenly divided among the $n(L,j_\mathrm{max})$ 
+incorrect steps after $L$.
+Since our primary objective is to produce learning in the first
+place (\ref{before}), we want the contribution of (\ref{after})
+to $Z$ to be somewhat smaller.  Thus, we choose $\beta$ numerically 
+such that the contribution of (\ref{after}) is somewhat smaller than 
+the contribution of (\ref{before}).  For this study, we set $\beta=1/12$.
+
+\begin{table}
+\caption{Machine learned linear classifier for help-giving.  The
+  table shows $\mathbf{a}$ and $b$ for each of the two hint policies.
+The vector $\mathbf{a}$  is normalized so that $|b|$=1.}
+\label{results}
+\begin{tabular}{cl|p{11ex}p{11ex}}
+ &  & unsolicited hint & backwards hints \\
+\hline
+\multirow{9}{*}{$\mathbf{a}$} & logSessionTime  & 2.5388 & 0.56196\\ 
+ & fracSessionFlounderTime & 2.28033 & -3.17015\\ 
+ & logNowRedTrans  & 3.1459 & -5.47\\ 
+ & logNowRedTime & 0.0188595 & -6.32087\\ 
+ & logNowIdleTime & -3.98115 & -4.29157\\ 
+ & sessionCorrect & 1.98441 & -2.93396\\ 
+ & sessionIncorrect & -1.54099 & -3.55316\\
+ & sessionHelp & -0.72125 & 3.74205\\ 
+ & fracSessionCorrect & 4.77469 & 5.00777\\
+\hline\hline 
+$b$ & & 1 & 1
+\end{tabular}
+\end{table}
+
+The machine learning algorithm finds a function $f$ that acts on
+the set of states $\left\{\mathbf{x}_k\right\}$ that minimizes
+the objective function $Z$ summed overs students and KCs.  
+Since our policies are binary-valued
+and many of our features are well ordered (times, counts of transactions,
+{\em et cetera}), it is natural to define $f$ in terms of a 
+linear classifier.  Thus
+%
+\begin{equation}
+              f(\mathbf{x}_k) = \left\{\begin{array}{cc}
+		1,& \mathbf{a}\cdot \mathbf{x}_k+b >0 \\
+                0, & \mathbf{a}\cdot \mathbf{x}_k +b\le 0
+		\end{array} \right. \label{classifier}
+\end{equation}
+%
+That is, $\mathbf{a}$ and $b$ define a hyperplane in feature
+space.  All states on one side of the plane are given policy 0
+and states on the other side have policy 1.
+Numerically, we find $\mathbf{a}$ and $b$ that minimizes $Z$
+summed over students and KCs.
+Optimum values of  $\mathbf{a}$ and $b$ for the  
+Study 1 log data are shown in Table~\ref{results}.
+
+\section{Study 2}
+
+We incorporated the machine-learned help policy,
+Table~\ref{results}, into the Andes tutor system.  For the next {\em
+  online tutoring phase}, we conducted an evaluation of the
+machine-learned help policy relative to the default Andes help policy.
+During the sumer of 2012, a two-condition experment was run using 16
+students at St. Anselm College who were enrolled in an intense summer
+course that covered the material in an entire two-semester introductory course. 
+A total of 387 hours of log data were recorded.
+
+We used a mixed factorial experimental design.  For each homework assignment,
+students were randomly assigned to one of two conditions:  the control
+condition which used the default Andes help-giving policy and the
+machine-learned-help condition which used the machine-learned help policy.
+This means that individual students switched
+between the experimental and control conditions over the course of the
+semester.  Thus, for any student-KC sequence that spans multiple
+homework sets, the student may have learned the skill in either 
+condition.  Since the Akaike weights  give us the probability that 
+learning occurred at step $j$, we then can find the probability 
+the learning occurred
+during the machined-learned-helpl condition versus the control condition.
+
+
+\section{Study 2 Results}
+%
+% Need to define \Delta and L and student-KC sequence.
+%
+
+\begin{figure}
+%     On CentOS 5.9, in order to use pdflatex, do: epstopdf scatter-step.eps
+   \centering\includegraphics{scatter-step}
+   \caption{Scatter plot of the moment of learning 
+      $(L_\mathrm{control},L_\mathrm{mlh})$ for each
+     KC, averaging over students.  If the experimental intervention causes
+     faster learning then $L_\mathrm{mlh}<L_\mathrm{control}$ and more points would lie to the 
+    right of the diagonal line.
+     The weighted average over all KCs of $L_\mathrm{mlh}-L_\mathrm{control} = -0.05\pm 0.04$ ($p=0.12$).
+     Although the value of $L$ varies widely as a function of KC, there
+     is no large change in $L$ across experimental condition.
+   }
+   \label{scatterstep}
+\end{figure}
+
+\begin{figure}
+%     On CentOS 5.9, in order to use pdflatex, do: epstopdf scatter-gain.eps
+   \centering\includegraphics{scatter-gain}
+   \caption{Scatter plot of performance gains $\left(\Delta_e,\Delta_c\right)$
+   for each KC, averaging over students.  If the experimental intervention
+   causes greater learning then, $\Delta_e > \Delta_c$ and more points
+   would lie to the right of the diagonal line.
+ %  Individual data points have large 
+ %  uncertainties (standard error of order 1).
+   The weighed average over all KCs of $\Delta_e - \Delta_c = 
+        0.008\pm 0.038$ ($p=0.41$).
+   Note that there are a number
+   of KCs with negative learning $\Delta<0$, probably due to 
+   assignment problems that ramp quickly in complexity. 
+   }\label{scattergain}
+\end{figure}
+
+For our proposed method of continuous improvement to be sustainable in
+the long run, we believe that it is important that any evaluation of
+effectiveness be embedded in the tutor system
+itself~\cite{vanlehn_intelligent_2008}.  Thus, we will use the student
+log data to determine if the machine-learned-help condition produced faster
+learning or greater improvements than the control condition.
+
+
+For each experimental condition, we want to determine how quickly
+learning occurred and what the gain in student performance was.
+For the step model $P_\mathrm{step}(j)$, one can use the maximum
+likelihood values for the moment of learning $L$ and the
+performance gain $1-s-g$, respectively.  
+$L_e$ is the moment of learning for the machine-learned-help condition
+and $L_c$ is the moment of learning for the control condition,
+according to the step model.
+%
+\begin{equation}
+    L_\zeta = \frac{1}{N_\mathrm{students}}
+              \sum_{s \in \{\mathrm{students}\}}
+    \sum_L w_L L \theta_{\zeta,L}(s) \;, \;\;\; \zeta \in \{e,c\} \; ,
+\end{equation}
+%
+where $N_\mathrm{students}$ is the number of students and 
+$\theta_{\zeta,L}(s)$ is 1 if step $L$ is in the $\zeta$ experimental
+condition for student $s$, zero otherwise.
+
+effect 
+In this experiment, we si
+We can also ask how much student improved in each experimental condition.
+Thus, for each condition, we calculate, for each KC, 
+
+\section{Conclusion}
+
+Introduced method for iterative improvement of help-giving policies using 
+{\em in situ} assessment.
+
+Completed one cycle of iterative process:  need larger sample size.
+
+Conjecture:  since we are improving the help-giving policy rather than the
+help itself, it may not be crucial that we correctly guess the step
+that the student was attempting when they made an error.  Having
+KC-related features in the student state may be important.
+
+Conjecture: inclusion of preemptive hints (hints before student attempts
+a step) may be crucial for Andes. 
+
+% Bibliography
+% 
+\bibliographystyle{acmlarge}
+\bibliography{education-modeling}
+
+\end{document}

@@ -54,7 +54,6 @@ numvalexp * parseunit(stack<string> *toklist)
   DBG(cout << "entering parseunit with " << toklist->size() 
       << " tokens" << endl );
   int k;
-  bool expectu = true;
   enum states { A, B, B1, C, D, E };
   string statestring[6]={"A","B","B1","C","D","E"}; // for DBG(...)
   states state = A;
@@ -206,7 +205,7 @@ double geterr(const string value)
   double retval = 0.5;
   for (j = k+1; j < value.size(); j++) {
     if (isdigit(value[j])) { retval *= .1; continue; }
-    if ((value[j] == 'E') || (value[j] == 'e')) break;
+    if ((value[j] == 'E') || (value[j] == 'e')||(value[j] == 'D') || (value[j] == 'd')) break;
     throw(string("geterr couldn't find error value in numval ")
 	  + value + ", couldn't interpret character " + itostr(j+1));
   }

@@ -24,7 +24,7 @@
 #include <vector>
 #include <stdio.h>
 #include <math.h>
-using namespace std;
+// using namespace std;
 #include "decl.h"
 #include "extstruct.h"
 #include "mconst.h"
@@ -77,7 +77,6 @@ int getavarwu(const string bufst, const bool varNew, const bool valToo,
 
   DBG(cout << "bufst is " << bufst.size() << " chars, "
 	 << "text |" << bufst << "|" << endl);
-  bool started = false;
   // find beginning of symbol, stripping any '|'
   for(kstrt = 6; kstrt < bufst.size() && 
 	(bufst[kstrt] == ' ' || bufst[kstrt] == '|'); kstrt++);

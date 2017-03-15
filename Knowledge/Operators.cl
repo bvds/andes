@@ -213,9 +213,9 @@
   `(let ((Op (make-operator	;Produce the operator struct.
 		    :Name ',Name 
 		    :Arguments ',Arguments 
-		    :Preconditions ',Preconditions 
+		    :Preconditions (sbcl-expand-backquote ',Preconditions)
 		    :Effects ',Effects
-		    :Hint ',(subst-nlgs-hints Hint) ;Substitute the NLG functions into the system.
+		    :Hint (subst-nlgs-hints ',Hint) ;Substitute the NLG functions into the system.
 		    :short-name ',short-name
 		    :Description ',Description
 		    :Order ',(sublis *op-order-ids* 

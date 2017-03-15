@@ -18,7 +18,7 @@ dojo.ready(function(){  // wait until dom is loaded
 
 // The principles and other review pages can be opened either 
 // via the menus or via the help system (links in the Tutor pane).
-andes.principles={
+window.andes.principles={
 	reviewp: [],	
 	review: function(file,title,section,dimensionString){
 		if(!this.reviewp[file] || this.reviewp[file].closed){
@@ -42,7 +42,7 @@ andes.principles={
 						body = win.document.getElementsByTagName("body");
 						if(body[0]==null){
 							// Not loaded yet, try again
-							setTimeout(childLoaded, 20);
+							window.setTimeout(childLoaded, 20);
 						}else{
 							var n = win.document.createElement("script");
 							n.src = "../web-UI/andes/recordIE.js";
@@ -58,10 +58,10 @@ andes.principles={
 						this.reviewp[file].onload = function(){
 							var obj=this.document.getElementById(section); 
 							obj.scrollIntoView();
-						}
+						};
 					}
-					dojo.connect(this.reviewp[file], "onblur", andes.drawing.onWindowBlur);
-					dojo.connect(this.reviewp[file], "onfocus", andes.drawing.onWindowFocus);
+					dojo.connect(this.reviewp[file], "onblur", window.andes.drawing.onWindowBlur);
+					dojo.connect(this.reviewp[file], "onfocus", window.andes.drawing.onWindowFocus);
 				}
 					
 			}else if(title=="Principles"){
@@ -108,8 +108,8 @@ dojo.addOnLoad(function() {
 			var psm=principlesStore.getValue(item,"psm");
 			// if student clicks on a group, there is no psm.
 			if(psm){
-				andes.help.echo(principlesStore.getValue(item,"label"));
-				andes.help.principles(psm);
+				window.andes.help.echo(principlesStore.getValue(item,"label"));
+				window.andes.help.principles(psm);
 				dijit.byId("majorPrinciples").hide();
 			}
 		}
@@ -122,8 +122,8 @@ dojo.addOnLoad(function() {
 			var psm=principlesStore.getValue(item,"psm");
 			// if student clicks on a group, there is no psm.
 			if(psm){
-				andes.help.echo(principlesStore.getValue(item,"label"));
-				andes.help.principles(psm);
+				window.andes.help.echo(principlesStore.getValue(item,"label"));
+				window.andes.help.principles(psm);
 				// This is a bit ugly, but close both possible windows:
 				dijit.byId("allPrinciples").hide();
 			}

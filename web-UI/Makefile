@@ -1,24 +1,26 @@
 #
 #  There may be some existing files in the git repostory;
 #  get these out of the way, first.  Then restore them after.
-#  Could use --force if you have svn 1.4 or newer.
 #
-#  We use the latest release of dojo for everything but dojox/drawing
-#  This is because dojox/drawing has some important changes that
-#  are not in the latest release.  Eventually, we will just use
-#  the release version.
-
-dojo-version=1.6
-# Latest updates break build.  Bug #1965
-rev=-r28814  
-dojo-svn=$(rev) http://svn.dojotoolkit.org/src/branches/$(dojo-version)
+dojo-version=pre-amd
+# Work-around for Bug #1886:
+# Install specific dojo versions
 
 install:
 	-rm -r -f dojo dijit dojox util
-	svn co $(dojo-svn)/dojo dojo
-	svn co $(dojo-svn)/dijit dijit
-	svn co $(dojo-svn)/dojox dojox
-	svn co $(dojo-svn)/util util
+	git clone https://github.com/dojo/dojo.git dojo
+	git clone https://github.com/dojo/dijit.git dijit
+	git clone https://github.com/dojo/dojox.git dojox
+	git clone https://github.com/dojo/util.git util
+	cd dojo; git checkout bbee943c58abaadc94622b0b22c91e83d686c438
+	cd dijit; git checkout 52e5a4eeb5861a3bc50073168b1668aad1d8c7ef
+	cd dojox; git checkout 2b79ddf64fbc0956bbc3688a656e5d2f858e0bdd
+	cd util; git checkout 6a35e2f4f859cc263063dd8132a4175453d813a1 
+	# Development branch can over-write dojo libraries.
+	# In case the build fails, we tag version first.
+	echo "${dojo-version}" > dojo-install-version   
+	-git checkout dojox
+	# echo "build script fails." 
 	./andes.build.sh
 	echo "${dojo-version}" > dojo-install-version	
 	@echo "Installed Dojo $(dojo-version); is this the latest?"
@@ -27,10 +29,10 @@ install:
 #  If the latest version is installed, update, else upgrade to new version
 update:
 ifeq ($(shell test -f dojo-install-version && cat dojo-install-version),${dojo-version})
-	svn update $(rev) dojo 
-	svn update $(rev) dijit 
-	svn update $(rev) dojox
-	svn update $(rev) util
+	cd dojo; git checkout bbee943c58abaadc94622b0b22c91e83d686c438
+	cd dijit; git checkout 52e5a4eeb5861a3bc50073168b1668aad1d8c7ef
+	cd dojox; git checkout 2b79ddf64fbc0956bbc3688a656e5d2f858e0bdd
+	cd util; git checkout 6a35e2f4f859cc263063dd8132a4175453d813a1 
 	./andes.build.sh
 	@echo "Updated Dojo $(dojo-version); is this the latest?"
 else

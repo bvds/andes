@@ -3,7 +3,7 @@
 <head>
 </head>
 <body>
-<?
+<?php
 $CMD_LINE_MODE = 1;
 if ($CMD_LINE_MODE) {
   include "cmdLineDebug.php";

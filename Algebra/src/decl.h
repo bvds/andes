@@ -28,7 +28,11 @@
 #ifdef _WINDOWS
 #pragma warning (disable: 4786)
 #endif
-using namespace std;
+using std::ostream;
+using std::istream;
+using std::ifstream;
+using std::stack;
+// using namespace std;
 #include "expr.h"
 
 typedef int varindx;

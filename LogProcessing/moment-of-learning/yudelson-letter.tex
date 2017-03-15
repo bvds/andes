@@ -1,0 +1,65 @@
+\documentclass{report}
+\begin{document}
+
+\begin{verbatim}
+>> In my paper, I distinguish between the hidden Markov form and
+>> the Knowledge Tracing Algorithm form of BKT.  When looking at
+>> your poster, I get confused as to which you are doing (Or are
+>> you doing something else?).
+>
+>I was operating under assumption that BKT and HMM are identical,
+>provided there are two states, two observations, and transition from
+>known-to-unknown is kept at 0. Empirically, user-skill sequence
+>loglikelihoods are the same whether I'm using Knowledge Tracing
+>algorithm to compute them, or forward variables from Baum Welch
+>algorithm.
+>
+>I might be over-assuming by bridging HMM and BKT here, but as per
+>HMM's Learning Problem they seem to be equivalent at least to me.
+\end{verbatim}
+
+Dear Michael,
+
+At first, the comments in your last e-mail puzzled me greatly.
+However, I think I understand things better now.
+The first thing I realized is that 
+the Knowldedge Tracing Algorithm produces a conditional probability
+$P(L_j|O_j)$, where $O_j=\left\{o_1,\ldots,o_j\right\}$ is the 
+student performance on the first $j$ opportunities and $o_i\in O_j$ 
+can be either correct or incorrect.
+I modified the notation in the paper to include the conditional
+probability:\\
+\verb|http://gideon.eas.asu.edu/bvds/bayesian-knowledge-tracing.pdf|.
+
+Then, based on your comment, I figured out the connection to the
+forwards algorithm.  The forwards algorithm outputs the 
+``forward varibles'' $P(L_j \cap O_j)$ and
+$P(\neg L_j \cap O_j)$ as output.  Using the definition of conditional
+probability, $P(L_j \cap O_j)=P(L_j|O_j) P(O_j)$ and 
+$P(\neg L_j \cap O_j)=\left[1-P(L_j|O_j)\right] P(O_j)$, where $P(O_j)$ is
+the likelihood that the HMM produces student performance $O_j$.  
+Thus, one can use the forwards algorithm to calculate the likelihood of 
+$O_j$,
+%
+\begin{equation}
+P(O_j)=P(L_j\cap O_j) +P(\neg L_j \cap O_j) \; ,
+\end{equation}
+%
+as well as the conditional probability from the Knowledge Tracing
+Algorithm,
+%
+\begin{equation}
+ P(L_j|O_j)=\frac{P(L_j\cap O_j)}{ P(L_j\cap O_j) +P(\neg L_j \cap
+   O_j)} \; .
+\end{equation}
+%
+
+
+I should point out that  $P(O_j)$ suffers from the identifiability
+problem since it is only a function of $P(C_j)$, while
+$P(L_j \cap O_j)$, $P(\neg L_j \cap O_j)$, and $P(L_j|O_j)$ do not.
+
+Brett
+
+
+\end{document}

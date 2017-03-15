@@ -23,7 +23,7 @@ dojo.provide("andes.variablename");
 //    "H(green house) is the height of the house on Green St."
 //    "A_{t=0} is the initial area"
 
-andes.variablename.parse = function(intext){
+window.andes.variablename.parse = function(intext){
 	if(intext){
 		// canonicalize whitespace
 		var cantext = intext.replace(/\s+/g," ");

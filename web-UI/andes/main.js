@@ -18,17 +18,17 @@ dojo.require("andes.WordTip");
 	if(!query.u || !query.p){
 		dojo.addOnLoad(function(){
 			console.error("FIXME: Finalize the error message for needing to return to WebAssign.");
-			andes.error({
+			window.andes.error({
 				title: "Fatal Error",
 				message: "No user and/or problem data was provided; cannot continue. Please click on your browser's back button.",
-				dialogType: andes.error.FATAL
+				dialogType: window.andes.error.FATAL
 			});
 		});
 	};
         // FNV-1a for string, 32 bit version, returning hex.
 	var FNV1aHash = function(x){
 		var hash = 0x811c9dc5; // 2166136261
-		for (i = 0; i < x.length; i++) {
+		for (var i = 0; i < x.length; i++) {
 			hash ^= x.charCodeAt(i);
 			hash *= 0x01000193; // 16777619
 		}
@@ -42,31 +42,31 @@ dojo.require("andes.WordTip");
 	};
 	var setCookie = function(){
 		// Andes database requires that clientID be 50 characters.
-		andes.sessionId = FNV1aHash(andes.userId+andes.projectId) + 
+		window.andes.sessionId = FNV1aHash(window.andes.userId+window.andes.projectId) + 
 			'_' + new Date().getTime();
 		var andesCookie = {
-			u:andes.userId,
-			p:andes.projectId,
-			sid:andes.sessionId,
+			u:window.andes.userId,
+			p:window.andes.projectId,
+			sid:window.andes.sessionId,
 			closed:false
 		};
 		dojo.cookie("andes", dojo.toJson(andesCookie), { expires: 999 });
 	};
-	
-	andes.closeFirst = false;
-	andes.userId = query.u;
-	andes.projectId = query.p;
-	andes.sectionId = query.s || "no-section";
-	andes.extra = query.e; //extra field for Raj
+
+	window.andes.closeFirst = false;
+	window.andes.userId = query.u;
+	window.andes.projectId = query.p;
+	window.andes.sectionId = query.s || "no-section";
+	window.andes.extra = query.e; //extra field for Raj
 	var ck = dojo.cookie("andes");
 	if(ck && ck.u){
 		// There was already a cookie here
-		if(ck.u==andes.userId && ck.p==andes.projectId){
+		if(ck.u==window.andes.userId && ck.p==window.andes.projectId){
 			// we can continue the same session
-			andes.sessionId = ck.sid;
+			window.andes.sessionId = ck.sid;
 		}else{
-			andes.closeFirst = true;
-			console.warn("Closing previous session", ck.u, andes.userId, ck.p, andes.projectId)
+			window.andes.closeFirst = true;
+			console.warn("Closing previous session", ck.u, window.andes.userId, ck.p, window.andes.projectId);
 			setCookie();
 		}
 	}else{
@@ -74,18 +74,18 @@ dojo.require("andes.WordTip");
 	}
 	
 	dojo.addOnUnload(function(){
-		andes.api.close({});
+		window.andes.api.close({});
 		// but don't clear cookie
 	});
 	
 	dojo.addOnLoad(function(){
 		// WordTip needs to be added before conEdit is removed by drawing
-		andes.WordTip = new andes.WordTip();
+		window.andes.WordTip = new window.andes.WordTip();
 		
 		// Problem close actions set
 		dojo.connect(dojo.byId("submitButton"), "click", function(){
 			// Needs to be non-blocking
-			var closer = andes.api.close({});
+			var closer = window.andes.api.close({});
 			closer.then(function(result){
 					// console.log("Made the trip", result);
 					// Look for url from server, if it doesn't
@@ -99,11 +99,11 @@ dojo.require("andes.WordTip");
 						}
 					});
 					
-					found ? window.location = url : history.go(-1);
+					found ? window.location = url : window.history.go(-1);
 				}, function(error){
 					console.warn("Server Error", error);
 					console.log("Returning to previous page");
-					history.go(-1);
+					window.history.go(-1);
 			});
 			dojo.cookie("andes", null, { expires: -1 });
 			// should look for url from server that
@@ -133,4 +133,4 @@ dojo.require("andes.api");
 dojo.require("andes.error");
 dojo.require("andes.variablename");
 
-andes.drawing.load();
+window.andes.drawing.load();

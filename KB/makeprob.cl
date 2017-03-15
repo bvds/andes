@@ -168,25 +168,26 @@
   "Returns a list of kc's found in all solutions and a list of kc's found in only some solutions."
   ;; need help system loaded to use this function.
   ;; run function (andes-init) first.
-  (handler-case
-      (read-problem-info prob)
-    (error (c) (declare (ignore c))
-	   (format T "File read error: ~A~%" prob)))
-  (when *cp*
-    (let (not-all any)
-      (dolist (solution (problem-solutions *cp*))
-	(let (this)
-	  (dolist (entry (distinct-SystemEntries 
-			  (mappend #'bgnode-entries (EqnSet-nodes solution))))
-	    (dolist (opinst (remove-duplicates 
-			     (copy-list (SystemEntry-Sources entry))
-			     :key #'csdo-op :test #'unify))
-	      (let ((kc (csdo-op opinst)))
-		(pushnew (car kc) any)
-		(pushnew (car kc) this))))
+  (let (*cp*)
+    (handler-case
+	(read-problem-info prob)
+      (error (c) (declare (ignore c))
+	     (format T "File read error: ~A~%" prob)))
+    (when *cp*
+      (let (not-all any)
+	(dolist (solution (problem-solutions *cp*))
+	  (let (this)
+	    (dolist (entry (distinct-SystemEntries 
+			    (mappend #'bgnode-entries (EqnSet-nodes solution))))
+	      (dolist (opinst (remove-duplicates 
+			       (copy-list (SystemEntry-Sources entry))
+			       :key #'csdo-op :test #'unify))
+		(let ((kc (csdo-op opinst)))
+		  (pushnew (car kc) any)
+		  (pushnew (car kc) this))))
 	  (dolist (op any)
 	    (unless (member op this) (pushnew op not-all)))))
-      (cons (set-difference any not-all) not-all))))
+	(cons (set-difference any not-all) not-all)))))
   
 ;; need helpsystem loaded for this
 ;; (dump-entries-operators #P"/home/bvds/solutions/")

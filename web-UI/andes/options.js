@@ -47,15 +47,15 @@ dojo.declare("andes.options",null,{
         
         // Register preferences
         for(var nm in this._prefs){
-            andes.preferenceRegistry.registerPref(nm, this[this._prefs[nm]], this);
+            window.andes.preferenceRegistry.registerPref(nm, this[this._prefs[nm]], this);
         }
         
         // Initialize values -- myDrawing is a GLOBAL
-        this.angleSnap.set('value', myDrawing.defaults.angleSnap);
-        this.clickMode.set('label', myDrawing.defaults.clickMode ? "enabled" : "disabled");
-        this.showTimer.set('label', andes.timer.display ? "enabled" : "disabled");
-        dojo.style(this.correct, "background", myDrawing.defaults.correct.color);
-        dojo.style(this.incorrect, "background", myDrawing.defaults.incorrect.color);
+        this.angleSnap.set('value', window.myDrawing.defaults.angleSnap);
+        this.clickMode.set('label', window.myDrawing.defaults.clickMode ? "enabled" : "disabled");
+        this.showTimer.set('label', window.andes.timer.display ? "enabled" : "disabled");
+        dojo.style(this.correct, "background", window.myDrawing.defaults.correct.color);
+        dojo.style(this.incorrect, "background", window.myDrawing.defaults.incorrect.color);
         
         var ops = this;
         this.picker = new dijit.ColorPalette({
@@ -104,7 +104,7 @@ dojo.declare("andes.options",null,{
     setShowTimer: function(val){
         this.timer = val;
         this.showTimer.set('label', val ? "enabled" : "disabled");
-        this._setChange("timer", val, andes.timer.displayTimer, andes.timer);
+        this._setChange("timer", val, window.andes.timer.displayTimer, window.andes.timer);
     },
     
     // TODO:
@@ -169,11 +169,11 @@ dojo.declare("andes.options",null,{
         if(!f){
             var o = {};
             o[name] = value;
-            myDrawing.changeDefaults(o, true);
+            window.myDrawing.changeDefaults(o, true);
         }else{
             f.call(s, value);
         }
-        andes.preferenceRegistry.savePref(name, value);
+        window.andes.preferenceRegistry.savePref(name, value);
     }
     //This should be instantiated in menu
 });

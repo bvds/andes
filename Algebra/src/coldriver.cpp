@@ -44,7 +44,7 @@ extern vector<valander *> *canongrads;
 bool isFirst = true;		// instantiation moved here by Linn
 //////////////////////////////////////////////////////////////////////////////
 // static/local error messages reurned for copying
-static char* error[] = {
+const char* error[] = {
 	"Unable to read source file",
 	"Unable to write destination file",
 	"Unexpected Input",
@@ -67,7 +67,7 @@ extern unitabrs unittable;
  *   Then it opens the file for reading, and returns the first line	*
  *	[does not close file]						*
  ************************************************************************/
-char* solveTheProblem() {
+const char* solveTheProblem() {
   int k;
 
   if (isFirst) throw string("solveTheProblem called before initialization");
@@ -128,7 +128,7 @@ char* solveTheProblem() {
  *	if EOF, closes file and returns nil				*
  *	I don't understand when is returns "So far so good"		*
  ************************************************************************/
-char* solveMoreOfTheProblem() {
+const char* solveMoreOfTheProblem() {
   try {
     if (! resultBuffer.eof()) {
       string t = getaline(resultBuffer);

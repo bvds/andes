@@ -39,6 +39,7 @@ endif
 	ln -s `pwd`/review $(httpd-document-root)
 	ln -s `pwd`/images $(httpd-document-root)
 	ln -s `pwd`/LogProcessing/Web-Interface $(httpd-document-root)/log
+	apachectl restart
 
 install-server:
 	cd help-server; $(MAKE) install-server
@@ -51,7 +52,6 @@ update:
 	cd help-server; $(MAKE) update
 	cd problems; git pull
 	cd solutions; git pull
-	-rm */*.fasl
 	cd Algebra/src; $(MAKE) executable
 	cd web-UI; $(MAKE) update
 

@@ -8,7 +8,7 @@ dojo.require("andes.api");
 		//	Handles text returned from server
 		//
 		if(!dijit.byId("helpPane")){
-			setTimeout(function(){
+			window.setTimeout(function(){
 				handleHelp(result);
 			}, 500);
 			return;
@@ -40,7 +40,7 @@ dojo.require("andes.api");
 		  		// Escape any html codes on input text echo.
                		        // Should use future function dojo.string.escape
                                 // See http://trac.dojotoolkit.org/ticket/8995
-				andes.help.echo(r.text.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
+				window.andes.help.echo(r.text.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
 				break;
 			    case "focus-hint-text-box":
 				dijit.byId("helpPane").open();
@@ -71,13 +71,13 @@ dojo.require("andes.api");
 			// Escape any html codes on input text echo.
 		        // Should use future function dojo.string.escape
                         // See http://trac.dojotoolkit.org/ticket/8995
-			andes.help.echo(q.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
+			window.andes.help.echo(q.replace(/\&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
 			dijit.byId("helpInput").set("value", "");
-			andes.api.help(h).addCallback(handleHelp);
+			window.andes.api.help(h).addCallback(handleHelp);
 		});
 	});
 	
-	andes.help.echo = function(value){
+	window.andes.help.echo = function(value){
 		// summary:
 		//	Echo any input text in the Tutor pane.
 		//
@@ -95,22 +95,22 @@ dojo.require("andes.api");
 		}
 	};
 	
-	andes.help.processStep = function(result){
+	window.andes.help.processStep = function(result){
 		// summary:
 		// look for any help coming back from the server (such as in
 		// the results from andes.api.step()
 		handleHelp(result);
 	};
 	
-	andes.help.explain = function(s){
-		andes.api.help({action:"get-help", value:s}).addCallback(handleHelp);
+	window.andes.help.explain = function(s){
+		window.andes.api.help({action:"get-help", value:s}).addCallback(handleHelp);
 	};
 	
-   	andes.help.principles = function(s){
-		andes.api.help({action:"principles-menu", value:s}).addCallback(handleHelp);
+   	window.andes.help.principles = function(s){
+		window.andes.api.help({action:"principles-menu", value:s}).addCallback(handleHelp);
 	};
 	
-	andes.help.link = function(href){
+	window.andes.help.link = function(href){
 		// summary:
 		//	Calls api after a link in Tutor pane has been clicked.
 		dojo.xhrGet({
@@ -123,19 +123,18 @@ dojo.require("andes.api");
 		});
 	};
 	
-	andes.help.score = function(value){
+	window.andes.help.score = function(value){
 		// summary:
 		// updates score
 		return dijit.byId("helpPane").score(value);
 	};
 
-	andes.help.link = function(name,value){
+	window.andes.help.link = function(name,value){
 		var s={type: "tutor-link",name: name};
 		if(value){
 			s.value=value; // value is optional
 		}
-		andes.api.recordAction(s);
+		window.andes.api.recordAction(s);
 	};
 		
 })();
-

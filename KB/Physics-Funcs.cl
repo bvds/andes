@@ -331,10 +331,15 @@
 	(T (error "bad argument to dir-var-value: ~S~%" dir))))
 
 (defun rad-to-deg (radians)
- (* radians (/ 180 pi)))
+  "Convert radians to degrees, preserving the given precision."
+  ;; Note that lisp turns combinations of single-precision and double-precision
+  ;; into double-precision, so numbers can have junk digits."
+  ;; See https://www.cs.cmu.edu/Groups/AI/html/cltl/clm/node122.html
+  ;; Here, pi has double precision.
+  (coerce (* radians (/ 180 pi)) (type-of radians)))
 
 (defun dir-from-compos (xc yc)
- "return term for direction in degrees given vector components"
+  "return term for direction in degrees given vector components"
  (if (and (= xc 0) (= yc 0)) 'zero  ; zero-mag vector
   (dir-to-term (mod (rad-to-deg (atan yc xc)) 360))))
 
@@ -362,7 +367,7 @@
 	(t dir-term)))
 
 (defun dir-to-term (dir)
-"return dnum term for number of degrees, else arg unchanged"
+  "return dnum term for number of degrees, else arg unchanged"
    (if (numberp dir) `(dnum ,dir |deg|) dir))
 
 (defun get-angle-between (dir1-term dir2-term)

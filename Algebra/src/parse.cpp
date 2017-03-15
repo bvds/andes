@@ -1,6 +1,6 @@
 // parse.cc
 // Copyright (C) 2001 by Joel A. Shapiro -- All Rights Reserved
-// Modifications by Brett van de Sande, 2005-2010
+// Modifications by Brett van de Sande, 2005-2017
 //
 //  This file is part of the Andes Solver.
 //
@@ -21,7 +21,6 @@
 //    isanum
 //    getclipsvar
 
-#pragma warning (disable: 4786)
 #include <string>
 using namespace std;
 // no diagnostics
@@ -30,7 +29,7 @@ using namespace std;
  *  parseanum:	interpret as much as possible of string as a number	*
  *  int parseanum(string token, int start) takes as much of 		*
  *  token[start,stop] as possible to have a integer or floating point 	*
- *  number, including possible exponent with e				*
+ *  number, including possible exponent with E or D        		*
  *  returns stop+1, so if start=stop, no number was found		*
  ************************************************************************/
 int parseanum(string token,int start)
@@ -46,8 +45,8 @@ int parseanum(string token,int start)
    *  		else comes, not a number				*
    *  integ:    what we have is a legitimate integer.			*
    *  floatnum: what we have is a legitimate float without an exponent	*
-   *  uexp:     just read the E of a float with exponent		*
-   *  exp:      have read E and number or sign				*
+   *  uexp:     just read the E or D of a float with exponent		*
+   *  exp:      have read E or D and number or sign			*
    *									*
    *  bugs***   no error checking on exp having no digits. 		*
    **********************************************************************/
@@ -100,18 +99,18 @@ int parseanum(string token,int start)
 	    sofar = floatnum;
 	    break;;
 	  }
-	if ((token[i]=='E')||(token[i]=='e'))
+	if ((token[i]=='E')||(token[i]=='e')||(token[i]=='D')||(token[i]=='d'))
 	  { sofar = uexp;  break;; }
 	else return(i);
       case floatnum:
 	if (isdigit(token[i])) break;;
-	if ((token[i]=='E')||(token[i]=='e'))
+	if ((token[i]=='E')||(token[i]=='e')||(token[i]=='D')||(token[i]=='d'))
 	  { sofar = uexp;  break;; }
 	else return(i);
       case uexp:
 	if ((token[i]=='+')||(token[i]=='-')||isdigit(token[i]))
 	  {  sofar = exp;   break;; }
-	else return(i-1);	// probably error - got E but no num
+	else return(i-1);	// probably error - got E or D but no num
       case exp:
 	if (! isdigit(token[i])) return(i);
       }

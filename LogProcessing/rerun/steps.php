@@ -40,6 +40,8 @@
 	     // To get help server timing, need to set:
 	     // (setf webserver:*debug* nil)
 	     // (setf *simulate-loaded-server* nil)
+             // (andes-database:set-state-property "consent-dialog" "none" :model "client" :section "asu_7e256268bab914fb5asul1_" :student nil :tid t)
+             // (andes-database:set-state-property "informed-consent" "external:st-anselm-consent" :model "client" :section "asu_7e256268bab914fb5asul1_" :student nil :tid t)
 
 $ignoreNewLogs = false;  // ignore any new non-error, log messages
 $ignoreScores = false;  // ignore any changes to scoring.
@@ -82,8 +84,8 @@ $adminName = '' ;   // user name
 	     // 
 $sectionName = '^asu_7e256268bab914fb5asul1_' ; //$_POST['sectionName'];
              // '2011-04-01'
-$startDate = ''; // $_POST['startDate'];
-$endDate = '2012-06-04 00:00:00'; // $_POST['endDate'];
+$startDate = '2012-06-25'; // $_POST['startDate'];
+$endDate = ''; // $_POST['endDate'];
 $methods = array('open-problem','solution-step','seek-help','record-action','close-problem');  //implode(",",$_POST['methods']);
 
 if($adminName==''){
@@ -598,7 +600,8 @@ while ($myrow = mysql_fetch_array($result)) {
 	       
 	       // Add log message to all incorrect entries
 	       // commit 4889f5fb386998, Dec 17 20:17:21 2011
-	       (strcmp($method,"solution-step")==0 && 
+	       (false && // logs from aster this.
+		strcmp($method,"solution-step")==0 && 
 		isset($bc->action) && isset($bc->log) && 
 		isset($bc->{'error-type'}) &&
 		strcmp($bc->action,"log")==0 &&
