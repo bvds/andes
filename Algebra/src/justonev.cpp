@@ -19,7 +19,7 @@
 
 #include <string>
 #include "decl.h"
-using namespace std;
+// using namespace std;
 // no diagnostics
 
 /************************************************************************

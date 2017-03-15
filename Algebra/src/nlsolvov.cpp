@@ -38,7 +38,7 @@
 #include "extoper.h"
 #include "dbg.h"
 #include "mconst.h"
-using namespace std;
+// using namespace std;
 
 #define DBG(A) DBGF(NLSOLV,A)
 

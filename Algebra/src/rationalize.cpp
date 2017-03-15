@@ -20,7 +20,7 @@
 #include "decl.h"
 #include "extoper.h"
 #include "dbg.h"
-using namespace std;
+// using namespace std;
 
 #define DBG(A) DBGF(RATEQ,A)
 

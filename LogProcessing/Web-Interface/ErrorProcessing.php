@@ -15,7 +15,7 @@
 </head>
 <body>
 
-<?
+<?php
 $dbname= $_POST['dbname'];
 $dbuser= $_POST['dbuser'];
 $dbserver= "localhost";

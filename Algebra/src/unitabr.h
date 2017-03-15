@@ -22,7 +22,9 @@
 #include "expr.h"
 #include "dimens.h"
 
-using namespace std;
+using std::vector;
+using std::string;
+// using namespace std;
 
 class unitabrs
 {

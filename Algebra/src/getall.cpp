@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 #include <stdio.h>
-using namespace std;
+// using namespace std;
 #include "decl.h"
 #include "extoper.h"
 #include "extstruct.h"

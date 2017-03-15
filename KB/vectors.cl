@@ -1786,7 +1786,7 @@
 		;; Broken Bug #1650
 		(and 
 		 (eval (when (expand-new-english ?loc) 
-			 '(preferred ("at" ?loc)))
+			 `(preferred ("at" ,?loc)))
 		       ;; include case where ?loc not supplied
 		       (?loc . (cons nil (problem-atoms *cp*))))
 		 ((eval (unit-vector-orientation-name ?orientation)

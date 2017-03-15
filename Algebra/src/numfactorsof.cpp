@@ -20,7 +20,8 @@
 #include "decl.h"
 #include "dbg.h"
 #include <cmath>
-using namespace std;
+using std::min;
+// using namespace std;
 #define DBG(A) DBGF(NUMFACT,A)
 
 /************************************************************************

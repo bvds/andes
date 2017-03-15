@@ -1,4 +1,4 @@
-<?
+<?php
 
 $dbuser= $_POST['dbuser'];
 $dbserver= "localhost";

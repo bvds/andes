@@ -22,7 +22,7 @@
 #include "unitabr.h"
 #include <stdio.h>
 #include <math.h>
-using namespace std;
+// using namespace std;
 #include "dbg.h"
 
 #define DBG(A) DBGF(EXPRDB,A)

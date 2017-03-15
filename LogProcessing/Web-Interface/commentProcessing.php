@@ -1,4 +1,4 @@
-<?
+<?php
 $dbname= $_POST['dbname'];
 $dbuser= $_POST['dbuser'];
 $dbserver= "localhost";
@@ -31,7 +31,7 @@ setcookie("passWord",$dbpass,time()+(8*60*60));
 </head>
 <body>
 
-<?
+<?php
 echo "<h2>Comments given by the Andes Users, sorted in $order order of $orderBy, are as follows:</h2><BR>";
 if($order=='Descending')
   $order = "DESC";

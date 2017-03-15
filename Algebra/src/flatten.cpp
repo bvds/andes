@@ -70,7 +70,7 @@
 #include "decl.h"
 #include "extoper.h"
 #include "dbg.h"
-using namespace std;
+// using namespace std;
 
 #define DBGM(A) DBGFM(INTFL,A) //additional detail from lowest bit on
 #define DBG(A) DBGF(INTFL,A)

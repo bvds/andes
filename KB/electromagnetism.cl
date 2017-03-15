@@ -2309,7 +2309,7 @@
 		(key "energy")
 		(and (property ?dipole) 
 		     ;; eval is simply a wrapper to specify possible fields
-		     (eval '(preferred (agent ?field))
+		     (eval `(preferred (agent ,?field))
 			   (?field . (remove '(field . ?rest)
 					     (problem-vectors *cp*)
 					     :test-not #'unify)))

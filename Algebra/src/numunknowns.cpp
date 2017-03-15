@@ -19,7 +19,7 @@
 //   modified 6/1/01 to have switch on whether to look at knownedness
 
 #include "decl.h"
-using namespace std;
+// using namespace std;
 // no diagnostics
 
 /************************************************************************

@@ -21,7 +21,8 @@
 #include "decl.h"
 #include <math.h>
 #include "dbg.h"
-using namespace std;
+using std::max;
+// using namespace std;
 
 #define DBG(A) DBGF(ORDUNK,A)
 

@@ -22,7 +22,7 @@
 #include "dbg.h"
 #include "extstruct.h"
 #include <math.h>
-using namespace std;
+// using namespace std;
 
 // need to change diag below.
 #define DBG(A) DBGF(NEWCKEQSOUT,A)

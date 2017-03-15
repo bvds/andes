@@ -19,6 +19,7 @@
 #ifndef JUSTSOLVE_INCLUDED
 #define JUSTSOLVE_INCLUDED
 #include <iostream>
-using namespace std;
+using std::ostream;
+// using namespace std;
 bool solveeqs(ostream & outfile);
 #endif
