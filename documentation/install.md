@@ -4,7 +4,7 @@ The help server itself is a lisp program that stores log data in an
 sql database, and uses a c++ math library called "the solver." 
 A front-end web server forwards student help messages
 to the Andes help server and serves other static content.
-See [Server Documentaton](server.html) for more information.
+See the [Server Documentaton](server.md) for more information.
 
 This installation uses sbcl for lisp, Apache for the web server, MySQL for
 the database, and g++ for the solver.  It has been tested on Linux (RedHat 
@@ -15,7 +15,7 @@ Enterprise 5.4, CentOS 5.4) and OS X (10.4 and 10.6).
 The following packages need to be installed:
 
     gnu make, git, subversion, gnu c++, mysql, mysql-server, apache, 
-    wget, java, and php with mysql
+    wget, and php with mysql
 
 For RedHat systems, <http://fedoraproject.org/wiki/EPEL> may be helpful. 
 In Linux, test packages using:
@@ -26,12 +26,6 @@ For Ubuntu (debian systems) you can use the following (as root):
 
     apt-get install git make subversion g++ libmysqlclient-dev mysql-server \
                 apache2 libapache2-mod-proxy-html wget php5 php5-mysql
-
-Finally, make sure java is installed:
-
-    java -version
-
-If you are missing java, you will have to install it using your package manager
 
 The Andes help server should be run in an ordinary user account. 
 If needed,  set up a user account for the Andes server.  The install,

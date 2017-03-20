@@ -13,7 +13,7 @@ The Andes Help Server has three main components:
   [service method description](http://dojotoolkit.org/reference-guide/dojox/rpc/smd.html)
   [web-UI/andes/andes3.smd](../web-UI/andes/andes3.smd).
   You can view the messages for 
-  [an example session for problem s2e](../web-UI/Documentation/AsuDocs/nokes-example-json.txt)
+  [an example session for problem s2e](../web-UI/Documentation/AsuDocs/nokes-example-json.txt).
 
 * The Lisp help server which manages user sessions, logs messages to
   the database, and generates replies to student actions.
@@ -53,8 +53,7 @@ To stop the server:
 
     /sbin/service andes-helpd stop
 
-A log file associated with the daemon can be found in 
-<a href="../help-server/init.log">`help-server/init.log`</a>. 
+The startup script will creat a log file `help-server/init.log`. 
 This file may be useful for debugging the start-up and shut-down 
 of the server daemon. 
 There are a number of things missing from the server; see
@@ -74,12 +73,10 @@ If the help server is running, restart the server using:
 Once we have <a href="http://www.andestutor.org/bugzilla/show_bug.cgi?id=1722">Bug #1722</a> fixed, we will be able update the lisp server without any server
 restart. 
 
-<p id="recompile">If the server restart fails (see 
-<a href="../help-server/init.log">`help-server/init.log`</a>), 
+<p id="recompile">If the server restart fails (see `help-server/init.log`), 
 you may need to rebuild the lisp object files:
 <ul>
   <li>Stop the server:  `/sbin/service andes-helpd stop`
-  <li>In the Andes root directory, enter:&nbsp `rm */*.fasl`
   <li>You might want to verify directly that the lisp is working: 
        <ul>
          <li>Start lisp:  `sbcl` 
@@ -92,27 +89,21 @@ you may need to rebuild the lisp object files:
 ## Monitoring the help server ##
 
 Most errors in the help server are logged in the database.   We have 
-developed some tools for analyzing these errors.   For instance,
-<a href="../LogProcessing/Web-Interface/ShowErrors.html">`
-LogProcessing/Web-Interface/ShowErrors.html`</a> 
-(which can be found on the Andes server
-at `log/ShowErrors.html`) generates a list of all help 
-system warnings and errors. 
+developed some tools for analyzing these errors.  These tools can be
+accessed on the Andes server at the URL  `http://<server name>/log`.  For instance,
+"Show errors and warnings signalled" generates a list of all help system warnings and errors. 
 More serious errors, such as losing contact with the database,
-are logged in the file <a href="../help-server.log">
-`help-server.log`</a>.   Finally, client
+are logged in the file `help-server.log`.   Finally, client
 errors are dumped into the Apache error log file with identifier `andes-client`
 (see <a href="http://www.andestutor.org/bugzilla/show_bug.cgi?id=1908">Bug #1908</a>).
 
-Student comments can be accessed at
-[LogProcessing/Web-Interface/adminLogin.html](../LogProcessing/Web-Interface/adminLogin.html)
-(which can be found on the Andes server
-at `log/adminLogin.html`).   This has shown to be
-very useful in user testing of Andes.
+Likewise, student comments can be accessed at `http://<server name>/log`
+via the link "Comments, with resolution status."
+This has proven to be very useful for user testing.
 
 ## Resource Limits ##
 
-Each open session takes up two system file handles (`fd`s). 
+Each open session uses two system file handles (`fd`s). 
 Typically, the help server uses about 30 other `fd`s for other stuff. 
 Since the system libray `glibc` has a limit of 1024 `fd`s per
 unix process, there is a hard limit of about 450 open sessions per lisp process. 
