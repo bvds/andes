@@ -10,8 +10,10 @@
 <h1>Querying for the Comments given by Students..</h1>
 <form name="queryForm" action="commentProcessing.php" method="post">
 <div class="loginbox">
-<label>Your user name (for saving status and your comments):</label>
-<input name="adminName" type="text" size="6"/> <br>
+<p>For saving status and your comments:<br>
+<label>My section</label>:&nbsp;  <input name="adminSection" size="6" type="text" value="defaultSection" />
+and <label>user name</label>:&nbsp;  <input name="adminName" size="6" type="text" value="admin" />
+</p>
 <label>Order Results By: </label> 
 <select name="item">
 <option>startTime</option>

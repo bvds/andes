@@ -1,15 +1,6 @@
 <?php
 
-$dbuser= $_POST['dbuser'];
-$dbserver= "localhost";
-$dbpass= $_POST['passwd'];
-$dbname= "andes3";
-
-function_exists('mysql_connect') or die ("Missing mysql extension");
-mysql_connect($dbserver, $dbuser, $dbpass)
-     or die ("UNABLE TO CONNECT TO DATABASE at $dbserver");
-mysql_select_db($dbname)
-     or die ("UNABLE TO SELECT DATABASE $dbname");
+require "db-login.php";
 
 $userSection = $_POST['userSection'];
 
@@ -20,34 +11,32 @@ if($userSection=='study-e')
  else
    $userName="";
 
-$userProblemQ="SELECT DISTINCT (userProblem) FROM OPEN_PROBLEM_ATTEMPT AS P1 WHERE $userName P1.userSection='$userSection'";
-$userProbResult=mysql_query($userProblemQ);
+$userProblemQ = $db->prepare("SELECT DISTINCT (userProblem) FROM OPEN_PROBLEM_ATTEMPT AS P1 WHERE $userName P1.userSection='$userSection'");
+$userProblemQ->execute();
 
-if ($myProbs = mysql_fetch_array($userProbResult)){
-  do{ 
+if ($myProbs = $userProblemQ->fetch()) {
+  do {
     $curProb=$myProbs["userProblem"];
     echo "<BR>Problem Name : '$curProb'<BR>";
     $userProblem="P1.userProblem = '$curProb' AND";
-    
-    $sqlTot = "SELECT P1.userName,COUNT(*) FROM OPEN_PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $userName $userProblem P1.userSection='$userSection' AND P1.clientID = P2.clientID GROUP BY(P1.userName) ORDER BY(P1.startTime)";
 
-    $cResult = mysql_query($sqlTot);
+    $sqlTot = $db->prepare("SELECT P1.userName,COUNT(*) FROM OPEN_PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE $userName $userProblem P1.userSection='$userSection' AND P1.clientID = P2.clientID GROUP BY(P1.userName) ORDER BY(P1.startTime)");
 
-    if ($myrow = mysql_fetch_array($cResult)) {
+    $sqlTot->execute();
+
+    if ($myrow = $sqlTot->fetch()) {
       echo "<table border=1>";
       echo "<tr><th>User Name</th><th>Total Number of Steps</th></tr>";
-      
-      do{
+
+      do {
 	$user=$myrow["userName"];
 	$count=$myrow["COUNT(*)"];
 	echo "<tr><td align='center'>$user</td><td align='center'>$count</td></tr>";	
-      }
-      while ($myrow = mysql_fetch_array($cResult));
+      } while ($myrow = $sqlTot->fetch());
       echo "</table>";   
     }
-  }while($myProbs = mysql_fetch_array($userProbResult));
+  } while($myProbs = $userProblemQ->fetch());
 }
-mysql_close();
 
 ?>
 

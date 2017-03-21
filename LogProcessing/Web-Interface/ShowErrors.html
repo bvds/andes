@@ -11,8 +11,10 @@
 
 <form name="ErrorForm" action="ErrorProcessing.php" method="post">
 
-<label>User Name</label>:&nbsp;  
-            <input name="adminName" type="text" /> (for new sessions)<br>
+<p>For creating new sessions:<br>
+My <label>section</label>:&nbsp;  <input name="adminSection" size="6" type="text" value="defaultSection" /> and 
+and <label>user name</label>:&nbsp;  <input name="adminName" size="6" type="text" value="admin" />
+</p>
 <label>Optional by error type</label>:&nbsp;
                 <input name="errorType" type="text" size="8"/> (<a href="http://en.wikipedia.org/wiki/Regular_expression">POSIX extended regexp</a>)<br>
 <label>Optional problem name</label>:&nbsp;

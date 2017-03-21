@@ -21,6 +21,7 @@ USE `andes3`;
 \. create_PROBLEM_ATTEMPT.sql
 \. create_STEP_TRANSACTION.sql
 \. create_REVIEWED_PROBLEMS.sql
+\. create_SOLUTION_COPY.sql
 \. create_STUDENT_STATE.sql
 \. create_STUDENT_DATASET.sql
 \. create_CONSENT.sql
