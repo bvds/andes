@@ -6,7 +6,8 @@ function formFields() {
     var forms = document.getElementsByTagName("form"); 
     // This is a list of form elements to be persisted 
     // across pages.
-    var fields = ["passwd", "dbuser", "dbname", "startDate", "endDate", "problem"];
+    var fields = ["passwd", "dbuser", "dbname", "startDate", "endDate", "problem",
+                  "adminSection", "adminName"];
     for(var i=0; i<forms.length; i++) {
 	var form = forms[i];
 	fields.forEach(function(field) {

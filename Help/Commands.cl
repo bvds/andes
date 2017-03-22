@@ -270,7 +270,9 @@
 	:Assoc '((handle-link . stale))))))
 
 (defun string-responder (str &key explain-more)
-  (cond 
+  (cond
+    ((equal str "generate-lisp-error")
+     (error "Generate lisp error, for testing."))
     ((is-a-question str)
      (make-end-dialog-turn 
       (strcat "Sorry, I don't know how to answer your question.&nbsp; "

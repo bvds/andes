@@ -5,17 +5,7 @@
  <LINK REL=StyleSheet HREF="log.css" TYPE="text/css">
 <?php
 
-$dbuser=$_GET["x"];
-$dbserver=$_GET["sv"];
-$dbpass=$_GET["pwd"];
-$dbname=$_GET["d"];
-
-function_exists('mysql_connect') or die ("Missing mysql extension");
-mysql_connect($dbserver, $dbuser, $dbpass)
-     or die ("UNABLE TO CONNECT TO DATABASE");
-mysql_select_db($dbname)
-     or die ("UNABLE TO SELECT DATABASE");
-
+require "db-login.php";
 
 $clientID = isset($_GET["cid"])?$_GET["cid"]:''; // Optional
 $userName = $_GET["u"];
@@ -35,71 +25,47 @@ if($clientID){
  }
 
 echo "  <title>$userName, $userProblem</title>\n";
-if($tID!=''){
-  echo "<script type=\"text/javascript\">\n";
-  echo "  window.onload = function() {\n";
-  echo "    var row=document.getElementById('t$tID');\n";
-  echo "    window.scrollTo(0,row.offsetTop);\n";
-  echo "  };\n";
-  echo "</script>\n";
- }
-echo "</head>\n";
-echo "<body>\n";
+if($tID!=''){ ?>
+  <script type=\"text/javascript\">
+    window.onload = function() {
+      var row=document.getElementById('t$tID');
+      window.scrollTo(0,row.offsetTop);
+    };
+  </script>
+<?php } ?>
+</head>
+<body>
+<?php
 echo "<h2>Session $sess</h2>\n";
 
 if($clientID==''){
-  // Old style with PROBLEM_ATTEMPT_TRANSACTION
-  $sqlOld = "SELECT initiatingParty,command,tID FROM OPEN_PROBLEM_ATTEMPT AS P1,PROBLEM_ATTEMPT_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P1.userName = '$userName' AND P1.userProblem = '$userProblem' AND P1.userSection = '$userSection'";
-  $sql = "SELECT client,server,tID FROM OPEN_PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE P1.clientID = P2.clientID AND P1.userName = '$userName' AND P1.userProblem = '$userProblem' AND P1.userSection = '$userSection' ORDER BY tID";
+  $sql = $db->prepare("SELECT client,server,tID FROM OPEN_PROBLEM_ATTEMPT AS P1,STEP_TRANSACTION AS P2 WHERE P1.clientID=P2.clientID AND P1.userName=? AND P1.userProblem=? AND P1.userSection=? ORDER BY tID");
+  $queryParams = array($userName, $userProblem, $userSection);
  } else {
-  // Old style with PROBLEM_ATTEMPT_TRANSACTION
-  $sqlOld = "SELECT initiatingParty,command,tID FROM PROBLEM_ATTEMPT_TRANSACTION WHERE clientID = '$clientID'";
-  $sql = "SELECT client,server,tID FROM STEP_TRANSACTION WHERE clientID = '$clientID' ORDER BY tID";
+  $sql = $db->prepare("SELECT client,server,tID FROM STEP_TRANSACTION WHERE clientID=? ORDER BY tID");
+  $queryParams = array($clientID);
  }
 
-$resultOld = mysql_query($sqlOld);   // Old style with PROBLEM_ATTEMPT_TRANSACTION
-$result = mysql_query($sql);
+$sql->execute($queryParams);
 echo "<table border=1 width=\"100%\">";
 echo "<tr><th>Time</th><th>Action</th><th>Response</th></tr>\n";
 
-// Newer versions of php have a json decoder built-in.  Should 
-// eventually have test for php version and use built-in, when possible.
-include 'JSON.php';
-$json = new Services_JSON();
 
 // get student input and server reply
-while (
-       // Old style with PROBLEM_ATTEMPT_TRANSACTION
-       (($myrow1 = mysql_fetch_array($resultOld)) &&
-	($myrow2 = mysql_fetch_array($resultOld))) ||
-       $myrow1 = mysql_fetch_array($result)) {
+while ($myrow1 = $sql->fetch()) {
   
-  if(isset($myrow1["command"])){
-    // Old style with PROBLEM_ATTEMPT_TRANSACTION
-    if($myrow1["initiatingParty"]=='client'){
-      $action=$myrow1["command"];
-      $ttID=$myrow1["tID"];
-      $response=$myrow2["command"];
-    } else {
-      $action=$myrow2["command"];
-      $ttID=$myrow2["tID"];
-      $response=$myrow1["command"];
-    }
-  } else {
-    $action=$myrow1["client"];
-    $ttID=$myrow1["tID"];
-    $response=$myrow1["server"];
-  }  
-  
-  
-  $a=$json->decode($action);
-  $b=$json->decode($response);
+  $action=$myrow1["client"];
+  $ttID=$myrow1["tID"];
+  $response=$myrow1["server"];
+
+  $a=json_decode($action);
+  $b=json_decode($response);
   $ttime=$a->params->time;
   $id=$a->id;  // Maybe want to add this to row...
   unset($a->params->time);  // so time doesn't show up twice.
   $method=$a->method;
   if(!$methods || in_array($method,$methods)){
-    $aa=$json->encode($a->params);
+    $aa=json_encode($a->params);
     // Escape html codes so actual text is seen.
     $aa=str_replace("&","&amp;",$aa);
     $aa=str_replace(">","&gt;",$aa);
@@ -114,7 +80,7 @@ while (
       echo "<ul>";
       foreach($b->result as $bb){
 	// add space after commas, for better line wrapping
-	$bbb=str_replace("\",\"","\", \"",$json->encode($bb));
+	$bbb=str_replace("\",\"","\", \"",json_encode($bb));
 	// forward slashes are escaped in json, which looks funny
 	$bbb=str_replace("\\/","/",$bbb);
 	echo "<li>$bbb</li>";
@@ -128,7 +94,6 @@ while (
   }
  }
 
-mysql_close();
 ?>
   </table>
 </body>

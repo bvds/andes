@@ -1,7 +1,7 @@
 <?php
-/*  Brett van de Sande, 2011
+/*  Brett van de Sande, 2017
  *
- *  Copyright 2011 by Kurt Vanlehn and Brett van de Sande
+ *  Copyright 2017 by Kurt Vanlehn and Brett van de Sande
  *   This file is part of the Andes Intelligent Tutor Stystem.
  * 
  *   The Andes Intelligent Tutor System is free software: you can redistribute
@@ -18,16 +18,19 @@
  *   along with the Andes Intelligent Tutor System.  If not, see 
  *   <http:;;;www.gnu.org/licenses/>.
  */
-// The new person to add to the file
-$person = 
-  // $_SERVER['REMOTE_ADDR'] . ' ' .
-  // '[' . date('c',$_SERVER['REQUEST_TIME']) . '] "' . 
-  'andes-client "' . 
-  // Should escape quotes and backslashes in these
-  $_POST['tag'] . '" "' .  $_POST['text'] . '" ' . 
-  $_POST['Client-Id'] . ' "' .
-  $_SERVER['HTTP_USER_AGENT'] . '"'; 
-// Write the contents to the Apache log file
-// Would be nice to break out into own file, Bug #1908
-error_log($person,4);
+
+/* Parameters may have a short form or a long form,
+   except for the server host name. */ 
+$dbuser = isset($_REQUEST['x'])?$_REQUEST['x']:$_REQUEST["dbuser"];
+$dbserver = isset($_REQUEST['sv'])?$_REQUEST['sv']:"localhost";
+$dbpass = isset($_REQUEST['pwd'])?$_REQUEST['pwd']:$_REQUEST["passwd"];
+$dbname = isset($_REQUEST['d'])?$_REQUEST['d']:$_REQUEST["dbname"];
+
+try {
+    $db = new PDO("mysql:host=$dbserver;dbname=$dbname;charset=utf8",
+              $dbuser, $dbpass);
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    trigger_error('Could not connect to database.'. $e->getMessage());
+}
 ?>
