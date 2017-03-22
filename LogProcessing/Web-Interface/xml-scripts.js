@@ -34,11 +34,13 @@ function copyRecord($url){
 	oXmlHttp.send(null);
 }
 
-function UpdateRecord($url){
-	var comm=prompt("Please enter your comments","");
+function UpdateRecord($url, tid){
+    var comm=prompt("Please enter your comments","");
+    var td = document.querySelector("#"+tid+" td.comment");
+    td.innerHTML = comm;
 	var encodedComment=escape(comm);
 	var oXmlHttp = createXMLHttp();
-	oXmlHttp.open("GET",$url+"&c="+encodedComment,true);
+    oXmlHttp.open("GET",$url+"&c="+encodedComment,true);
 	oXmlHttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
 	oXmlHttp.onreadystatechange = function(){
 		if(oXmlHttp.readyState==4) {
