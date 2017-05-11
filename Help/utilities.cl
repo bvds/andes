@@ -19,7 +19,7 @@
 ;;;
 ;;;  You should have received a copy of the GNU Lesser General Public License
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
-;;;  <http:;;;www.gnu.org/licenses/>.
+;;;  <http://www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; utilities.cl -- the lisp calls that echo the commands sent by the Andes 2
 ;;  Workbench to the Dialog Manager. They are grouped here for that common rea-

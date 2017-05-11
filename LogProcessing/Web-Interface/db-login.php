@@ -16,7 +16,7 @@
  * 
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with the Andes Intelligent Tutor System.  If not, see 
- *   <http:;;;www.gnu.org/licenses/>.
+ *   <http://www.gnu.org/licenses/>.
  */
 
 /* Parameters may have a short form or a long form,
