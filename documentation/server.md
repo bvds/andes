@@ -88,12 +88,12 @@ you may need to rebuild the lisp object files:
 
 ## Monitoring the help server ##
 
-Most errors in the help server are logged in the database.   We have 
-developed some tools for analyzing these errors.  These tools can be
+Lisp errors (errors associated with the help server itself) are generally recorded in the database, while client Javascript errors are recorded in the Apache logging.
+We have developed some tools for analyzing the help server errors.  These tools can be
 accessed on the Andes server at the URL  `http://<server name>/log`.  For instance,
 "Show errors and warnings signalled" generates a list of all help system warnings and errors. 
-More serious errors, such as losing contact with the database,
-are logged in the file `help-server.log`.   Finally, client
+More serious errors server errors, such as losing contact with the database,
+are logged in the file `help-server.log`.   Finally, client (javascript)
 errors are dumped into the Apache error log file with identifier `andes-client`
 (see <a href="http://www.andestutor.org/bugzilla/show_bug.cgi?id=1908">Bug #1908</a>).
 
