@@ -517,21 +517,19 @@
 	  (push `((:action . "new-user-dialog")
 		  (:text . ,dialog-text)) replies)))
 
-      ;; Determine if student needs an informed consent dialog
-      ;; initial dialog flag (usually for section) should contain
-      ;; file for content.
+      ;; Determine if student needs an informed consent dialog.
+      ;; The value of "consent-dialog" (usually for a section) should contain
+      ;; the file name of the consent form.
       ;;
-      ;; (andes-database:set-state-property "consent-dialog" "none" :model "client" :section "consent-none" :student nil :tid t)
-      ;; (andes-database:set-state-property "consent-dialog" "osu-heckler-consent.html" :model "client" :section "consent-osu" :student nil :tid t)
+      ;; (andes-database:set-state-property "consent-dialog" "consent-osu-heckler.html" :model "client" :section "consent-osu" :student nil :tid t)
+      ;;
       (let ((informed-consent (andes-database:get-state-property 
 		'informed-consent :model "client"))
-	    (consent-dialog (or (andes-database:get-state-property 
-				 'consent-dialog :model "client")
-				;; default consent form.
-				"consent.html")))
+	    (consent-dialog (andes-database:get-state-property 
+				 'consent-dialog :model "client")))
 	;; The only way for the consent dialog to never appear is
 	;; to explicitly supress it for a section by using "none".
-	(unless (or (string-equal consent-dialog "none")
+	(unless (or (null consent-dialog)
 		    (string-equal informed-consent "agree:" 
 				  :end1 (min (length informed-consent) 6))
 		    (string-equal informed-consent "disagree:" 
