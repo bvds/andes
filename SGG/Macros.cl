@@ -17,7 +17,7 @@
 ;;;
 ;;;  You should have received a copy of the GNU Lesser General Public License
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
-;;;  <http:;;;www.gnu.org/licenses/>.
+;;;  <http://www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; This file defines the Andes2 Macro facilty.  Macros are similar to
 ;;; executables in that they can be embedded within Andes2 script as

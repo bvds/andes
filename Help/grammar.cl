@@ -21,7 +21,7 @@
 ;;;
 ;;;  You should have received a copy of the GNU Lesser General Public License
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
-;;;  <http:;;;www.gnu.org/licenses/>.
+;;;  <http://www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   8 April 2001 - (lht) -- version finalized and source cleaned
 ;;  10 April 2001 - (lht) -- added cull routines

@@ -7,6 +7,8 @@
 
 ## Develop with Andes ##
 
-* [Introduction](documentation/develop.md)
+* [Introduction to the code](documentation/develop.md)
 
 * [Solution Graph Generator](documentation/sgg.txt)
+
+* [Education Research with Andes](documentation/research.md)

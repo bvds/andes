@@ -26,15 +26,17 @@ else
   $(error "Unknown operating system")
 endif
 endif
-conf-file = $(shell (/usr/sbin/httpd -v | grep Apache/1. >> /dev/null) && echo -1)
 
 configure-httpd:
 	@echo "Please run with superuser privileges."
 ifeq ($(shell which a2enmod &> /dev/null && echo 1),1)
 	@echo "In Ubuntu, configuring the proxy modules:"
-	a2enmod proxy; a2enmod proxy_html; a2enmod proxy_http
+	a2enmod proxy
+        a2enmod proxy_http
+        a2enmod proxy_html
 endif
-	cp andes-server$(conf-file).conf $(httpd-conf-dir)
+        # Apache 2
+	cp andes-server-2.conf $(httpd-conf-dir)
 	ln -s `pwd`/web-UI $(httpd-document-root)
 	ln -s `pwd`/review $(httpd-document-root)
 	ln -s `pwd`/images $(httpd-document-root)
@@ -54,4 +56,3 @@ update:
 	cd solutions; git pull
 	cd Algebra/src; $(MAKE) executable
 	cd web-UI; $(MAKE) update
-

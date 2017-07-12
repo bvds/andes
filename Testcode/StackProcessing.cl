@@ -19,7 +19,7 @@
 ;;;
 ;;;  You should have received a copy of the GNU Lesser General Public License
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
-;;;  <http:;;;www.gnu.org/licenses/>.
+;;;  <http://www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;
 ;;;; The functions in this file are used to process LIFO stacks of CMDs

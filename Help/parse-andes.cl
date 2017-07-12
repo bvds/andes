@@ -22,7 +22,7 @@
 ;;;
 ;;;  You should have received a copy of the GNU Lesser General Public License
 ;;;  along with the Andes Intelligent Tutor System.  If not, see 
-;;;  <http:;;;www.gnu.org/licenses/>.
+;;;  <http://www.gnu.org/licenses/>.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  12 July 2001 (kvl) modified to fill ErrInterp slot on student entries for many types of errors
 ;;  5 July 2003 (c?l) removing depreciated definition of and calls to replace-greek.
