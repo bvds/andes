@@ -4,7 +4,7 @@ The help server itself is a lisp program that stores log data in an
 sql database, and uses a c++ math library called "the solver." 
 A front-end web server forwards student help messages
 to the Andes help server and serves other static content.
-See the [Server Documentaton](server.md) for more information.
+See the [Server Documentation](server.md) for more information.
 
 This installation uses sbcl for lisp, Apache for the web server, MySQL for
 the database, and g++ for the solver.  It has been tested on Linux (RedHat 
@@ -187,26 +187,43 @@ while the stable branch uses (mostly) the latest release.
 
 ## Test the Help Server ##
 
-    ;; To test the Help Server type "sbcl" to start up lisp, then:
-     (rhelp)
-     (start-help)
+To test the Help Server type "sbcl" to start up lisp, then:
 
-    ;; The help server is now running on port 8080.
-    ;; You can test access to the help server by using telnet:
-    ;;     telnet localhost 8080
-    ;;     GET index.html
-    ;; or try http://localhost:8080 in your web browser.  In either case,
-    ;; help server should reply with the "Hunchentoot Default Page."
-    ;;
-    ;; Finally, you can test the entire system.  Point a web browser to 
-    ;;     http://<hostname>/web-UI/login.html
-    ;; Try to log in and solve a problem.  There will be an initial 
-    ;; welcome message and intro window;  the screen will look like 
-    ;; the one shown in the file Documentation/vec1ay-screenshot.png
+    (rhelp)
+    (start-help)
+
+The help server is now running on port 8080.
+You can test access to the help server by using telnet:
+
+    telnet localhost 8080
+    GET index.html
+
+or try http://localhost:8080 in your web browser.  In either case, the
+help server should reply with the "Hunchentoot Default Page."
+
+Next, test that the andes proxy is working.  Using curl:
+
+    curl -i -H "Content-Type: application/json" -XPOST \
+      -d'{"method":"open-problem"}' http://localhost/andes-help
+
+The server should reply with response code 200.
+
+Finally, you can test the entire system.  Point a web browser to 
+
+    http://<hostname>/web-UI/login.html
+
+Try to log in and solve a problem.  There will be an initial 
+welcome message and intro window;  the screen will look something like
+this:  ![vec1ay screenshot](vec1ay-screenshot.png) 
+
+To stop the server, in lisp:
 
     (stop-help)    ;Stop the lisp server:
-
     (quit) ;Exit lisp
 
-    ;; See Documentation/server.html for further information
-    ;; on running the help server.
+If you are just running the server for testing, it may be convenient
+to run the help server using
+[`screen`](https://www.gnu.org/software/screen)
+and detaching the session.
+See [Server Documentation](server.md) for further information
+on running the help server.
