@@ -1,7 +1,7 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta charset="UTF-8"/>
     <title>Andes Physics Tutor</title>
      <script type="text/javascript">
 		dojoConfig = {
@@ -109,7 +109,7 @@ require([
     <div id="splashOverlay"></div>
     <div id="conEdit" contenteditable="true"></div>
     <div id="main" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="gutters:false">
-	<div data-dojo-type="dijit/MenuBar" id="navMenu" region="top" splitter="false">
+	<div data-dojo-type="dijit/MenuBar" id="navMenu" data-dojo-props="region:'top',splitter:false">
 	    <span id="problemName" class="dijitMenuItem dijitMenuItemLabel">Problem</span>
 	    <div data-dojo-type="dijit/PopupMenuBarItem">
 		<span>Edit</span>
@@ -140,10 +140,15 @@ require([
 	    <div id="timer"></div>
 	    <div data-dojo-type="dijit/form/Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
 	</div>
-	<div id="toolPane" data-dojo-type="dijit/layout/ContentPane" region="left" splitter="false">
-	    <div data-dojo-type="dojox/drawing/ui/Toolbar" id="gfxToolbarNode" drawingId="drawing" class="gfxToolbar" orient="V" tools="line,rect,ellipse,textBlock,equation,vector,axes" plugs="all" selected=""></div>
+        <div id="toolPane" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'left',splitter:false">
+          <!-- The attribute "drawingId" is the name of the drawing to associate
+               with this toolbar.  It is used by:
+               dojox/drawing/ui/dom/Toolbar.js
+               dojox/drawing/ui/Toolbar.js
+               Need to switch this and other dojox/drawing attributes to use "data-" -->
+	    <div data-dojo-type="dojox/drawing/ui/Toolbar" id="gfxToolbarNode"  drawingId="drawing" class="gfxToolbar" orient="V" tools="line,rect,ellipse,textBlock,equation,vector,axes" plugs="all" selected=""></div>
 	</div>
-	<div id="drawingPane" data-dojo-type="dijit/layout/ContentPane" region="center" >
+	<div id="drawingPane" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'">
 	    <div data-dojo-type="dojox/drawing/Drawing" id="drawing" data-dojo-id="myDrawing" class="drawing" defaults="andes.defaults">
 	    </div>
 	</div>
@@ -152,16 +157,16 @@ require([
 	     from andes/widget/ExpandoPane. -->
 	<div id="helpPane" data-dojo-type="andes/widget/ExpandoPane" data-dojo-props="region:'right', splitter:true, title:'Tutor'">
 	<div id="helpWrapPane" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="gutters:false">
-		<div id="helpContentPane" data-dojo-type="dijit/layout/ContentPane" region="center"></div>
+		<div id="helpContentPane" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'"></div>
 
-		<div id="helpInputPane" data-dojo-type="dijit/layout/ContentPane" region="bottom">
+		<div id="helpInputPane" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'bottom'">
 		    <div data-dojo-type="dijit/form/TextBox" id="helpInput"></div>
 		    <div data-dojo-type="dijit/form/Button" id="helpSubmit">Hint</div>
 		</div>
 	    </div>
 	</div>
 
-	<div id="footerPane" data-dojo-type="dijit/layout/ContentPane" region="bottom"></div>
+	<div id="footerPane" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'bottom'"></div>
     </div>
     
     
@@ -202,11 +207,11 @@ require([
 	<table id="optionsTable">
 	    <tr>
 		<td class="left">AngleSnap:</td>
-		<td><input data-dojo-type="dijit/form/NumberSpinner" value="360" smallDelta="1" constraints="{min:1,max:360}" intermediateChanges="true" style="width:63px" id="optionsAngleSnap" name="angleSnap"/></td>
+		<td><input data-dojo-type="dijit/form/NumberSpinner" data-dojo-props="value:360,smallDelta:1,constraints:{min:1,max:360},intermediateChanges:true" style="width:63px" id="optionsAngleSnap" name="angleSnap"/></td>
 	    </tr>
 	    <tr>
 		<td class="left">PowerPoint Style:</td>
-		<td><button data-dojo-type="dijit/form/ToggleButton" checked="checked" iconClass="dijitCheckBoxIcon" id="optionsClickMode">Blip</button></td>
+		<td><button data-dojo-type="dijit/form/ToggleButton" data-dojo-props="checked:true,iconClass:'dijitCheckBoxIcon'" id="optionsClickMode">Blip</button></td>
 	    </tr>
 	    <tr>
 		<td class="left">Correct:</td>
@@ -218,7 +223,7 @@ require([
 	    </tr>
 	    <tr>
 		<td class="left">Timer:</td>
-		<td><button data-dojo-type="dijit/form/ToggleButton" iconClass="dijitCheckBoxIcon" id="showTimer">Blip</button></td>
+		<td><button data-dojo-type="dijit/form/ToggleButton" data-dojo-props="iconClass:'dijitCheckBoxIcon'" id="showTimer">Blip</button></td>
 	    </tr>
 	</table>
     </div>
