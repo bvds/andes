@@ -6,9 +6,9 @@ define([
     "dojox/json/schema"
 ],function(rpc){
 
-	// summary:
-	//	This stub is in place to make andes.rpc a swappable oject
-	//	for other potential server connections, such as CometD.
-	
-	window.andes.rpc = rpc(require.toUrl("andes/andes3.smd"));
+    // summary:
+    //	This stub is in place to make andes.rpc a swappable oject
+    //	for other potential server connections, such as CometD.
+
+    window.andes.rpc = rpc(require.toUrl("andes/andes3.smd"));
 });

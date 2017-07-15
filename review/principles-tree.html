@@ -1,9 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
+<!DOCTYPE HTML>
+<html lang="en">
 <head>
+    <meta charset="UTF-8"/>
 <title>Principles of Physics</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<!-- Use the local copy of the the dojo development branch. -->
+<!-- Use the local copy of dojo. -->
 <link href="/web-UI/dojo/resources/dojo.css" rel="stylesheet" />
 <link href="/web-UI/dijit/themes/tundra/tundra.css" rel="stylesheet" />
 
@@ -14,8 +14,9 @@
 <script type="text/javascript">
   djConfig = {
       isDebug:true,
+      async: true,
       parseOnLoad:true
-  }
+  };
 		
   if(djConfig.isDebug){
       document.write('<scr'+'ipt src="/web-UI/dojo/dojo.js"></scr'+'ipt>');
@@ -23,43 +24,34 @@
       document.write('<scr'+'ipt src="/web-UI/release/dojo/dojo/dojo.js"></scr'+'ipt>');
   }
 </script>
+<script type="text/javascript">
+    require(["dojo/data/ItemFileReadStore", "dijit/Tree", "dijit/tree/ForestStoreModel", "dojo/parser"],
+        function(ItemFileReadStore, Tree, ForestStoreModel){
+             var principlesStore = new ItemFileReadStore({
+                 url: "principles.json"
+             });
 
-<script>
-  dojo.require("dijit.dijit"); 
-  dojo.require("dojo.data.ItemFileReadStore");
-  dojo.require("dijit.Tree");
-  dojo.require("dijit.tree.ForestStoreModel");
-  dojo.require("dojo.parser");
+             var allPrinciplesModel = new ForestStoreModel({
+                store: principlesStore,
+                labelType: "html",
+                rootLabel: "All Principles",
+                childrenAttrs: ["items"]
+             });
 
-// Also used in review/sets.html and web-UI/andes/principles.js
-dojo.ready(function(){  // wait until dom is loaded
-  if(dijit._TreeNode._meta.hidden.attributeMap){   // old way
-    // See Bug #1949
-    dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
-    console.warn("old way for html render, version ",dojo.version.toString());
-  }else if(dijit._TreeNode._meta.hidden._setLabelAttr){
-        dijit._TreeNode._meta.hidden._setLabelAttr.type="innerHTML";
-  }else{
-          console.error("Can't render HTML in tree. Version ",dojo.version.toString());
-  }
-});
+             var tree = new Tree({
+                 model: allPrinciplesModel,
+                 showRoot: false,
+                 onClick: function(item) {
+                     var psm = principlesStore.getValue(item, "psm");
+                     if(psm) console.log("item:  " + psm);
+                 }
+             }, "allModalTree");
+    });
 </script>
 </head>
 <body class="tundra">
-
-   <div dojoType="dojo.data.ItemFileReadStore" url="principles.json"
-        jsId="principlesStore" /></div>
-	
-
-   <div dojoType="dijit.tree.ForestStoreModel" jsId="allPrinciplesModel" 
-        store="principlesStore"
-        rootLabel="All Principles" childrenAttrs="items"></div>
-
-   <div dojoType="dijit.Tree" model="allPrinciplesModel" showRoot="false"  class="tall">
-	  <script type="dojo/method" event="onClick" args="item">
-              console.log("item:  "+principlesStore.getValue(item,"psm"));
-	  </script>
+    <div id="allModalTree">
 	  List of All Principles
-	</div>
+    </div>
 </body>
 </html>

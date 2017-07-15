@@ -1,5 +1,7 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
 <!--   
 # This file is stored in review/sets.html in the Andes git repository.
 # Although the Andes problem chooser tool will work without any Andes 
@@ -9,10 +11,9 @@
 # Create a directory "sets" for the Andes problem chooser tool:
            mkdir sets; cd sets
            mkdir problems
-# Install dojo and dijit in "sets."
 # Copy images/*.* from the Andes installation into sets/problems.
 # Copy review/sets.html from the Andes installation to sets/index.html.
-# Then, modfy the URL in the function doSubmit() to point to 
+# Then, modfy the URL in the button handler function to point to 
 # the desired Andes help server.
 # 
 # In the Andes installation, start up lisp and enter (rhelp) to 
@@ -27,11 +28,9 @@
 # Depending on the location of "sets," you may want to create
 # a link to "sets" in your web server root directory (eg. /var/www/html).
  -->
-<head>
 <title>Andes problem chooser</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dijit/themes/tundra/tundra.css" media="screen">
-<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dojo/resources/dojo.css">
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/dojo/1.12.1/dijit/themes/tundra/tundra.css" media="screen">
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/dojo/1.12.1/dojo/resources/dojo.css">
 <style type="text/css">
  div#graphic {
        overflow: hidden;
@@ -49,85 +48,120 @@
       font-size: 115%;
    }
 </style>
-<script src="//ajax.googleapis.com/ajax/libs/dojo/1.6/dojo/dojo.xd.js" type="text/javascript" data-dojo-config="parseOnLoad:true,isDebug:true"></script>
-
 <script type="text/javascript">
-  dojo.require("dojo.parser");
-  dojo.require("dojo.data.ItemFileReadStore");
-  dojo.require("dijit.Tree");
-  dojo.require("dijit.layout.ContentPane");
+  djConfig = {
+      isDebug: false,
+      async: true,
+      parseOnLoad: true
+  };
 
-// See review/principles-tree.html
-dojo.ready(function(){  // wait until dom is loaded
-  if(dijit._TreeNode._meta.hidden.attributeMap){   // old way
-    // See Bug #1949
-    dijit._TreeNode._meta.hidden.attributeMap.label.type="innerHTML";
-    console.warn("old way for html render, version ",dojo.version.toString());
-  }else if(dijit._TreeNode._meta.hidden._setLabelAttr){
-        dijit._TreeNode._meta.hidden._setLabelAttr.type="innerHTML";
+  if(djConfig.isDebug){
+      document.write('<scr'+'ipt src="/web-UI/dojo/dojo.js"></scr'+'ipt>');
   }else{
-          console.error("Can't render HTML in tree. Version ",dojo.version.toString());
+      document.write('<scr'+'ipt src="//ajax.googleapis.com/ajax/libs/dojo/1.12.1/dojo/dojo.js"></scr'+'ipt>');
   }
-});
+</script>
+<script type="text/javascript">
+    require(["dojo/dom", "dojo/data/ItemFileReadStore", "dijit/registry", "dijit/Tree", "dijit/tree/ForestStoreModel", "dojo/parser", "dijit/layout/ContentPane"],
+        function(dom, ItemFileReadStore, registry, Tree, ForestStoreModel) {
 
-var thisProblem;
+            var setStore = new ItemFileReadStore({
+                url: "sets.json"
+            });
 
-    // add problem statement and any graphic to third column.
-addProblem = function (item,store){
-    if(store.hasAttribute(item,"expand")) {
-      thisProblem=store.getValue(item,"expand");
-      dojo.byId("try").disabled=false;
-      // console.log("from json:  "+store.getValue(item,"expand"));
-      dijit.byId('prob').set('href',"problems/"+store.getValue(item,"expand")+".html");
-      var label=store.getValue(item,"label");
-      if(store.hasAttribute(item,"set")) {
-          label = store.getValue(item,"set") + "&nbsp; " + label;
-      }
-      dijit.byId('label').set('content',label);
-      if(store.hasAttribute(item,"graphic")) {
-        // console.log("from json:  "+store.getValue(item,"graphic"));
-	// console.log("   "+"<img src=\"problems/"+store.getValue(item,"graphic")+"\">");
-	dijit.byId('graphic').set('content',"<img src=\"problems/"+store.getValue(item,"graphic")+"\">");
-      } else {
-	// console.log("no graphic");
-	dijit.byId('graphic').set('content',null);
-      }
-    }
-};
+            var setModel = new ForestStoreModel({
+                store: setStore,
+                labelType: "html",
+                childrenAttrs: ["items"]
+            });
+
+            var setsTree = new Tree({
+                model: setModel,
+                class: "tall",
+                showRoot: false,
+                onClick: function(item) {
+                    addProblem(item, setStore);
+                }
+            }, "setsTree");
+
+            var principlesStore = new ItemFileReadStore({
+                url: "principles.json"
+            });
+
+            var principlesModel = new ForestStoreModel({
+               store: principlesStore,
+               labelType: "html",
+               childrenAttrs: ["items"]
+            });
+
+            var principlessTree = new Tree({
+                model: principlesModel,
+                showRoot: false,
+                class: "tall",
+                onClick: function(item) {
+                    addProblem(item, principlesStore);
+                }
+            }, "principlesTree");
+
+            // add problem statement and any graphic to third column.
+            function addProblem(item, store) {
+                if(store.hasAttribute(item,"expand")) {
+                    window.thisProblem=store.getValue(item,"expand");
+                    dom.byId("try").disabled=false;
+                    // console.log("from json:  "+store.getValue(item,"expand"));
+                    registry.byId('prob').set('href',"problems/"+store.getValue(item,"expand")+".html");
+                    var label=store.getValue(item,"label");
+                    if(store.hasAttribute(item,"set")) {
+                        label = store.getValue(item,"set") + "&nbsp; " + label;
+                    }
+                    registry.byId('label').set('content',label);
+                    if(store.hasAttribute(item,"graphic")) {
+                        // console.log("from json:  "+store.getValue(item,"graphic"));
+	                // console.log("   "+"<img src=\"problems/"+store.getValue(item,"graphic")+"\">");
+	                registry.byId('graphic').set('content',"<img src=\"problems/"+store.getValue(item,"graphic")+"\">");
+                    } else {
+	                // console.log("no graphic");
+	                registry.byId('graphic').set('content',null);
+                    }
+                }
+            };
+    });
 </script>
 
-<script>
-  dojo.addOnLoad(function(){
-    dojo.byId("try").disabled=true;
-  });   
-      
-  doSubmit = function(){
-    var u = document.getElementById("user").value;
-    var query = dojo.queryToObject(window.location.search.substring(1));
-    var s = query.s || "andestutor.org";
-    var x = query.x || "web-UI";
-    if(! u.replace(/\s+$/, '')){
-      alert("Please enter a user name.");
-      return;
-    }  
-    if(! thisProblem){
-      alert("Please select a problem to try");
-      return;
-    }
-    document.location.href = "http://gideon.eas.asu.edu/"+x+"/index.html?s="+s+"&u="+u+"&p="+thisProblem+"&e=";
-  }
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        var button = document.getElementById("try");
+        // Firefox remembers disbled status
+        button.disabled=true;
+
+        // From http://stackoverflow.com/questions/901115
+        function getParameterByName(name) {
+            var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+            return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+        }
+
+        button.addEventListener("click", function(){
+            var u = document.getElementById("user").value;
+            var s = getParameterByName("s") || "andestutor.org";
+            var x = getParameterByName("x") || "web-UI";
+            if(!u.replace(/\s+$/, '')){
+                alert("Please enter a user name.");
+                return;
+            }  
+            if(!window.thisProblem){
+                alert("Please select a problem to try");
+                return;
+            }
+
+            var host = "";  // You may want to specify a remote host here.
+            document.location.href = host + "/" + x + "/index.html?s="+s+"&u="+u+"&p="+window.thisProblem+"&e=";
+        });
+    });
 </script>
 
 </head>
 
 <body class="tundra">
-
-<div dojoType="dojo.data.ItemFileReadStore" jsId="setStore" url="sets.json"/>
-<div dojoType="dijit.tree.ForestStoreModel" jsId="setModel" 
-     store="setStore" childrenAttrs="items"/>
-<div dojoType="dojo.data.ItemFileReadStore" jsId="principlesStore" url="principles.json"/>
-<div dojoType="dijit.tree.ForestStoreModel" jsId="principlesModel" 
-     store="principlesStore" childrenAttrs="items"/>
   
   <h1>Andes problem chooser tool</h1>
  
@@ -146,25 +180,18 @@ addProblem = function (item,store){
 
   <table>
     <tr><th>Homework Sets</th><th>List of principles</th>
-         <th><div dojoType="dijit.layout.ContentPane" id="label"></div></th></tr>
-	    <tr><td valign="top">
-        <div dojoType="dijit.Tree" model="setModel" class="tall" showRoot="false">
-	  <script type="dojo/method" event="onClick" args="item">
-	  addProblem(item,setStore);
-	  </script>
-	</div>
-	</td><td valign="top">
-        <div dojoType="dijit.Tree" model="principlesModel" class="tall" showRoot="false">
-	  <script type="dojo/method" event="onClick" args="item">
-	  addProblem(item,principlesStore);
-	  </script>
-	</div>
-	</td><td valign="top"> <div dojoType="dijit.layout.ContentPane"
-	     id="prob" extractContent="true">Select a problem from the list.</div>
-	<div dojoType="dijit.layout.ContentPane" id="graphic"></div>
+         <th><div data-dojo-type="dijit.layout.ContentPane" id="label"></div></th></tr>
+             <tr><td style="vertical-align:top;">
+                <!-- Since this is a widget, specify class in a funky way -->
+                <div id="setsTree"></div>
+        </td><td style="vertical-align:top;">
+          <div id="principlesTree"></div>
+	</td><td style="vertical-align:top;"> <div data-dojo-type="dijit.layout.ContentPane"
+	     id="prob" data-dojo-props="extractContent:true">Select a problem from the list.</div>
+	<div data-dojo-type="dijit.layout.ContentPane" id="graphic"></div>
 	<div><label>user name:</label>&nbsp;
              <input type="text" id="user" size="6"/>&nbsp;
-	     <button id="try" onClick="doSubmit(); return false;" disabled>
+	     <button id="try" disabled>
                      Try it</button>
         </div>
        </td></tr>
