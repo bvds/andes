@@ -4,16 +4,12 @@
 #  Could use --force if you have svn 1.4 or newer.
 #
 dojo-version=trunk
-# Work-around for Bug #1886
-#   dojo-svn=-r 24327 http://svn.dojotoolkit.org/src
-# But try the latest version:
-dojo-svn=http://svn.dojotoolkit.org/src
 
 install:
 	-rm -r -f dojo dijit dojox util
 	git clone https://github.com/dojo/dojo.git dojo
 	git clone https://github.com/dojo/dijit.git dijit
-	git clone https://github.com/dojo/dojox.git dojox
+	git clone https://github.com/bvds/dojox.git dojox
 	git clone https://github.com/dojo/util.git util
 	# Development branch can over-write dojo libraries.
 	-git checkout

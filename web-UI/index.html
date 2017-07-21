@@ -3,180 +3,178 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Andes Physics Tutor</title>
-     <script type="text/javascript">
-		dojoConfig = {
-			isDebug:true,
-			parseOnLoad:true,
-			// async: true,
-			// popup:true,
-			 baseUrl: "./",
-			 packages: [
-			    {name: "dojo", location: "dojo"},
-			    {name: "dijit", location: "dijit"},
-			    {name: "dojox", location: "dojox"},
-			    {name: "andes", location: "andes"}
-                         ]
-		};
-		if(dojoConfig.isDebug){
-			document.write('<link href="css/andes.css" rel="stylesheet" />');
-                        // document.write('<scr'+'ipt src="dojo/dojo.js"></scr'+'ipt>'); 
-		}else{
-			document.write('<link href="release/dojo/css/andes.css" rel="stylesheet" />');
-			document.write('<scr'+'ipt src="release/dojo/dojo/dojo.js"></scr'+'ipt>');
-		};
-	</script>
-        <script src="dojo/dojo.js"></script>
-	<script type="text/javascript">
-                console.log("index.html dojo.require 0/4 done");
+    <script type="text/javascript">
+        dojoConfig = {
+	    isDebug:true,
+            parseOnLoad:false,  // execute parse explicitly below
+            async: true,
+            // popup:true,
+            baseUrl: "./",
+            packages: [
+                {name: "dojo", location: "dojo"},
+                {name: "dijit", location: "dijit"},
+                {name: "dojox", location: "dojox"},
+                {name: "andes", location: "andes"}
+            ]
+        };
+        if(dojoConfig.isDebug){
+            document.writeln('<link href="css/andes.css" rel="stylesheet" />');
+            document.writeln('<scr'+'ipt src="dojo/dojo.js"></scr'+'ipt>'); 
+        }else{
+            document.writeln('<link href="release/dojo/css/andes.css" rel="stylesheet" />');
+            document.writeln('<scr'+'ipt src="release/dojo/dojo/dojo.js"></scr'+'ipt>');
+        }
+    </script>
+    <script type="text/javascript">
+        /*
+            Load everything needed for the widgets and Andes,
+            parse the widgets, then connect Andes to the widgets.
 
-if(false){
-               // From dojox/drawing/tests/test_drawing_toolbar.html
-    
-                dojo.require("dojo.parser");
-               // try to do this in main.js
-               // dojo.require("dojox.drawing");
-}
-                console.log("index.html dojo.require 1/4 done");
-if(true){
-               // custom Tools and Plugins need to be required
-                // This is needed for the 100% button:
-                dojo.require("dojox.drawing.tools.TextBlock");
-                dojo.require("dojox.drawing.tools.Rect");
-                dojo.require("dojox.drawing.tools.Ellipse");
-                dojo.require("dojox.drawing.tools.Line");
-                
-                // dojo.require("dojox.drawing.annotations.Label");
-                dojo.require("dojox.drawing.annotations.Angle");
-                dojo.require("dojox.drawing.annotations.Arrow");
-                dojo.require("dojox.drawing.annotations.BoxShadow");
-};
-                console.log("index.html dojo.require 2/4 done");
-if(true){
-                // moved into js files.
-                // dojo.require("dojox.drawing.tools.custom.Vector");
-                // dojo.require("dojox.drawing.tools.custom.Axes"); 
-                
-                dojo.require("dojox.drawing.tools.Arrow");
-                dojo.require("dojox.drawing.plugins.tools.Pan");
-                dojo.require("dojox.drawing.plugins.tools.Zoom");
-                dojo.require("dojox.drawing.plugins.drawing.Grid");
-                dojo.require("dojox.drawing.plugins.drawing.GreekPalette");
-};
-                console.log("index.html dojo.require 3/4 done");
-if(true){
-                // already below
-                // dojo.require("dojox.drawing.ui.Toolbar");
-                dojo.require("dojox.drawing.ui.Button");
-                dojo.require("dojox.drawing.library.icons");
-};
-                // Stuff I added to get it to work
-if(false){
-                dojo.require("dijit.layout.BorderContainer");
-                dojo.require("dijit/MenuBar");
-                dojo.require("dijit/PopupMenuBarItem");
-                dojo.require("dijit/Menu"); // not in original require
-                dojo.require("dijit/form/Button");  // not in original
+            Here, the main goal is to have correct dependencies in the
+            the load and not worry about speed.
+        */
+        var r = [
+            "dojo/parser",
 
-};
-               console.log("index.html dojo.requires 4/4 done.");
+            // Needed for the initial widget parse
+            "dijit/Dialog",
+            "dijit/form/Button",
+            "dijit/form/NumberSpinner",
+            "dijit/form/TextBox",
+            "dijit/form/ToggleButton",
+            "dijit/layout/BorderContainer",  //This includes the splitter
+            "dijit/layout/ContentPane",
+            "dijit/Menu",
+            "dijit/MenuBar",
+            "dijit/MenuItem",
+            "dijit/PopupMenuBarItem",
+            "dojox/drawing/Drawing",
+            "dojox/drawing/plugins/drawing/GreekPalette",
+            "dojox/drawing/ui/Toolbar",
+            "dojox/widget/DialogSimple",
+            "dojox/widget/UpgradeBar",
+            "andes/widget/ExpandoPane", // Separate from rest of Andes load
 
-if(true){
-require([
-                         "dojo/parser",
-                         "dijit/MenuBar","dijit/PopupMenuBarItem",
-                         "dijit/layout/ContentPane",
-                         "dojox/drawing/tools/custom/Equation", // equation is in list of tools
-                         "dojox/drawing/tools/custom/Vector", // vector is in list of tools
-                         "dojox/drawing/tools/custom/Axes", // axes is in list of tools
-                         "dijit/layout/BorderContainer",  //This includes the splitter
-                         "andes/defaults",  // needed for drawing to load, separate from rest of Andes load
-                         "dojox/drawing/Drawing",
-                         "dojox/drawing/ui/Toolbar",
-                         "andes/widget/ExpandoPane", // Separate from rest of Andes load
-                         "dijit/form/TextBox",
-                         "dojox/widget/UpgradeBar",
-                         "dojox/drawing/plugins/drawing/GreekPalette",
-                         "dojox/widget/DialogSimple",
-                         "dijit/form/NumberSpinner",
-                         "dijit/form/ToggleButton",
-                         "andes"
-]);
-};
 
-</script>
+            // The rest is stuff we will need later, but we start download now.
+            // custom Tools and Plugins need to be required
+            // To handle a circular module dependency, load this ---
+            // but none of its ancestors --- now. 
+            "dojox/drawing/annotations/Label",  // Uses "exports"
+            "dojox/drawing/annotations/Angle",  // This is an ancestor of Label
+            "dojox/drawing/annotations/Arrow",
+            "dojox/drawing/annotations/BoxShadow",
+            "dojox/drawing/tools/Arrow",
+            "dojox/drawing/tools/TextBlock",  // This is needed for the 100% button:
+            "dojox/drawing/tools/Rect",
+            "dojox/drawing/tools/Ellipse",
+            "dojox/drawing/tools/Line",
+            "dojox/drawing/plugins/drawing/Grid",
+            "dojox/drawing/plugins/tools/Pan",
+            "dojox/drawing/plugins/tools/Zoom",
+
+            "dojox/drawing/stencil/Image", // Added this to get picture to load.
+
+            "dojox/drawing/ui/Button",
+            "dojox/drawing/library/icons",
+            "andes/defaults",  // needed for drawing to load, separate from rest of Andes load
+            "dojo/domReady!"
+        ];
+        console.log("*** index.html:  load libraries:  " + r.concat(", "));
+        require(r, function(parser){
+            /*
+                These must be loaded after the other modules,
+                but before the parser is run.  I don't know why.
+            */
+            require([
+                "dojox/drawing/tools/custom/Equation", // equation is in list of tools
+                "dojox/drawing/tools/custom/Vector", // vector is in list of tools
+                "dojox/drawing/tools/custom/Axes" // axes is in list of tools
+            ], function(){
+                console.log("*** index.html:  libraries loaded; start widget parse");
+                parser.parse().then(function() {
+                    console.log("*** index.html:  widgets are parsed.");
+                    // Connect Andes up to widgets (this loads andes/main.js)
+                    require(["andes"], function() {
+                        console.log("*** index.html:  Andes connected.");
+                    });
+                });
+            });
+        });
+    </script>
 </head>
 <body class="tundra">
     <div id="splashOverlay"></div>
     <div id="conEdit" contenteditable="true"></div>
     <div id="main" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="gutters:false">
-	<div data-dojo-type="dijit/MenuBar" id="navMenu" data-dojo-props="region:'top',splitter:false">
-	    <span id="problemName" class="dijitMenuItem dijitMenuItemLabel">Problem</span>
-	    <div data-dojo-type="dijit/PopupMenuBarItem">
-		<span>Edit</span>
-		<div data-dojo-type="dijit/Menu" id="menuEdit">
-		    <div id="menuOptions" data-dojo-type="dijit/MenuItem">Options</div>
-		</div>
-	    </div>
-	    <div data-dojo-type="dijit/PopupMenuBarItem">
-		<span>Physics</span>
-		<div data-dojo-type="dijit/Menu" id="menuPhysics">
-		    <div id="menuPrinciples" data-dojo-type="dijit/MenuItem">Principles</div>
-		    <div id="menuQuantities" data-dojo-type="dijit/MenuItem">Quantities</div>
-		    <div id="menuUnits" data-dojo-type="dijit/MenuItem">Units</div>
-		    <div id="menuConstants" data-dojo-type="dijit/MenuItem">Constants</div>
-		</div>
-	    </div>
+    <div data-dojo-type="dijit/MenuBar" id="navMenu" data-dojo-props="region:'top',splitter:false">
+        <span id="problemName" class="dijitMenuItem dijitMenuItemLabel">Problem</span>
+        <div data-dojo-type="dijit/PopupMenuBarItem">
+        <span>Edit</span>
+        <div data-dojo-type="dijit/Menu" id="menuEdit">
+            <div id="menuOptions" data-dojo-type="dijit/MenuItem">Options</div>
+        </div>
+        </div>
+        <div data-dojo-type="dijit/PopupMenuBarItem">
+        <span>Physics</span>
+        <div data-dojo-type="dijit/Menu" id="menuPhysics">
+            <div id="menuPrinciples" data-dojo-type="dijit/MenuItem">Principles</div>
+            <div id="menuQuantities" data-dojo-type="dijit/MenuItem">Quantities</div>
+            <div id="menuUnits" data-dojo-type="dijit/MenuItem">Units</div>
+            <div id="menuConstants" data-dojo-type="dijit/MenuItem">Constants</div>
+        </div>
+        </div>
 
 
-	    <div data-dojo-type="dijit/PopupMenuBarItem">
-		<span>Help</span>
-		<div data-dojo-type="dijit/Menu" id="menuHelp">
-		    <div id="menuIntroText" data-dojo-type="dijit/MenuItem">Introduction</div>
-		    <div id="menuIntroVideo" data-dojo-type="dijit/MenuItem">Intro Video</div>
-		    <div id="menuIntroSlides" data-dojo-type="dijit/MenuItem">Slide show</div>
-		    <div id="menuManual" data-dojo-type="dijit/MenuItem">Manual</div>
-		</div>
-	    </div>
-	    <div id="timer"></div>
-	    <div data-dojo-type="dijit/form/Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
-	</div>
+        <div data-dojo-type="dijit/PopupMenuBarItem">
+        <span>Help</span>
+        <div data-dojo-type="dijit/Menu" id="menuHelp">
+            <div id="menuIntroText" data-dojo-type="dijit/MenuItem">Introduction</div>
+            <div id="menuIntroVideo" data-dojo-type="dijit/MenuItem">Intro Video</div>
+            <div id="menuIntroSlides" data-dojo-type="dijit/MenuItem">Slide show</div>
+            <div id="menuManual" data-dojo-type="dijit/MenuItem">Manual</div>
+        </div>
+        </div>
+        <div id="timer"></div>
+        <div data-dojo-type="dijit/form/Button" id="submitButton" style="position:absolute; top:0; right:10px; margin:0;">Submit</div>
+    </div>
         <div id="toolPane" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'left',splitter:false">
           <!-- The attribute "drawingId" is the name of the drawing to associate
                with this toolbar.  It is used by:
                dojox/drawing/ui/dom/Toolbar.js
                dojox/drawing/ui/Toolbar.js
                Need to switch this and other dojox/drawing attributes to use "data-" -->
-	    <div data-dojo-type="dojox/drawing/ui/Toolbar" id="gfxToolbarNode"  drawingId="drawing" class="gfxToolbar" orient="V" tools="line,rect,ellipse,textBlock,equation,vector,axes" plugs="all" selected=""></div>
-	</div>
-	<div id="drawingPane" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'">
-	    <div data-dojo-type="dojox/drawing/Drawing" id="drawing" data-dojo-id="myDrawing" class="drawing" defaults="andes.defaults">
-	    </div>
-	</div>
-		
+        <div data-dojo-type="dojox/drawing/ui/Toolbar" id="gfxToolbarNode"  drawingId="drawing" class="gfxToolbar" orient="V" tools="line,rect,ellipse,textBlock,equation,vector,axes" plugs="all" selected=""></div>
+    </div>
+    <div id="drawingPane" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'">
+        <div data-dojo-type="dojox/drawing/Drawing" id="drawing" data-dojo-id="myDrawing" class="drawing" defaults="andes.defaults">
+        </div>
+    </div>
+
         <!-- AMD conversion:  removed startExpanded:false property
-	     from andes/widget/ExpandoPane. -->
-	<div id="helpPane" data-dojo-type="andes/widget/ExpandoPane" data-dojo-props="region:'right', splitter:true, title:'Tutor'">
-	<div id="helpWrapPane" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="gutters:false">
-		<div id="helpContentPane" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'"></div>
+         from andes/widget/ExpandoPane. -->
+    <div id="helpPane" data-dojo-type="andes/widget/ExpandoPane" data-dojo-props="region:'right', splitter:true, title:'Tutor'">
+    <div id="helpWrapPane" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="gutters:false">
+        <div id="helpContentPane" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'"></div>
 
-		<div id="helpInputPane" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'bottom'">
-		    <div data-dojo-type="dijit/form/TextBox" id="helpInput"></div>
-		    <div data-dojo-type="dijit/form/Button" id="helpSubmit">Hint</div>
-		</div>
-	    </div>
-	</div>
+        <div id="helpInputPane" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'bottom'">
+            <div data-dojo-type="dijit/form/TextBox" id="helpInput"></div>
+            <div data-dojo-type="dijit/form/Button" id="helpSubmit">Hint</div>
+        </div>
+        </div>
+    </div>
 
-	<div id="footerPane" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'bottom'"></div>
+    <div id="footerPane" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'bottom'"></div>
     </div>
     
     
     <div data-dojo-type="dojox/widget/UpgradeBar" id="upgradeBar">
         <!-- IE8 and below use VML which is very slow. -->
-	<div validate="dojo.isIE<9">
-	    <span>Andes does not work well with older versions of Internet Explorer.&nbsp; 
+    <div validate="dojo.isIE<9">
+        <span>Andes does not work well with older versions of Internet Explorer.&nbsp; 
                 Please upgrade to Firefox, Google Chrome, or IE 9.</span>
-	    <a href="http://www.mozilla.com/firefox/">Download Firefox</a>	
-	</div>
+        <a href="http://www.mozilla.com/firefox/">Download Firefox</a>    
+    </div>
     </div>
 
     <!--Because this is a widget it is included in markup and NOT like the other plugins-->
@@ -190,42 +188,42 @@ require([
 
     <!-- Principles menus constructed last -->
     <div id="majorPrinciples" data-dojo-type="dijit/Dialog" title="Major Principles">
-	<div id="majorModalTreeText"></div>
-	<div id="majorModalTree" class="tall">
-	    Loading list of major Principles
-	</div>
+    <div id="majorModalTreeText"></div>
+    <div id="majorModalTree" class="tall">
+        Loading list of major Principles
+    </div>
     </div>
     
     <div id="allPrinciples" data-dojo-type="dijit/Dialog" title="Principles">
-	<div id="allModalTreeText"></div>
-	<div id="allModalTree" class="tall">
-	    Loading list of all Principles
-	</div>
+    <div id="allModalTreeText"></div>
+    <div id="allModalTree" class="tall">
+        Loading list of all Principles
+    </div>
     </div>
     
     <div id="options" data-dojo-type="dijit/Dialog" title="Options">
-	<table id="optionsTable">
-	    <tr>
-		<td class="left">AngleSnap:</td>
-		<td><input data-dojo-type="dijit/form/NumberSpinner" data-dojo-props="value:360,smallDelta:1,constraints:{min:1,max:360},intermediateChanges:true" style="width:63px" id="optionsAngleSnap" name="angleSnap"/></td>
-	    </tr>
-	    <tr>
-		<td class="left">PowerPoint Style:</td>
-		<td><button data-dojo-type="dijit/form/ToggleButton" data-dojo-props="checked:true,iconClass:'dijitCheckBoxIcon'" id="optionsClickMode">Blip</button></td>
-	    </tr>
-	    <tr>
-		<td class="left">Correct:</td>
-		<td><a id="colorCorrect"> </a></td>
-	    </tr>
-	    <tr>
-		<td class="left">Incorrect:</td>
-		<td><a id="colorIncorrect"> </a></td>
-	    </tr>
-	    <tr>
-		<td class="left">Timer:</td>
-		<td><button data-dojo-type="dijit/form/ToggleButton" data-dojo-props="iconClass:'dijitCheckBoxIcon'" id="showTimer">Blip</button></td>
-	    </tr>
-	</table>
+    <table id="optionsTable">
+        <tr>
+        <td class="left">AngleSnap:</td>
+        <td><input data-dojo-type="dijit/form/NumberSpinner" data-dojo-props="value:360,smallDelta:1,constraints:{min:1,max:360},intermediateChanges:true" style="width:63px" id="optionsAngleSnap" name="angleSnap"/></td>
+        </tr>
+        <tr>
+        <td class="left">PowerPoint Style:</td>
+        <td><button data-dojo-type="dijit/form/ToggleButton" data-dojo-props="checked:true,iconClass:'dijitCheckBoxIcon'" id="optionsClickMode">Blip</button></td>
+        </tr>
+        <tr>
+        <td class="left">Correct:</td>
+        <td><a id="colorCorrect"> </a></td>
+        </tr>
+        <tr>
+        <td class="left">Incorrect:</td>
+        <td><a id="colorIncorrect"> </a></td>
+        </tr>
+        <tr>
+        <td class="left">Timer:</td>
+        <td><button data-dojo-type="dijit/form/ToggleButton" data-dojo-props="iconClass:'dijitCheckBoxIcon'" id="showTimer">Blip</button></td>
+        </tr>
+    </table>
     </div>
     
 </body>
