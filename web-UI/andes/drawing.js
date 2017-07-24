@@ -7,6 +7,7 @@ define([
     "dojo/cookie",
     "dojo/_base/connect",  // This needs to be replaced by dojo/on or dojo/aspect
     "dojo/_base/lang",
+    "dojo/aspect",
     "dijit/registry",
     "dojo/ready",
     "dojox/drawing/util/common",
@@ -17,9 +18,10 @@ define([
     "andes/Combo", // to make new andes.Combo
     "andes/principles" // for andes.principles.review
     // pre-AMD version had no reqire statements.
-],function(array, has, dom, cookie, connect, lang, registry, ready, common, managerRegistry){
+],function(array, has, dom, cookie, connect, lang, aspect, registry, ready, common, managerRegistry){
 
     cookie("mikeDev", null, { expires: -1 });
+    console.log("*** andes/drawing:  starting");
 
     // the html ID in index for the drawing app
     var drawingId = "drawing";
@@ -66,12 +68,15 @@ define([
     var masterMap = {};
 
     ready(function(){
-        console.log("andes/tracking.js: connect to \"drawing,\" wire up logging.");
+        console.log("*** andes/drawing: connect to \"drawing,\" wire up logging.");
         _drawing = registry.byId(drawingId);
         console.log("got drawing widget:  ",_drawing);
-        // This was dojo.connect in pre-AMD version
-        var cn = connect.connect(_drawing, "onSurfaceReady", function(){
-            connect.disconnect(cn);
+        /* Depending on the timing, the drawing may or may not have be
+           ready.  If not, attach function drawingSurfaceReady to "onSurfaceReady." */
+        var cn = null;
+        function drawingSurfaceReady(){
+            if(cn) cn.remove();
+            console.log("*** andes/drawing:  drawing surface ready");
             window.andes.WordTip.add(_drawing);
             // This was in the pre-AMD version
             // This seems to lead to a recursion?
@@ -80,9 +85,18 @@ define([
             if(_drawing.stencils){
                 console.warn("Label double click connected");
                 connect.connect(_drawing.stencils, "onLabelDoubleClick", lang.hitch(window.andes.drawing,"onLabelDoubleClick"),true);
+                // This doesn't work (double click on master object):
+                // aspect.after(_drawing.stencils, "onLabelDoubleClick", lang.hitch(window.andes.drawing,"onLabelDoubleClick"));
             }
-        });
+        }
+        if(_drawing.ready) {
+            drawingSurfaceReady();
+        } else {
+            cn = aspect.after(_drawing, "onSurfaceReady",drawingSurfaceReady);
+        }
         connect.connect(_drawing, "onRenderStencil", window.andes.drawing, "onRenderStencil");
+        // This doesn't work (drawing axes fails):
+        // aspect.after(_drawing, "onRenderStencil", lang.hitch(window.andes.drawing, "onRenderStencil"));
 
         // Track user's focus on Andes.  So far only whether they are using the window/tab
         // or have left to use another program
@@ -114,7 +128,7 @@ define([
             // summary:
             //        Use the map to find the statement when the label
             //        is clicked, and allow editing
-            //console.log("-------->Andes Double click connected", masterMap[obj.id].statement, masterMap[obj.id].statement.edit);
+            console.log("--------> Andes Double click fired.", masterMap[obj.id].statement, masterMap[obj.id].statement.edit);
             var s = masterMap[obj.id].statement;
             if(s.getText()==""){
                 // First populate the textBox
@@ -590,5 +604,6 @@ define([
             window.andes.api.recordAction({type:"window", name: this.name || "canvas", value: "focus"});
         }
     };
+    console.log("*** andes/drawing:  finished");
 
 });
