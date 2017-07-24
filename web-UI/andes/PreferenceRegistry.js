@@ -1,6 +1,9 @@
-dojo.provide("andes.PreferenceRegistry");
+/* global define */
+// Pre-AMD version had a function wrapper.
+// pre-AMD version had no requires.
+define([
+],function(){
 
-(function(){
     // Summary:
     //      User preferences that can be saved are registered here.
     //      When preferences are updated this saves them to the server
@@ -16,7 +19,7 @@ dojo.provide("andes.PreferenceRegistry");
         registerPref: function(/*String*/pref, /*function*/setter, scope){
             _prefs[pref] = { set: setter, scope: scope };
         },
-        
+
         // summary:
         //      Once a setting has been registered calling this with the name
         //      value pair will save it to server.  If it hasn't been registered
@@ -33,7 +36,7 @@ dojo.provide("andes.PreferenceRegistry");
                 return true;
             }
         },
-        
+
         // summary:
         //      This willl attempt to set in the browser the registered preference
         //      and it will save the value so that duplicate requests aren't sent
@@ -43,13 +46,13 @@ dojo.provide("andes.PreferenceRegistry");
                 _prefs[pref].value = value;
                 var f = _prefs[pref].set,
                     s = _prefs[pref].scope;
-                    
+
                 f.call(s, value);
                 return true;
             }else{
-                console.warn("Attempted to set a preference not registered");
+                console.warn("Attempted to set a preference not registered: ",pref);
                 return false;
             }
         }
     };
-})();
+});

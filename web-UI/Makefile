@@ -1,40 +1,28 @@
 #
-#  There may be some existing files in the git repostory;
-#  get these out of the way, first.  Then restore them after.
-#
-dojo-version=pre-amd
-# Work-around for Bug #1886:
-# Install specific dojo versions
+dojo-version=1.12
 
 install:
-	-rm -r -f dojo dijit dojox util
-	git clone https://github.com/dojo/dojo.git dojo
-	git clone https://github.com/dojo/dijit.git dijit
-	git clone https://github.com/dojo/dojox.git dojox
-	git clone https://github.com/dojo/util.git util
-	cd dojo; git checkout bbee943c58abaadc94622b0b22c91e83d686c438
-	cd dijit; git checkout 52e5a4eeb5861a3bc50073168b1668aad1d8c7ef
-	cd dojox; git checkout 2b79ddf64fbc0956bbc3688a656e5d2f858e0bdd
-	cd util; git checkout 6a35e2f4f859cc263063dd8132a4175453d813a1 
-	# Development branch can over-write dojo libraries.
-	# In case the build fails, we tag version first.
-	echo "${dojo-version}" > dojo-install-version   
-	-git checkout dojox
-	# echo "build script fails." 
+	test -d "dojo" || git clone --recursive https://github.com/dojo/dojo.git dojo
+	test -d "dijit" || git clone --recursive https://github.com/dojo/dijit.git dijit
+	test -d "dojox" || git clone --recursive https://github.com/bvds/dojox.git dojox
+	test -d "util" || git clone --recursive https://github.com/dojo/util.git util
+	cd dojo; git checkout $(dojo-version)
+	cd dijit; git checkout $(dojo-version)
+	cd dojox; git checkout $(dojo-version)
+	cd util; git checkout $(dojo-version)
+	echo "${dojo-version}" > dojo-install-version
+	@echo "Andes Javascript build is currently non-functional."
 	./andes.build.sh
-	echo "${dojo-version}" > dojo-install-version	
-	@echo "Installed Dojo $(dojo-version); is this the latest?"
+	@echo "Installed Dojo $(dojo-version)."
 
-
-#  If the latest version is installed, update, else upgrade to new version
 update:
 ifeq ($(shell test -f dojo-install-version && cat dojo-install-version),${dojo-version})
-	cd dojo; git checkout bbee943c58abaadc94622b0b22c91e83d686c438
-	cd dijit; git checkout 52e5a4eeb5861a3bc50073168b1668aad1d8c7ef
-	cd dojox; git checkout 2b79ddf64fbc0956bbc3688a656e5d2f858e0bdd
-	cd util; git checkout 6a35e2f4f859cc263063dd8132a4175453d813a1 
+	cd dojo; git pull
+	cd dijit; git pull
+	cd dojox; git pull
+	cd util; git pull
 	./andes.build.sh
-	@echo "Updated Dojo $(dojo-version); is this the latest?"
+	@echo "Updated Dojo $(dojo-version)."
 else
 	$(MAKE) install
 endif
