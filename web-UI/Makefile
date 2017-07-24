@@ -3,21 +3,19 @@
 #  get these out of the way, first.  Then restore them after.
 #  Could use --force if you have svn 1.4 or newer.
 #
-dojo-version=trunk
+dojo-version=master
 
 install:
-	-rm -r -f dojo dijit dojox util
-	git clone https://github.com/dojo/dojo.git dojo
-	git clone https://github.com/dojo/dijit.git dijit
-	git clone https://github.com/bvds/dojox.git dojox
-	git clone https://github.com/dojo/util.git util
-	# Development branch can over-write dojo libraries.
-	-git checkout
-	-git checkout dojox 
-	-git checkout dijit 
-	-git checkout util
-	# In case the build fails, we tag version first.
-	echo "${dojo-version}" > dojo-install-version   
+	test -d "dojo" || git clone --recursive https://github.com/dojo/dojo.git dojo
+	test -d "dijit" || git clone --recursive https://github.com/dojo/dijit.git dijit
+	test -d "dojox" || git clone --recursive https://github.com/bvds/dojox.git dojox
+	test -d "util" || git clone --recursive https://github.com/dojo/util.git util
+	cd dojo; git checkout $(dojo-version)
+	cd dijit; git checkout $(dojo-version)
+	cd dojox; git checkout 1.12
+	cd util; git checkout $(dojo-version)
+	echo "${dojo-version}" > dojo-install-version
+	@echo "Andes Javascript build is currently non-functional."
 	./andes.build.sh
 	@echo "Installed Dojo $(dojo-version)."
 
