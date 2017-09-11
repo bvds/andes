@@ -164,7 +164,8 @@ if it is already running, use:
 
     /sbin/service httpd reload
 
-(OS X, do this from `System Preferences`)
+(OS X, use `sudo apachectl start`.  You may need to enable the modules
+`proxy_module` and `proxy_http_module` in `/etc/apache2/httpd.conf`.)
 
 If SELinux is running, I suggest you turn it off.  Otherwise, in RedHat:
 
