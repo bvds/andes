@@ -38,4 +38,16 @@ endif
 endif
 	@echo "The server will be run under user $(username)." 
 
+dbLogin = ../db_user_password
+dbUser := $(shell sed -n -e 1p ${dbLogin})
+dbPass := $(shell sed -n -e 2p  ${dbLogin})
+# Use "if"; doing this as an "or" doesn't work in OS X
+dbNameIn := $(shell sed -n -e 4p ${dbLogin})
+dbName := $(if ${dbNameIn},${dbNameIn},lti)
+install-lti:
+	test -d "../web-UI/lti" || git clone --recursive https://github.com/IMSGlobal/LTI-Tool-Provider-Library-PHP.git ../web-UI/lti
+	@echo "Creating LTI database tables in ${dbName}."
+	mysqladmin -u ${dbUser} -p'${dbPass}' create ${dbName}
+	mysql -u ${dbUser} -p'${dbPass}' ${dbName} < lti.sql
+
 update:

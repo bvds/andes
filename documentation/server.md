@@ -44,7 +44,7 @@ command in the Andes root directory (as superuser):
 
     make install-server
 
-
+This will also install LTI.
 On linux, start the server using (as superuser):
 
     /sbin/service andes-helpd start

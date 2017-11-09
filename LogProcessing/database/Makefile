@@ -24,7 +24,8 @@ installVersion := 5
 install:
 	@echo "${dbFrom}" 
 	@echo "You must drop any existing ${dbName} or andes_test db."
-	mysql -u  ${dbUser} -p'${dbPass}' < AndesDatabaseCreationSQL.sql
+	mysqladmin -u ${dbUser} -p'${dbPass}' create ${dbName}
+	mysql -u ${dbUser} -p'${dbPass}' ${dbName} < AndesDatabaseCreationSQL.sql
 	make open-pass
 	echo "${installVersion}" > ${versionFile}
 

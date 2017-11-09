@@ -45,7 +45,7 @@ endif
 
 install-server:
 	cd help-server; $(MAKE) install-server
-
+	cd help-server; $(MAKE) install-lti
 
 update:
 	git pull
@@ -55,4 +55,7 @@ update:
 	cd problems; git pull
 	cd solutions; git pull
 	cd Algebra/src; $(MAKE) executable
+ifneq ($(wildcard web-UI/lti),)
+	cd web-UI/lti; git pull
+endif
 	cd web-UI; $(MAKE) update
