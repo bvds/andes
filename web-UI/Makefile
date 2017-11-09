@@ -4,11 +4,11 @@ dojo-version=master
 install:
 	test -d "dojo" || git clone --recursive https://github.com/dojo/dojo.git dojo
 	test -d "dijit" || git clone --recursive https://github.com/dojo/dijit.git dijit
-	test -d "dojox" || git clone --recursive https://github.com/bvds/dojox.git dojox
+	test -d "dojox" || git clone --recursive https://github.com/dojo/dojox.git dojox
 	test -d "util" || git clone --recursive https://github.com/dojo/util.git util
 	cd dojo; git checkout $(dojo-version)
 	cd dijit; git checkout $(dojo-version)
-	cd dojox; git checkout 1.12
+	cd dojox; git checkout $(dojo-version)
 	cd util; git checkout $(dojo-version)
 	echo "${dojo-version}" > dojo-install-version
 	@echo "Andes Javascript build is currently non-functional."
