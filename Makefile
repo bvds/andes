@@ -16,7 +16,7 @@ install-solver:
 
 ifeq ($(shell uname),Darwin)
   httpd-document-root = /Library/webServer/Documents
-  httpd-conf-dir = /etc/$(if $(shell test -d /etc/apache2 && echo 1),apache2,httpd)/users
+  httpd-conf-dir = /etc/apache2/other
 else
 ifeq ($(shell uname),Linux)
   # Ubuntu uses /var/www while RedHat uses /var/www/html
