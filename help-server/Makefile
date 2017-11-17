@@ -4,21 +4,30 @@ else
 username=$(USER)
 endif
 
+sysfile = andes-helpd.service
+sysdir = /etc/systemd/system
 
 install-server:
 	@echo "Please run with superuser privileges."
-	# Don't overwrite any existing file!
-	test -f /etc/andes-help.conf || cp andes-help.conf /etc
-	echo "LUSER=$(username)" >> /etc/andes-help.conf
-	echo "ANDES_SERVER_DIR=`pwd`" >> /etc/andes-help.conf
-	@echo "The server will be run under user $(username)." 
+ifeq ($(shell test -d /etc/systemd/system && echo 1),1)
+	@echo "Using service to systemd"
+	cp -n $(sysfile) $(sysdir)
+	sed -i -r -- "s|<--LUSER-->|$(username)|" $(sysdir)/$(sysfile)
+	sed -i -r -- "s|<--SERVER_DIR-->|`pwd`|" $(sysdir)/$(sysfile)
+	systemctl daemon-reload
+	systemctl enable andes-helpd
+	systemctl start andes-helpd
+else   
 ifeq ($(shell uname),Darwin)
-	cp -r AndesHelp /Library/StartupItems/
+	cp -n -r AndesHelp /Library/StartupItems/
 	@echo "Need to test if ANDESHELP is already present in hostconfig"
 	echo "ANDESHELP=-YES-" >> /etc/hostconfig
 else
 ifeq ($(shell uname),Linux)
-	cp andes-helpd /etc/init.d
+	@echo "Adding service to /etc/init.d:"
+	cp -n andes-helpd /etc/init.d
+	sed -i -r -- "s|<--LUSER-->|$(username)|" /etc/init.d/andes-helpd
+	sed -i -r -- "s|<--SERVER_DIR-->|`pwd`|" /etc/init.d/andes-helpd
 	/sbin/chkconfig --add andes-helpd
 	/sbin/chkconfig andes-helpd on
 	-rm /var/lock/subsys/andes-helpd
@@ -26,11 +35,7 @@ else
 	$(error "Unknown operating system")
 endif
 endif
-
-# Once everyone's database is updated, this can be removed, Bug #1773.
-update:
-ifeq ($(shell test -f /etc/andes-help.conf && grep -c "\-dynamic-memory" /etc/andes-help.conf),1)
-	@echo "**** Error in configuration file /etc/andes-help.conf"
-	@echo "**** Replace '--dynamic-memory' with '--dynamic-space-size'"
-	@test #abort make
 endif
+	@echo "The server will be run under user $(username)." 
+
+update:

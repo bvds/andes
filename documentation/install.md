@@ -14,17 +14,18 @@ Enterprise 5.4, CentOS 5.4) and OS X (10.4 and 10.6).
 
 The following packages need to be installed:
 
-    gnu make, git, subversion, gnu c++, mysql, mysql-server, apache, 
-    wget, and php with mysql
+    gnu make, git, gnu c++, mysql, mysql-server, mysql-devel,
+    apache, wget, and php with mysql
 
-For RedHat systems, <http://fedoraproject.org/wiki/EPEL> may be helpful. 
-In Linux, test packages using:
+For RedHat-like systems (like CentOS), `mysql-devel` supplies `mysql_config`.
+Also, <http://fedoraproject.org/wiki/EPEL> may be helpful. 
+The associated install command is:
 
-    rpm -q make git subversion gcc-c++ mysql mysql-server httpd wget php php-mysql
+    yum install make git gcc-c++ mysql mysql-server mysql-devel httpd wget php php-mysql
 
 For Ubuntu (debian systems) you can use the following (as root):
 
-    apt-get install git make subversion g++ libmysqlclient-dev mysql-server \
+    apt-get install git make g++ libmysqlclient-dev mysql-server \
                 apache2 libapache2-mod-proxy-html wget php5 php5-mysql
 
 The Andes help server should be run in an ordinary user account. 
@@ -132,9 +133,10 @@ This file should contain, on separate lines,
 * password, and 
 * the database name (optional, the default is `andes3`).
 
-This file should be readable only by the user:
+This file should be readable by the user and by PHP scripts:
 
-    chmod 600 db_user_password
+    chmod 640 db_user_password
+    sudo chown :apache db_user_password
 
 The command `(start-help)` will access this file for any values
 that are not given explicitly.

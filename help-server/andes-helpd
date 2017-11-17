@@ -9,9 +9,11 @@
 # Source function library.
 . /etc/rc.d/init.d/functions
 
-if [ -f /etc/andes-help.conf ]; then
-        . /etc/andes-help.conf
-fi
+SBCL=/usr/local/bin/sbcl
+SBCL_OPTIONS="--dynamic-space-size 1000"
+#  Values for these are set during the install process:
+LUSER=<--LUSER-->
+ANDES_SERVER_DIR=<--SERVER_DIR-->
 
 RETVAL=0
 
