@@ -1,0 +1,14 @@
+[Unit]
+Description=Andes help server
+After=syslog.target network.target remote-fs.target
+
+[Service]
+Type=simple
+User=<--LUSER-->
+WorkingDirectory=<--SERVER_DIR-->
+ExecStart=/usr/local/bin/sbcl --dynamic-space-size 1000 --load init.cl
+ExecStop=/bin/curl -s localhost:6440
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target
