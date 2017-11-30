@@ -35,7 +35,7 @@ define([
                         // console.log("==========================>>>We've got IE here");
                         var body, win = this.reviewp[file];
                         var childLoaded = function (){
-                            body = window.document.getElementsByTagName("body");
+                            body = document.getElementsByTagName("body");
                             if(body[0]==null){
                                 // Not loaded yet, try again
                                 window.setTimeout(childLoaded, 20);
