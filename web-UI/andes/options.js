@@ -80,7 +80,7 @@ define([
                 onCancel: function(/*Boolean*/ closeAll){
                     this.open = false;
                     popup.close(this);
-                }}, window.document.createElement("div"));
+                }}, document.createElement("div"));
             popup.moveOffScreen(this.picker);
 
             // Set up connections

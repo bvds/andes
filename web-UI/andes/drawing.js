@@ -6,6 +6,7 @@ define([
     "dojo/dom",
     "dojo/cookie",
     "dojo/_base/connect",  // This needs to be replaced by dojo/on or dojo/aspect
+    "dojo/on",
     "dojo/_base/lang",
     "dojo/aspect",
     "dijit/registry",
@@ -18,7 +19,7 @@ define([
     "andes/Combo", // to make new andes.Combo
     "andes/principles" // for andes.principles.review
     // pre-AMD version had no reqire statements.
-],function(array, has, dom, cookie, connect, lang, aspect, registry, ready, common, managerRegistry){
+],function(array, has, dom, cookie, connect, on, lang, aspect, registry, ready, common, managerRegistry){
 
     cookie("mikeDev", null, { expires: -1 });
     console.log("*** andes/drawing:  starting");
@@ -94,28 +95,27 @@ define([
         } else {
             cn = aspect.after(_drawing, "onSurfaceReady",drawingSurfaceReady);
         }
-        connect.connect(_drawing, "onRenderStencil", window.andes.drawing, "onRenderStencil");
+        connect.connect(_drawing, "onRenderStencil", lang.hitch(window.andes.drawing, "onRenderStencil"));
         // This doesn't work (drawing axes fails):
         // aspect.after(_drawing, "onRenderStencil", lang.hitch(window.andes.drawing, "onRenderStencil"));
 
         // Track user's focus on Andes.  So far only whether they are using the window/tab
         // or have left to use another program
-        if(has("ie")){
-            connect.connect(window, "onfocus", window.andes.drawing, "onWindowFocus");
-            // connect.connect(dojo.global, "onfocusin", drawing, "onWindowFocus");
-            connect.connect(window.document, "onfocusout", this, function() {
-                if (this._activeElement != document.activeElement){
-                    this._activeElement = document.activeElement;
-                }else{
-                    window.andes.drawing.onWindowBlur();
-                }
+        // Firefox 52.3.0 can use either "window" or "document"
+        // Chrome 62.0.3202.94 and Safari 11.0.1 require "window"
+        // IE 11 works with either "window" or "document"
+        on(window, "blur", lang.hitch(window.andes.drawing, "onWindowBlur"));
+        on(window, "focus", lang.hitch(window.andes.drawing, "onWindowFocus"));
+
+        if("hidden" in document) {
+            on(document, "visibilitychange", lang.hitch(window.andes.drawing, "onWindowVisibility"));
+        } else {
+            console.log("Window visibility unknown");
+            window.andes.api.recordAction({
+                type:"window",
+                name: this.name || "canvas",
+                value: "unknown-visbility"
             });
-        }else if(has("safari")){
-            connect.connect(window, "onblur", window.andes.drawing, "onWindowBlur");
-            connect.connect(window, "onfocus", window.andes.drawing, "onWindowFocus");
-        }else{
-            connect.connect(window.document, "onblur", window.andes.drawing, "onWindowBlur");
-            connect.connect(window.document, "onfocus", window.andes.drawing, "onWindowFocus");
         }
     });
 
@@ -196,8 +196,8 @@ define([
             // Taken from add(...) below.
             items[group.id] = group;
 
-                array.forEach(group.items, function(item){
-                connect.connect(item.master,"onClick",this,function(item){
+            array.forEach(group.items, function(item){
+                connect.connect(item.master,"onClick", lang.hitch(this,function(item){
 
                     // Handle button clicks; don't do anything for done button.
                     if(item.buttonType == "checkbox"){
@@ -230,7 +230,7 @@ define([
                         console.log("save drawing data, this=",this);
                         window.andes.drawing.save(data);
                     }
-                });
+                }));
             });
         },
 
@@ -415,11 +415,11 @@ define([
                     // It should be disconnected when the
                     // dialog box is closed!  See bug #1628
                     connect.connect(button, 
-                                    "click", 
-                                    function(){
-                                        // add 10 px padding
-                                        window.andes.principles.review('vec1a-video.html','IntroVideo',null,"width=650,height=395");
-                                    });
+                       "click", 
+                       function(){
+                           // add 10 px padding
+                           window.andes.principles.review('vec1a-video.html','IntroVideo',null,"width=650,height=395");
+                       });
                 }else if(obj.action=="new-user-dialog" && obj.url){
                     var x=registry.byId("consentDialog");
                     x.set("href",obj.url);
@@ -602,6 +602,16 @@ define([
             //     switching back to this tab from another browser tab
             console.log("Gained window focus for ",this.name || "canvas","; ",this);
             window.andes.api.recordAction({type:"window", name: this.name || "canvas", value: "focus"});
+        },
+
+        onWindowVisibility: function() {
+            var status = document.hidden?"hidden":"visible";
+            console.log("Window visibility: " + status);
+            window.andes.api.recordAction({
+                type:"window",
+                name: this.name || "canvas",
+                value: status
+            });
         }
     };
     console.log("*** andes/drawing:  finished");

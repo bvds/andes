@@ -34,28 +34,26 @@ button on the browser.
 ## Running the Help Server ##
 
 For normal production use, the Help server will be run as a daemon. 
-The daemon reads the config file `/etc/andes-help.conf`
-and starts up a lisp process that and runs the contents
-of the file <a href="../help-server/init.cl">
-`help-server/init.cl`</a>. 
+The daemon starts up a lisp process and runs the contents
+of the file [`help-server/init.cl`](../help-server/init.cl). 
 
 To install the help server, or reinstall it, enter the following
 command in the Andes root directory (as superuser):
 
     make install-server
 
-
 On linux, start the server using (as superuser):
 
-    /sbin/service andes-helpd start
+    systemctl start andes-helpd
 
 To stop the server:
 
-    /sbin/service andes-helpd stop
+    systemctl stop andes-helpd
 
-The startup script will creat a log file `help-server/init.log`. 
-This file may be useful for debugging the start-up and shut-down 
-of the server daemon. 
+Monitor status using:
+
+    systemctl status andes-helpd
+
 There are a number of things missing from the server; see
 <a href="http://www.andestutor.org/bugzilla/buglist.cgi?query_format=advanced&amp;short_desc_type=allwordssubstr&amp;short_desc=&amp;product=Andes&amp;component=server&amp;long_desc_type=substring&amp;long_desc=&amp;bug_file_loc_type=allwordssubstr&amp;bug_file_loc=&amp;keywords_type=allwords&amp;keywords=&amp;bug_status=NEW&amp;bug_status=ASSIGNED&amp;bug_status=REOPENED&amp;emailassigned_to1=1&amp;emailtype1=substring&amp;email1=&amp;emailassigned_to2=1&amp;emailreporter2=1&amp;emailcc2=1&amp;emailtype2=substring&amp;email2=&amp;bugidtype=include&amp;bug_id=&amp;chfieldfrom=&amp;chfieldto=Now&amp;chfieldvalue=&amp;cmdtype=doit&amp;order=Reuse+same+sort+as+last+time&amp;field0-0-0=noop&amp;type0-0-0=noop&amp;value0-0-0=">Andes Bugzilla, server component</a>.
 
@@ -68,23 +66,21 @@ To update the software, in the Andes root directory, enter:
 
 If the help server is running, restart the server using:
 
-    /sbin/service andes-helpd restart
+    systemctl restart andes-helpd
 
 Once we have <a href="http://www.andestutor.org/bugzilla/show_bug.cgi?id=1722">Bug #1722</a> fixed, we will be able update the lisp server without any server
 restart. 
 
-<p id="recompile">If the server restart fails (see `help-server/init.log`), 
+<p id="recompile">If the server restart fails, 
 you may need to rebuild the lisp object files:
-<ul>
-  <li>Stop the server:  `/sbin/service andes-helpd stop`
-  <li>You might want to verify directly that the lisp is working: 
-       <ul>
-         <li>Start lisp:  `sbcl` 
-         <li>Load the help system:   `(rhelp)`
-         <li>Exit lisp:   `(quit)`
-       </ul>
-  <li>Start the server:   `/sbin/service andes-helpd start`
-</ul>
+
+* Stop the server:  `systemctl stop andes-helpd`
+* You might want to verify directly that the lisp is working: 
+   * Start lisp:  `sbcl` 
+   * Load the help system:   `(rhelp)`
+   * Exit lisp:   `(quit)`
+* Start the server:   `systemctl start andes-helpd`
+
 
 ## Monitoring the help server ##
 
