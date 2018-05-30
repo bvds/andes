@@ -1,0 +1,13 @@
+--- sbcl-1.4.8/src/compiler/generic/parms.lisp	2018-05-28 08:09:28.000000000 -0700
++++ sbcl-1.4.8-modified/src/compiler/generic/parms.lisp	2018-05-30 12:19:17.000000000 -0700
+@@ -239,8 +239,8 @@
+ 
+ #!+gencgc
+ (progn
+-  (defconstant +highest-normal-generation+ 5)
+-  (defconstant +pseudo-static-generation+ 6))
++  (defconstant +highest-normal-generation+ 1)
++  (defconstant +pseudo-static-generation+ 2))
+ 
+ (push '("SB-VM" +c-callable-fdefns+ +common-static-symbols+)
+       sb!impl::*!removable-symbols*)

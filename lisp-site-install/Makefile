@@ -77,9 +77,8 @@ thread-test:
 	cd $(binary-dir); echo '(format t "Threading is~:[ not~;~] supported on binary release.~%" (find :sb-thread *features*)) (quit)' | ./run-sbcl.sh --noinform --noprint
 
 #
-#  Build of 1.3.14 failed (even without patches) on OS X 10.9.5
 #
-source-dir = sbcl-1.2.11
+source-dir = sbcl-1.4.8
 source-release = $(source-dir)-source.tar.bz2
 xc-host =  --xc-host=$(shell echo "\"../$(binary-dir)/run-sbcl.sh --no-userinit\"")
 get-source:
@@ -92,8 +91,8 @@ endif
 	# enable thread support (for OS X) and :sb-hash-table-debug
 	cp customize-target-features.lisp $(source-dir)
 	#  Use "diff -u old-file new-file" to create patch
-	patch -p 1 -d $(source-dir) < backend-parms.lisp-x86-1.2.11-patch
-	patch -p 1 -d $(source-dir) < parms.lisp-1.2.11-patch
+	patch -p 1 -d $(source-dir) < sbcl-1.4.8-x86-parms.lisp-patch
+	patch -p 1 -d $(source-dir) < sbcl-1.4.8-generic-parms.lisp-patch
 ifdef INSTALL_ROOT 
 	$(platform) cd $(source-dir); sh make.sh --prefix ${INSTALL_ROOT} $(xc-host)
 	@echo "Install directory ${INSTALL_ROOT}"
@@ -119,7 +118,7 @@ source-install:
 
 quicklisp-install: quicklisp.lisp
 	-rm -r -f ${INSTALL_ROOT}/quicklisp
-	sbcl --load quicklisp.lisp   --eval "(quicklisp-quickstart:install :path \"${INSTALL_ROOT}/quicklisp/\")"  --load install-libraries.lisp
+	sbcl --no-userinit --load quicklisp.lisp --eval "(quicklisp-quickstart:install :path \"${INSTALL_ROOT}/quicklisp/\")"  --load install-libraries.lisp
 	chown -R $(username) ${INSTALL_ROOT}/quicklisp
 	@echo "User $(username) can modify quicklisp"
 
